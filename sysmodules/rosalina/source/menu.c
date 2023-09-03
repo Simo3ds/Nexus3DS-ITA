@@ -288,6 +288,8 @@ void menuThreadMain(void)
             menuEnter();
             if(isN3DS) N3DSMenu_UpdateStatus();
             PluginLoader__UpdateMenu();
+            PluginChecker__UpdateMenu();
+            RemoveDetector__UpdateMenu();
             menuShow(&rosalinaMenu);
             menuLeave();
         }

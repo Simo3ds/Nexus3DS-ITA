@@ -6,13 +6,21 @@
 #include "ifile.h"
 #include "ifile.h"
 #include "utils.h"
+#include "draw.h"
+#include "menu.h"
 
 // Use a global to avoid stack overflow, those structs are quite heavy
 static FS_DirectoryEntry   g_entries[10];
+static PluginEntry         g_foundPlugins[10];
 
 static char        g_path[256];
 static const char *g_dirPath = "/luma/plugins/%016llX";
 static const char *g_defaultPath = "/luma/plugins/default.3gx";
+u64                g_titleId;
+u32                g_pid;
+
+extern bool PluginChecker_isEnabled;
+extern bool RemoveDetector_isEnabled;
 
 // pluginLoader.s
 void        gamePatchFunc(void);
@@ -28,15 +36,101 @@ static u32     strlen16(const u16 *str)
     return strEnd - str;
 }
 
+static void DrawAskFileNameMenu(PluginEntry *entries, u8 count, u8 selected)
+{
+    u32 posY;
+
+    Draw_Lock();
+    Draw_DrawString(10, 10, COLOR_TITLE, "Plugin selector");
+    posY = Draw_DrawString(30, 30, COLOR_WHITE, "Some 3gx files were found.");
+    posY = Draw_DrawString(30, posY + 10, COLOR_WHITE, "Select the 3gx file you want to use.");
+    posY = Draw_DrawString(20, posY + 15, COLOR_LIME, "Plugins:");
+
+    for(u8 i = 0; i < count; i++)
+    {
+        Draw_DrawCharacter(10, posY + 15, COLOR_TITLE, i == selected ? '>' : ' ');
+        posY = Draw_DrawString(30, posY + 15, entries[i].canBoot ? COLOR_WHITE : COLOR_GRAY, entries[i].name);
+    }
+
+    Draw_FlushFramebuffer();
+    Draw_Unlock();
+}
+
+static char *AskForFileName(PluginEntry *entries, u8 count)
+{
+    char *filename = NULL;
+    u8  selected = 0;
+    u32 keys;
+
+    if(count == 1)
+        return entries[0].name;
+
+    menuEnter();
+
+    ClearScreenQuickly();
+
+    DrawAskFileNameMenu(entries, count, selected);
+
+    do
+    {
+        keys = waitComboWithTimeout(100);
+        if(keys & KEY_A)
+        {
+            if(entries[selected].canBoot)
+            {
+                filename = entries[selected].name;
+                break;
+            }
+        }
+        else if(keys & KEY_B)
+        {
+            filename = NULL;
+            break;
+        }
+        else if(keys & KEY_DOWN)
+        {
+            if(++selected >= count)
+                selected = 0;
+
+            DrawAskFileNameMenu(entries, count, selected);
+        }
+        else if(keys & KEY_UP)
+        {
+            if(selected-- <= 0)
+                selected = count - 1;
+
+            DrawAskFileNameMenu(entries, count, selected);
+        }
+    } while(1);
+
+    menuLeave();
+
+    return filename;
+}
+
+bool    IsValidPluginFormat(const char* path)
+{
+    IFile plugin;
+    u64 total, read;
+
+    IFile_Open(&plugin, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, path), FS_OPEN_READ);
+    IFile_Read(&plugin, &total, &read, sizeof(u64));
+    IFile_Close(&plugin);
+    
+    return (read == _3GX_MAGIC);
+}
+
 static Result   FindPluginFile(u64 tid)
 {
     char                filename[256];
     u32                 entriesNb = 0;
-    bool                found = false;
     Handle              dir = 0;
     Result              res;
     FS_Archive          sdmcArchive = 0;
     FS_DirectoryEntry * entries = g_entries;
+
+    u8                  foundPluginCount = 0;
+    PluginEntry       * foundPlugins = g_foundPlugins;
     
     memset(entries, 0, sizeof(g_entries));
     sprintf(g_path, g_dirPath, tid);
@@ -48,7 +142,7 @@ static Result   FindPluginFile(u64 tid)
         goto exit;
 
     strcat(g_path, "/");
-    while (!found && R_SUCCEEDED(FSDIR_Read(dir, &entriesNb, 10, entries)))
+    while (foundPluginCount < 10 && R_SUCCEEDED(FSDIR_Read(dir, &entriesNb, 10, entries)))
     {
         if (entriesNb == 0)
             break;
@@ -58,6 +152,7 @@ static Result   FindPluginFile(u64 tid)
         for (u32 i = 0; i < entriesNb; ++i)
         {
             FS_DirectoryEntry *entry = &entries[i];
+            char path[512];
 
             // If entry is a folder, skip it
             if (entry->attributes & 1)
@@ -78,19 +173,35 @@ static Result   FindPluginFile(u64 tid)
             if (units == -1)
                 continue;
             filename[units] = 0;
-            found = true;
-            break;
+
+            if(foundPluginCount >= 10) 
+                break;
+
+            strcpy(foundPlugins[foundPluginCount].name, filename);
+
+            sprintf(path, "%s%s", g_path, filename);
+            foundPlugins[foundPluginCount].canBoot = IsValidPluginFormat(path);
+            foundPluginCount++;
         }
     }
 
-    if (!found)
+    if (!foundPluginCount)
         res = MAKERESULT(28, 4, 0, 1018);
     else
     {
-        u32 len = strlen(g_path);
-        filename[256 - len] = 0;
-        strcat(g_path, filename);
-        PluginLoaderCtx.pluginPath = g_path;
+        char *name = AskForFileName(foundPlugins, foundPluginCount);
+
+        if (!name)
+        {
+            res = MAKERESULT(28, 4, 0, 1018);
+        }
+        else
+        {
+            u32 len = strlen(g_path);
+            name[256 - len] = 0;
+            strcat(g_path, name);
+            PluginLoaderCtx.pluginPath = g_path;
+        }
     }
 
 exit:
@@ -142,6 +253,18 @@ static Result   CheckPluginCompatibility(_3gx_Header *header, u32 processTitle)
     return -1;
 }
 
+static char *memstr(char *haystack, const char *needle, int size)
+{
+    char needlesize = strlen(needle);
+
+    for (char *p = haystack; p <= (haystack - needlesize + size); p++)
+    {
+        if (memcmp(p, needle, needlesize) == 0)
+            return p; // found
+    }
+    return NULL;
+}
+
 bool     TryToLoadPlugin(Handle process)
 {
     u64             tid;
@@ -163,6 +286,10 @@ bool     TryToLoadPlugin(Handle process)
 
     // Get title id
     svcGetProcessInfo((s64 *)&tid, process, 0x10001);
+    g_titleId = tid;
+
+    // Get process id
+    svcGetProcessId(&g_pid, process);
 
     memset(pluginHeader, 0, sizeof(PluginHeader));
     pluginHeader->magic = HeaderMagic;
@@ -200,6 +327,112 @@ bool     TryToLoadPlugin(Handle process)
 
         ctx->error.message = errors[R_MODULE(res) == RM_LDR ? R_DESCRIPTION(res) : 0];
     }
+
+    if(PluginChecker_isEnabled)
+    {
+        u64 remaining = fileSize - 8;
+        u64 total;
+        u8 risk = 0;
+        const u32 bufferSize = 2000;
+        char fileBuf[bufferSize];
+        const char *keywords[] = {"cias", "boot.firm", "gm9", "DCIM", "JKSV", "Splashes", "boot9strap", "private", "Nintendo 3DS", "fbi"};
+        u8 keywordCount = sizeof(keywords) / sizeof(keywords[0]);
+        u8 addPercent = 100 / keywordCount;
+
+        // Flash the screen (Yellow)
+        for (u32 i = 0; i < 64; i++)
+        {
+            REG32(0x10202204) = 0x0133ffff;
+            svcSleepThread(5000000);
+        }
+        REG32(0x10202204) = 0;
+
+        // Checking for keywords in plugin file
+        while(remaining != 0)
+        {
+            u64 size = (remaining > bufferSize ? bufferSize : remaining);
+            IFile_Read(&plugin, &total, (void *)fileBuf, size);
+
+            for(int i = 0; i < keywordCount; i++)
+            {
+                if(memstr(fileBuf, keywords[i], size) != NULL)
+                {
+                    risk += addPercent;
+                }
+            }
+            remaining -= size;
+        }
+        
+        // If risk is not 0, display warning message
+        if(risk)
+        {
+            char textBuf[256];
+            char *warningText = NULL;
+            u32 keys = 0;
+            u32 posY = 0;
+
+            menuEnter();
+            ClearScreenQuickly();
+
+            // Set warning text
+            if      (risk <= 20)  warningText = "little dangerous";
+            else if (risk <= 40)  warningText = "moderately dangerous";
+            else if (risk <= 100) warningText = "very dangerous";
+            sprintf(textBuf, "Risk : %d%%(%s)", risk, warningText);
+
+            do
+            {
+                Draw_Lock();
+
+                Draw_DrawString(10, 10, COLOR_RED, "---WARNING---");
+                posY = Draw_DrawString(30, 30, COLOR_WHITE, "This 3gx may be a destruction 3gx!");
+                posY = Draw_DrawString(30, posY + 20, COLOR_WHITE, textBuf);
+                posY = Draw_DrawString(30, posY + 20, COLOR_WHITE, "Press A to use 3gx, press B to don't use 3gx.");
+                
+                Draw_FlushFramebuffer();
+                Draw_Unlock();
+                
+                keys = waitComboWithTimeout(1000);
+                if(keys & KEY_A)
+                {
+                    ClearScreenQuickly();
+                    do
+                    {
+                        Draw_Lock();
+
+                        Draw_DrawString(10, 10, COLOR_RED, "---WARNING---");
+                        posY = Draw_DrawString(30, 30, COLOR_WHITE, "Do you really want to use 3gx?");
+                        posY = Draw_DrawString(30, posY + 20, COLOR_WHITE, "Press A to continue, press B to go back.");
+                        
+                        Draw_FlushFramebuffer();
+                        Draw_Unlock();
+                        
+                        keys = waitInputWithTimeout(1000);
+                        
+                        if(keys & KEY_A)
+                        {
+                            menuLeave();
+                            goto nextProcess;
+                        }
+
+                        if(keys & KEY_B)
+                        {
+                            ClearScreenQuickly();
+                            break;
+                        }
+                    } while (1);
+                }
+
+                if(keys & KEY_B)
+                {
+                    menuLeave();
+                    goto exitFail;
+                }
+            } while (1);
+        }
+    }
+
+nextProcess:
 
     // Read header
     if (!res && R_FAILED((res = Read_3gx_Header(&plugin, &fileHeader))))

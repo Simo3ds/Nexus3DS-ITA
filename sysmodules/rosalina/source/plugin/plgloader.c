@@ -9,6 +9,7 @@
 #include "memory.h"
 #include "sleep.h"
 #include "task_runner.h"
+#include "draw.h"
 
 #define PLGLDR_VERSION (SYSTEM_VERSION(1, 0, 1))
 
@@ -17,9 +18,15 @@
 static const char *g_title = "Plugin loader";
 PluginLoaderContext PluginLoaderCtx;
 extern u32 g_blockMenuOpen;
+extern u64 g_titleId;
+extern u32 g_pid;
 
 void        IR__Patch(void);
 void        IR__Unpatch(void);
+
+bool PluginChecker_isEnabled = false;
+bool RemoveDetector_isEnabled = false;
+bool RemoveDetector_isRunning = false;
 
 void        PluginLoader__Init(void)
 {
@@ -31,6 +38,8 @@ void        PluginLoader__Init(void)
 
     svcGetSystemInfo(&pluginLoaderFlags, 0x10000, 0x180);
     ctx->isEnabled = pluginLoaderFlags & 1;
+    PluginChecker_isEnabled  = pluginLoaderFlags & (1 << 1);
+    RemoveDetector_isEnabled = pluginLoaderFlags & (1 << 2);
 
     ctx->plgEventPA = (s32 *)PA_FROM_VA_PTR(&ctx->plgEvent);
     ctx->plgReplyPA = (s32 *)PA_FROM_VA_PTR(&ctx->plgReply);
@@ -71,6 +80,41 @@ void        PluginLoader__UpdateMenu(void)
     };
 
     rosalinaMenu.items[3].title = status[PluginLoaderCtx.isEnabled];
+}
+
+void        PluginChecker__MenuCallback(void)
+{
+    PluginChecker_isEnabled = !PluginChecker_isEnabled;
+    LumaConfig_RequestSaveSettings();
+    PluginChecker__UpdateMenu();
+}
+
+void        PluginChecker__UpdateMenu(void)
+{
+    static const char *status[2] =
+    {
+        "Plugin Checker: [Disabled]",
+        "Plugin Checker: [Enabled]"
+    };
+
+    rosalinaMenu.items[4].title = status[PluginChecker_isEnabled];
+}
+
+void        RemoveDetector__MenuCallback(void)
+{
+    RemoveDetector_isEnabled = !RemoveDetector_isEnabled;
+    LumaConfig_RequestSaveSettings();
+    RemoveDetector__UpdateMenu();
+}
+
+void        RemoveDetector__UpdateMenu(void)
+{
+    static const char *status[2] =
+    {
+        "Remove Detector: [Disabled]",
+        "Remove Detector: [Enabled]"
+    };
+    rosalinaMenu.items[5].title = status[RemoveDetector_isEnabled];
 }
 
 static ControlApplicationMemoryModeOverrideConfig g_memorymodeoverridebackup = { 0 };
@@ -119,6 +163,37 @@ static void j_PluginLoader__SetMode3AppMode(void* arg) {(void)arg; PluginLoader_
 void CheckMemory(void);
 
 void    PLG__NotifyEvent(PLG_Event event, bool signal);
+
+static bool RemoveDetector_WarningScreen(const char *fileName)
+{
+    u32 posY;
+    u32 keys;
+
+    menuEnter();
+
+    ClearScreenQuickly();
+
+    Draw_Lock();
+
+    Draw_DrawString(10, 10, COLOR_TITLE, "Rosalina");
+
+    posY = Draw_DrawString(30, 30, COLOR_WHITE, "The 3gx will remove this file(or directory).");
+    posY = Draw_DrawString(30, posY + 30, COLOR_WHITE, "Path:");
+    posY = Draw_DrawString(30, posY + 15, COLOR_WHITE, fileName);
+    posY = Draw_DrawString(30, 200, COLOR_WHITE, "Press A to continue, press B to block.");
+
+    Draw_FlushFramebuffer();
+    Draw_Unlock();
+
+    do
+    {
+        keys = waitComboWithTimeout(1000);
+    } while(!(keys & KEY_A) && !(keys & KEY_B));
+
+    menuLeave();
+
+    return keys & KEY_A;
+}
 
 void     PluginLoader__HandleCommands(void *_ctx)
 {
@@ -414,6 +489,45 @@ void     PluginLoader__HandleCommands(void *_ctx)
             svcInvalidateEntireInstructionCache(); // Could use the range one
 
             cmdbuf[1] = 0;
+            break;
+        }
+
+        case 14: // Remove detector
+        {
+            bool removeFile = false;
+
+            if(RemoveDetector_isRunning && cmdbuf[3] == g_pid)
+            {
+                u8   fileName[256]; // For UTF-8 file name
+                char textBuf[256];
+
+                // Clear buffers
+                memset(fileName, 0, 256);
+                memset(textBuf, 0, 256);
+
+                // Convert file name UTF-16 to UTF-8
+                u32 u16NameAddr = ((u32)ctx->memblock.memblock + ctx->header.exeSize) + (cmdbuf[1] - ctx->header.heapVA);
+                utf16_to_utf8((u8 *)fileName, (u16 *)u16NameAddr, cmdbuf[2]);
+
+                // Ignore files removed by CTRPF system
+                sprintf(textBuf, "/cheats/%016llX.txt", g_titleId);
+                if(strncmp(textBuf, (char *)fileName, strlen(textBuf)) == 0)
+                    removeFile = true;
+
+                // Ignore files in the working directory
+                sprintf(textBuf, "/luma/plugins/%016llX/", g_titleId);
+                if(strncmp(textBuf, (char *)fileName, strlen(textBuf)) == 0)
+                    removeFile = true;
+        
+                // Display warning message
+                if(!removeFile) 
+                    removeFile = RemoveDetector_WarningScreen((const char *)fileName);
+            }
+
+            cmdbuf[0] = IPC_MakeHeader(14, 2, 0);
+            cmdbuf[1] = 0;
+            cmdbuf[2] = (u32)removeFile;
+            
             break;
         }
 

@@ -12,6 +12,11 @@ void        PluginLoader__UpdateMenu(void);
 void        PluginLoader__HandleKernelEvent(u32 notifId);
 void        PluginLoader__HandleCommands(void *ctx);
 
+void         PluginChecker__MenuCallback(void);
+void         PluginChecker__UpdateMenu(void);
+void         RemoveDetector__MenuCallback(void);
+void         RemoveDetector__UpdateMenu(void);
+
 void    PluginLoader__Error(const char *message, Result res);
 
 Result     MemoryBlock__SetSize(u32 size);
@@ -103,3 +108,9 @@ typedef struct ControlApplicationMemoryModeOverrideConfig {
     u32 o3ds_mode : 3; //< O3ds memory mode
     u32 n3ds_mode : 3; //< N3ds memory mode
 } ControlApplicationMemoryModeOverrideConfig;
+
+typedef struct
+{
+    char name[256];
+    bool canBoot;
+}  PluginEntry;

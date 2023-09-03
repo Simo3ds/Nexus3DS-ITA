@@ -252,6 +252,44 @@ Result SendSyncRequestHook(Handle handle)
 
                 break;
             }
+
+            // For remove detector
+            case 0x8040142: // FSUSER_DeleteFile
+            case 0x8070142: // FSUSER_DeleteDirectoryRecursively
+            {
+                SessionInfo *info = SessionInfo_Lookup(clientSession->parentSession);
+                if(info != NULL && strcmp(info->name, "fs:USER") == 0)
+                {
+                    Handle plgLdrHandle;
+                    SessionInfo *info = SessionInfo_FindFirst("plg:ldr");
+                    if(info != NULL && createHandleForThisProcess(&plgLdrHandle, &info->session->clientSession.syncObject.autoObject) >= 0)
+                    {
+                        u32 pathSize = cmdbuf[5];
+                        u32 path = cmdbuf[7];
+                        u32 cmdbufbak[8];
+                        const u32 PATH_UTF16 = 4;
+
+                        if(cmdbuf[4] == PATH_UTF16 && path && pathSize) 
+                        {
+                            memcpy(cmdbufbak, cmdbuf, sizeof(cmdbufbak));
+
+                            cmdbuf[0] = 0xE01C0;
+                            cmdbuf[1] = path;
+                            cmdbuf[2] = pathSize;
+                            cmdbuf[3] = pid;
+
+                            SendSyncRequest(plgLdrHandle);
+                            skip = !cmdbuf[2];
+                            
+                            if(!skip)
+                                memcpy(cmdbuf, cmdbufbak, sizeof(cmdbufbak));
+                        }
+                        CloseHandle(plgLdrHandle);
+                    }
+              }
+    
+              break;
+            }
         }
     }
 
