@@ -20,7 +20,6 @@ u64                g_titleId;
 u32                g_pid;
 
 extern bool PluginChecker_isEnabled;
-extern bool RemoveDetector_isEnabled;
 
 // pluginLoader.s
 void        gamePatchFunc(void);
@@ -36,31 +35,10 @@ static u32     strlen16(const u16 *str)
     return strEnd - str;
 }
 
-static void DrawAskFileNameMenu(PluginEntry *entries, u8 count, u8 selected)
-{
-    u32 posY;
-
-    Draw_Lock();
-    Draw_DrawString(10, 10, COLOR_TITLE, "Plugin selector");
-    posY = Draw_DrawString(30, 30, COLOR_WHITE, "Some 3gx files were found.");
-    posY = Draw_DrawString(30, posY + 10, COLOR_WHITE, "Select the 3gx file you want to use.");
-    posY = Draw_DrawString(20, posY + 15, COLOR_LIME, "Plugins:");
-
-    for(u8 i = 0; i < count; i++)
-    {
-        Draw_DrawCharacter(10, posY + 15, COLOR_TITLE, i == selected ? '>' : ' ');
-        posY = Draw_DrawString(30, posY + 15, entries[i].canBoot ? COLOR_WHITE : COLOR_GRAY, entries[i].name);
-    }
-
-    Draw_FlushFramebuffer();
-    Draw_Unlock();
-}
-
 static char *AskForFileName(PluginEntry *entries, u8 count)
 {
     char *filename = NULL;
     u8  selected = 0;
-    u32 keys;
 
     if(count == 1)
         return entries[0].name;
@@ -69,11 +47,30 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
 
     ClearScreenQuickly();
 
-    DrawAskFileNameMenu(entries, count, selected);
-
     do
     {
-        keys = waitComboWithTimeout(100);
+        u32 posY;
+
+        Draw_Lock();
+        Draw_DrawString(10, 10, COLOR_TITLE, "Plugin selector");
+        posY = Draw_DrawString(30, 30, COLOR_WHITE, "Some 3gx files were found.");
+        posY = Draw_DrawString(30, posY + 10, COLOR_WHITE, "Select the 3gx file you want to use.");
+        posY = Draw_DrawString(20, posY + 15, COLOR_LIME, "Plugins:");
+
+        for(u8 i = 0; i < count; i++)
+        {
+            Draw_DrawCharacter(10, posY + 15, COLOR_TITLE, i == selected ? '>' : ' ');
+            posY = Draw_DrawString(30, posY + 15, entries[i].canBoot ? COLOR_WHITE : COLOR_GRAY, entries[i].name);
+        }
+
+        Draw_FlushFramebuffer();
+        Draw_Unlock();
+
+        u32 keys;
+        do {
+            keys = waitComboWithTimeout(50);
+        } while(keys == 0 && !menuShouldExit);
+
         if(keys & KEY_A)
         {
             if(entries[selected].canBoot)
@@ -91,17 +88,13 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
         {
             if(++selected >= count)
                 selected = 0;
-
-            DrawAskFileNameMenu(entries, count, selected);
         }
         else if(keys & KEY_UP)
         {
             if(selected-- <= 0)
                 selected = count - 1;
-
-            DrawAskFileNameMenu(entries, count, selected);
         }
-    } while(1);
+    } while(!menuShouldExit);
 
     menuLeave();
 
@@ -420,7 +413,7 @@ bool     TryToLoadPlugin(Handle process)
                             ClearScreenQuickly();
                             break;
                         }
-                    } while (1);
+                    } while (!menuShouldExit);
                 }
 
                 if(keys & KEY_B)
@@ -428,7 +421,7 @@ bool     TryToLoadPlugin(Handle process)
                     menuLeave();
                     goto exitFail;
                 }
-            } while (1);
+            } while (!menuShouldExit);
         }
     }
 

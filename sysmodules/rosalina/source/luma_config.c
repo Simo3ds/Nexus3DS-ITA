@@ -35,7 +35,8 @@
 #include "plugin/plgloader.h"
 
 extern bool PluginChecker_isEnabled;
-extern bool RemoveDetector_isEnabled;
+extern bool PluginWatcher_isEnabled;
+extern u32  PluginWatcher_WatchLevel;
 
 typedef struct CfgData {
     u16 formatVersionMajor, formatVersionMinor;
@@ -46,6 +47,7 @@ typedef struct CfgData {
     u64 hbldr3dsxTitleId;
     u32 rosalinaMenuCombo;
     u32 pluginLoaderFlags;
+    u32 pluginWatcherLevel;
     s16 ntpTzOffetMinutes;
 
     ScreenFilter topScreenFilter;
@@ -180,6 +182,7 @@ static size_t LumaConfig_SaveLumaIniConfigToStr(char *out, const CfgData *cfg)
 
         cfg->hbldr3dsxTitleId, rosalinaMenuComboStr, (int)(cfg->pluginLoaderFlags & 1),
         (int)((cfg->pluginLoaderFlags & (1 << 1)) >> 1), (int)((cfg->pluginLoaderFlags & 1 << 2) >> 2),
+        (int)cfg->pluginWatcherLevel,
         (int)cfg->ntpTzOffetMinutes,
 
         (int)cfg->topScreenFilter.cct, (int)cfg->bottomScreenFilter.cct,
@@ -251,7 +254,8 @@ Result LumaConfig_SaveSettings(void)
     configData.splashDurationMsec = splashDurationMsec;
     configData.hbldr3dsxTitleId = Luma_SharedConfig->selected_hbldr_3dsx_tid;
     configData.rosalinaMenuCombo = menuCombo;
-    configData.pluginLoaderFlags = PluginLoader__IsEnabled() | (PluginChecker_isEnabled << 1) | (RemoveDetector_isEnabled << 2);;
+    configData.pluginLoaderFlags = PluginLoader__IsEnabled() | (PluginChecker_isEnabled << 1) | (PluginWatcher_isEnabled << 2);
+    configData.pluginWatcherLevel = PluginWatcher_WatchLevel;
     configData.ntpTzOffetMinutes = (s16)lastNtpTzOffset;
     configData.topScreenFilter = topScreenFilter;
     configData.bottomScreenFilter = bottomScreenFilter;

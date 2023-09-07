@@ -25,8 +25,9 @@ void        IR__Patch(void);
 void        IR__Unpatch(void);
 
 bool PluginChecker_isEnabled = false;
-bool RemoveDetector_isEnabled = false;
-bool RemoveDetector_isRunning = false;
+bool PluginWatcher_isEnabled = false;
+bool PluginWatcher_isRunning = false;
+u32  PluginWatcher_WatchLevel = 0;
 
 void        PluginLoader__Init(void)
 {
@@ -35,11 +36,15 @@ void        PluginLoader__Init(void)
     memset(ctx, 0, sizeof(PluginLoaderContext));
 
     s64 pluginLoaderFlags = 0;
+    s64 pluginWatcherLevel = 0;
 
     svcGetSystemInfo(&pluginLoaderFlags, 0x10000, 0x180);
     ctx->isEnabled = pluginLoaderFlags & 1;
     PluginChecker_isEnabled  = pluginLoaderFlags & (1 << 1);
-    RemoveDetector_isEnabled = pluginLoaderFlags & (1 << 2);
+    PluginWatcher_isEnabled = pluginLoaderFlags & (1 << 2);
+
+    svcGetSystemInfo(&pluginWatcherLevel, 0x10000, 0x182);
+    PluginWatcher_WatchLevel = (u32)pluginWatcherLevel;
 
     ctx->plgEventPA = (s32 *)PA_FROM_VA_PTR(&ctx->plgEvent);
     ctx->plgReplyPA = (s32 *)PA_FROM_VA_PTR(&ctx->plgReply);
@@ -97,24 +102,34 @@ void        PluginChecker__UpdateMenu(void)
         "Plugin Checker: [Enabled]"
     };
 
-    rosalinaMenu.items[4].title = status[PluginChecker_isEnabled];
+    rosalinaMenu.items[4].menu->items[0].title = status[PluginChecker_isEnabled];
 }
 
-void        RemoveDetector__MenuCallback(void)
+void        PluginWatcher__MenuCallback(void)
 {
-    RemoveDetector_isEnabled = !RemoveDetector_isEnabled;
+    PluginWatcher_isEnabled = !PluginWatcher_isEnabled;
     LumaConfig_RequestSaveSettings();
-    RemoveDetector__UpdateMenu();
+    PluginWatcher__UpdateMenu();
+
+    if(PluginWatcher_isEnabled)
+    {
+        PluginLoaderContext *ctx = &PluginLoaderCtx;
+
+        if(ctx->target != 0 && !ctx->pluginIsHome && !ctx->pluginIsSwapped)
+            PluginWatcher_isRunning = true;
+    }
+    else
+        PluginWatcher_isRunning = false;
 }
 
-void        RemoveDetector__UpdateMenu(void)
+void        PluginWatcher__UpdateMenu(void)
 {
     static const char *status[2] =
     {
-        "Remove Detector: [Disabled]",
-        "Remove Detector: [Enabled]"
+        "Plugin Watcher: [Disabled]",
+        "Plugin Watcher: [Enabled]"
     };
-    rosalinaMenu.items[5].title = status[RemoveDetector_isEnabled];
+    rosalinaMenu.items[4].menu->items[1].title = status[PluginWatcher_isEnabled];
 }
 
 static ControlApplicationMemoryModeOverrideConfig g_memorymodeoverridebackup = { 0 };
@@ -164,7 +179,7 @@ void CheckMemory(void);
 
 void    PLG__NotifyEvent(PLG_Event event, bool signal);
 
-static bool RemoveDetector_WarningScreen(const char *fileName)
+static bool PluginWatcher_AskSkip(const char *message)
 {
     u32 posY;
     u32 keys;
@@ -175,12 +190,10 @@ static bool RemoveDetector_WarningScreen(const char *fileName)
 
     Draw_Lock();
 
-    Draw_DrawString(10, 10, COLOR_TITLE, "Rosalina");
+    Draw_DrawString(10, 10, COLOR_TITLE, "Plugin Watcher");
 
-    posY = Draw_DrawString(30, 30, COLOR_WHITE, "The 3gx will remove this file(or directory).");
-    posY = Draw_DrawString(30, posY + 30, COLOR_WHITE, "Path:");
-    posY = Draw_DrawString(30, posY + 15, COLOR_WHITE, fileName);
-    posY = Draw_DrawString(30, 200, COLOR_WHITE, "Press A to continue, press B to block.");
+    posY = Draw_DrawString(30, 30, COLOR_WHITE, message);
+    posY = Draw_DrawString(30, posY + 30, COLOR_WHITE, "Press A to continue, press B to block.");
 
     Draw_FlushFramebuffer();
     Draw_Unlock();
@@ -188,11 +201,11 @@ static bool RemoveDetector_WarningScreen(const char *fileName)
     do
     {
         keys = waitComboWithTimeout(1000);
-    } while(!(keys & KEY_A) && !(keys & KEY_B));
+    } while(!(keys & KEY_A) && !(keys & KEY_B) && !menuShouldExit);
 
     menuLeave();
 
-    return keys & KEY_A;
+    return keys & KEY_B;
 }
 
 void     PluginLoader__HandleCommands(void *_ctx)
@@ -494,39 +507,89 @@ void     PluginLoader__HandleCommands(void *_ctx)
 
         case 14: // Remove detector
         {
-            bool removeFile = false;
+            bool skip = false;
 
-            if(RemoveDetector_isRunning && cmdbuf[3] == g_pid)
+            if(PluginWatcher_isRunning && cmdbuf[1] == g_pid)
             {
-                u8   fileName[256]; // For UTF-8 file name
-                char textBuf[256];
+                u32 type = cmdbuf[2];
+                u32 watchLv = PluginWatcher_WatchLevel;
 
-                // Clear buffers
-                memset(fileName, 0, 256);
-                memset(textBuf, 0, 256);
+                if(!(watchLv & (1 << type)))
+                {
+                    cmdbuf[0] = IPC_MakeHeader(14, 2, 0);
+                    cmdbuf[1] = 0;
+                    cmdbuf[2] = (u32)false;
+                    break;
+                }
 
-                // Convert file name UTF-16 to UTF-8
-                u32 u16NameAddr = ((u32)ctx->memblock.memblock + ctx->header.exeSize) + (cmdbuf[1] - ctx->header.heapVA);
-                utf16_to_utf8((u8 *)fileName, (u16 *)u16NameAddr, cmdbuf[2]);
+                char message[512];
+                memset(message, 0, 512);
 
-                // Ignore files removed by CTRPF system
-                sprintf(textBuf, "/cheats/%016llX.txt", g_titleId);
-                if(strncmp(textBuf, (char *)fileName, strlen(textBuf)) == 0)
-                    removeFile = true;
+                if(type == 0 || type == 1)
+                {
+                    u8   fileName[256]; // For UTF-8 file name
+                    bool ignore = false;
 
-                // Ignore files in the working directory
-                sprintf(textBuf, "/luma/plugins/%016llX/", g_titleId);
-                if(strncmp(textBuf, (char *)fileName, strlen(textBuf)) == 0)
-                    removeFile = true;
-        
-                // Display warning message
-                if(!removeFile) 
-                    removeFile = RemoveDetector_WarningScreen((const char *)fileName);
+                    // Clear buffers
+                    memset(fileName, 0, 256);
+
+                    // Convert file name UTF-16 to UTF-8
+                    u32 u16NameAddr = ((u32)ctx->memblock.memblock + ctx->header.exeSize) + (cmdbuf[3] - ctx->header.heapVA);
+                    utf16_to_utf8((u8 *)fileName, (u16 *)u16NameAddr, cmdbuf[4]);
+
+                    sprintf(message, "/cheats/%016llX.txt", g_titleId);
+                    if(strncmp(message, (char *)fileName, strlen(message)) == 0)
+                        ignore = true;
+
+                    sprintf(message, "/luma/plugins/%016llX/", g_titleId);
+                    if(strncmp(message, (char *)fileName, strlen(message)) == 0)
+                        ignore = true;
+            
+                    if(!ignore) 
+                    {
+                        const char *target = (type == 0) ? "File" : "Directory";
+                        sprintf(message, "%s deletion detected.\n\nPath: %s", target, (char *)fileName);
+
+                        skip = PluginWatcher_AskSkip(message);
+                    }
+                }
+
+                else if(type == 2)
+                {
+                    u8 *ip = (u8 *)&cmdbuf[3];
+                    sprintf(message, "Internet connection detected.\n\nTarget IP address: %u.%u.%u.%u", ip[0], ip[1], ip[2], ip[3]);
+
+                    skip = PluginWatcher_AskSkip(message);
+                }
+
+                else if(type == 3)
+                {
+                    sprintf(message, "Camera access detected.");
+                    skip = PluginWatcher_AskSkip(message);
+                }
+
+                else
+                {
+                    sprintf(message, "Type: %08lX\n\nLevel: %08lX", type, watchLv);
+                }
             }
 
             cmdbuf[0] = IPC_MakeHeader(14, 2, 0);
             cmdbuf[1] = 0;
-            cmdbuf[2] = (u32)removeFile;
+            cmdbuf[2] = (u32)skip;
+            
+            break;
+        }
+        case 15: // Display value
+        {
+            char buf[50];
+
+            sprintf(buf, "%08lX pid: %d", cmdbuf[1], (int)cmdbuf[2]);
+
+            DispMessage("Value", buf);
+
+            cmdbuf[0] = IPC_MakeHeader(14, 1, 0);
+            cmdbuf[1] = 0;
             
             break;
         }

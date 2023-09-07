@@ -35,6 +35,7 @@
 #include "menus/miscellaneous.h"
 #include "menus/sysconfig.h"
 #include "menus/screen_filters.h"
+#include "menus/plugin_options.h"
 #include "plugin.h"
 #include "ifile.h"
 #include "memory.h"
@@ -50,8 +51,7 @@ Menu rosalinaMenu = {
         { "Change screen brightness", METHOD, .method = &RosalinaMenu_ChangeScreenBrightness },
         { "Cheats...", METHOD, .method = &RosalinaMenu_Cheats },
         { "", METHOD, .method = PluginLoader__MenuCallback},
-        { "", METHOD, .method = PluginChecker__MenuCallback},
-        { "", METHOD, .method = RemoveDetector__MenuCallback},
+        { "Plugin options...", MENU, .menu = &pluginOptionsMenu },
         { "Process list", METHOD, .method = &RosalinaMenu_ProcessList },
         { "Debugger options...", MENU, .menu = &debuggerMenu },
         { "System configuration...", MENU, .menu = &sysconfigMenu },

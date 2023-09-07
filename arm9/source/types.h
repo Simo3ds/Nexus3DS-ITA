@@ -78,6 +78,7 @@ typedef struct CfgData {
     u64 hbldr3dsxTitleId;
     u32 rosalinaMenuCombo;
     u32 pluginLoaderFlags;
+    u32 pluginWatcherLevel;
     s16 ntpTzOffetMinutes;
 
     ScreenFiltersCfgData topScreenFilter;

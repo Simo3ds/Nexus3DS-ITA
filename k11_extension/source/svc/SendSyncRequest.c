@@ -28,6 +28,11 @@
 #include "svc/SendSyncRequest.h"
 #include "ipc.h"
 
+static inline u32 IPC_MakeHeader(u16 command_id, unsigned normal_params, unsigned translate_params)
+{
+	return ((u32) command_id << 16) | (((u32) normal_params & 0x3F) << 6) | (((u32) translate_params & 0x3F) << 0);
+}
+
 static inline bool isNdmuWorkaround(const SessionInfo *info, u32 pid)
 {
     return info != NULL && strcmp(info->name, "ndm:u") == 0 && hasStartedRosalinaNetworkFuncsOnce && pid >= nbSection0Modules;
@@ -253,43 +258,95 @@ Result SendSyncRequestHook(Handle handle)
                 break;
             }
 
-            // For remove detector
+            // For plugin watcher
             case 0x8040142: // FSUSER_DeleteFile
             case 0x8070142: // FSUSER_DeleteDirectoryRecursively
+            case 0x60084:   // socket connect
+            case 0x10040:   // CAMU_StartCapture
             {
                 SessionInfo *info = SessionInfo_Lookup(clientSession->parentSession);
-                if(info != NULL && strcmp(info->name, "fs:USER") == 0)
+                if(info != NULL && (strcmp(info->name, "fs:USER") == 0 || strcmp(info->name, "soc:U") == 0 || strcmp(info->name, "cam:u") == 0))
+                {
+                    Handle plgLdrHandle;
+                    SessionInfo *plgLdrInfo = SessionInfo_FindFirst("plg:ldr");
+                    if(plgLdrInfo != NULL && createHandleForThisProcess(&plgLdrHandle, &plgLdrInfo->session->clientSession.syncObject.autoObject) >= 0)
+                    {
+                        u32 header = cmdbuf[0];
+                        u32 cmdbufOrig[8];
+
+                        memcpy(cmdbufOrig, cmdbuf, sizeof(cmdbufOrig));
+
+                        if(strcmp(info->name, "fs:USER") == 0 && (header == 0x8040142 || header == 0x8070142)) // FSUSER_DeleteFile / FSUSER_DeleteDirectoryRecursively
+                        {
+                            if(cmdbufOrig[4] != 4 || !cmdbufOrig[5] || !cmdbufOrig[7])
+                            {
+                                CloseHandle(plgLdrHandle);
+                                break;
+                            }
+
+                            cmdbuf[2] = (header == 0x8040142) ? 0 : 1;
+                            cmdbuf[3] = cmdbufOrig[7];
+                            cmdbuf[4] = cmdbufOrig[5];
+                        }
+                        else if(strcmp(info->name, "soc:U") == 0 && header == 0x60084) // socket connect
+                        {
+                            u32 *addr = (u32 *)cmdbuf[6] + 1;
+                            if(0x6000000 > (u32)addr || (u32)addr >= 0x8000000)
+                            {
+                                CloseHandle(plgLdrHandle);
+                                break;
+                            }
+
+                            cmdbuf[2] = 2;
+                            cmdbuf[3] = *addr;
+                        }
+                        else if(strcmp(info->name, "cam:u") == 0 && header == 0x10040) // CAMU_StartCapture
+                        {
+                            cmdbuf[2] = 3;
+                        }
+
+                        cmdbuf[0] = IPC_MakeHeader(14, 3, 0);
+                        cmdbuf[1] = pid;
+                        
+                        if(SendSyncRequest(plgLdrHandle) >= 0)
+                            skip = cmdbuf[2];
+                            
+                        if(!skip)
+                            memcpy(cmdbuf, cmdbufOrig, sizeof(cmdbufOrig));
+    
+                        CloseHandle(plgLdrHandle);
+                    }
+                }
+    
+                break;
+            }
+
+            /*case 0x60084: // socket connect
+            {
+                SessionInfo *info = SessionInfo_Lookup(clientSession->parentSession);
+                if(info != NULL && strcmp(info->name, "soc:U") == 0)
                 {
                     Handle plgLdrHandle;
                     SessionInfo *info = SessionInfo_FindFirst("plg:ldr");
                     if(info != NULL && createHandleForThisProcess(&plgLdrHandle, &info->session->clientSession.syncObject.autoObject) >= 0)
                     {
-                        u32 pathSize = cmdbuf[5];
-                        u32 path = cmdbuf[7];
                         u32 cmdbufbak[8];
-                        const u32 PATH_UTF16 = 4;
+                        u32 *addr = (u32 *)cmdbuf[6];
 
-                        if(cmdbuf[4] == PATH_UTF16 && path && pathSize) 
-                        {
-                            memcpy(cmdbufbak, cmdbuf, sizeof(cmdbufbak));
+                        memcpy(cmdbufbak, cmdbuf, sizeof(cmdbufbak));
 
-                            cmdbuf[0] = 0xE01C0;
-                            cmdbuf[1] = path;
-                            cmdbuf[2] = pathSize;
-                            cmdbuf[3] = pid;
+                        cmdbuf[0] = IPC_MakeHeader(15, 2, 0);
+                        cmdbuf[1] = (u32)addr;
+                        cmdbuf[2] = pid;
 
-                            SendSyncRequest(plgLdrHandle);
-                            skip = !cmdbuf[2];
+                        SendSyncRequest(plgLdrHandle);
                             
-                            if(!skip)
-                                memcpy(cmdbuf, cmdbufbak, sizeof(cmdbufbak));
-                        }
+                        memcpy(cmdbuf, cmdbufbak, sizeof(cmdbufbak));
                         CloseHandle(plgLdrHandle);
                     }
-              }
-    
-              break;
-            }
+                }
+                break;
+            }*/
         }
     }
 
