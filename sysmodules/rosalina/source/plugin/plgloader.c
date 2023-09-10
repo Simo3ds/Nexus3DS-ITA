@@ -538,11 +538,11 @@ void     PluginLoader__HandleCommands(void *_ctx)
                     utf16_to_utf8((u8 *)fileName, (u16 *)u16NameAddr, cmdbuf[4]);
 
                     sprintf(message, "/cheats/%016llX.txt", g_titleId);
-                    if(strncmp(message, (char *)fileName, strlen(message)) == 0)
+                    if(strncmp(message, (char *)fileName, strlen(message)) == 0 && strstr((char *)fileName, "..") == NULL)
                         ignore = true;
 
                     sprintf(message, "/luma/plugins/%016llX/", g_titleId);
-                    if(strncmp(message, (char *)fileName, strlen(message)) == 0)
+                    if(strncmp(message, (char *)fileName, strlen(message)) == 0 && strstr((char *)fileName, "..") == NULL)
                         ignore = true;
             
                     if(!ignore) 
