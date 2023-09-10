@@ -505,7 +505,7 @@ void     PluginLoader__HandleCommands(void *_ctx)
             break;
         }
 
-        case 14: // Remove detector
+        case 14: // Plugin Watcher
         {
             bool skip = false;
 
