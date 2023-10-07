@@ -173,7 +173,7 @@ static Result   FindPluginFile(u64 tid)
             strcpy(foundPlugins[foundPluginCount].name, filename);
 
             sprintf(path, "%s%s", g_path, filename);
-            foundPlugins[foundPluginCount].canBoot = IsValidPluginFormat(path);
+            foundPlugins[foundPluginCount].canBoot = true; // IsValidPluginFormat(path);
             foundPluginCount++;
         }
     }
@@ -318,7 +318,41 @@ bool     TryToLoadPlugin(Handle process)
             "Outdated plugin loader\nCheck for Luma3DS updates."   
         };
 
-        ctx->error.message = errors[R_MODULE(res) == RM_LDR ? R_DESCRIPTION(res) : 0];
+        u32 err = (R_MODULE(res) == RM_LDR ? R_DESCRIPTION(res) : 0);
+
+        // Try to convert
+        if(err == 2)
+        {
+            static char convertedPath[256];
+            IFile convertedPlugin;
+            Result ret;
+
+            sprintf(convertedPath, "%s%s", PluginLoaderCtx.pluginPath, ".cvted");
+
+            ret = IFile_Open(&convertedPlugin, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, convertedPath), FS_OPEN_CREATE | FS_OPEN_WRITE);
+            if(R_SUCCEEDED(ret))
+            {
+                if(TryToConvertPlugin(&plugin, &convertedPlugin) == 0)
+                {
+                    IFile_Close(&convertedPlugin);
+                    IFile_Close(&plugin);
+
+                    ret = IFile_Open(&convertedPlugin, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, convertedPath), FS_OPEN_READ);
+                    if(R_SUCCEEDED(ret))
+                    {
+                        PluginLoaderCtx.pluginPath = convertedPath;
+                        plugin = convertedPlugin;
+
+                        if(R_FAILED(res = IFile_GetSize(&plugin, &fileSize)))
+                        {
+                            ctx->error.message = "Couldn't get file size";
+                        }
+                    }
+                }
+            }
+        }
+        else
+            ctx->error.message = errors[err];
     }
 
     if(PluginChecker_isEnabled)

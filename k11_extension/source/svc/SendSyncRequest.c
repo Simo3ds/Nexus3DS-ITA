@@ -26,12 +26,8 @@
 #include <string.h>
 
 #include "svc/SendSyncRequest.h"
+#include "svc/TranslateHandle.h"
 #include "ipc.h"
-
-static inline u32 IPC_MakeHeader(u16 command_id, unsigned normal_params, unsigned translate_params)
-{
-	return ((u32) command_id << 16) | (((u32) normal_params & 0x3F) << 6) | (((u32) translate_params & 0x3F) << 0);
-}
 
 static inline bool isNdmuWorkaround(const SessionInfo *info, u32 pid)
 {
@@ -284,6 +280,7 @@ Result SendSyncRequestHook(Handle handle)
                                 break;
                             }
 
+                            cmdbuf[0] = IPC_MakeHeader(14, 4, 0);
                             cmdbuf[2] = (header == 0x8040142) ? 0 : 1;
                             cmdbuf[3] = cmdbufOrig[7];
                             cmdbuf[4] = cmdbufOrig[5];
@@ -297,15 +294,16 @@ Result SendSyncRequestHook(Handle handle)
                                 break;
                             }
 
+                            cmdbuf[0] = IPC_MakeHeader(14, 3, 0);
                             cmdbuf[2] = 2;
                             cmdbuf[3] = *addr;
                         }
                         else if(strcmp(info->name, "cam:u") == 0 && header == 0x10040) // CAMU_StartCapture
                         {
+                            cmdbuf[0] = IPC_MakeHeader(14, 2, 0);
                             cmdbuf[2] = 3;
                         }
 
-                        cmdbuf[0] = IPC_MakeHeader(14, 3, 0);
                         cmdbuf[1] = pid;
                         
                         if(SendSyncRequest(plgLdrHandle) >= 0)
@@ -320,33 +318,6 @@ Result SendSyncRequestHook(Handle handle)
     
                 break;
             }
-
-            /*case 0x60084: // socket connect
-            {
-                SessionInfo *info = SessionInfo_Lookup(clientSession->parentSession);
-                if(info != NULL && strcmp(info->name, "soc:U") == 0)
-                {
-                    Handle plgLdrHandle;
-                    SessionInfo *info = SessionInfo_FindFirst("plg:ldr");
-                    if(info != NULL && createHandleForThisProcess(&plgLdrHandle, &info->session->clientSession.syncObject.autoObject) >= 0)
-                    {
-                        u32 cmdbufbak[8];
-                        u32 *addr = (u32 *)cmdbuf[6];
-
-                        memcpy(cmdbufbak, cmdbuf, sizeof(cmdbufbak));
-
-                        cmdbuf[0] = IPC_MakeHeader(15, 2, 0);
-                        cmdbuf[1] = (u32)addr;
-                        cmdbuf[2] = pid;
-
-                        SendSyncRequest(plgLdrHandle);
-                            
-                        memcpy(cmdbuf, cmdbufbak, sizeof(cmdbufbak));
-                        CloseHandle(plgLdrHandle);
-                    }
-                }
-                break;
-            }*/
         }
     }
 
