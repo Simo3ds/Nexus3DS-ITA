@@ -26,12 +26,13 @@
 #include <string.h>
 
 #include "svc/SendSyncRequest.h"
+#include "svc/TranslateHandle.h"
 #include "ipc.h"
 
-static inline u32 IPC_MakeHeader(u16 command_id, unsigned normal_params, unsigned translate_params)
-{
-	return ((u32) command_id << 16) | (((u32) normal_params & 0x3F) << 6) | (((u32) translate_params & 0x3F) << 0);
-}
+struct {
+    char url[256];
+    Handle servHandle;
+} httpcHandleStorage[10];
 
 static inline bool isNdmuWorkaround(const SessionInfo *info, u32 pid)
 {
@@ -48,6 +49,7 @@ Result SendSyncRequestHook(Handle handle)
     u32 *cmdbuf = (u32 *)((u8 *)currentCoreContext->objectContext.currentThread->threadLocalStorage + 0x80);
     bool skip = false;
     Result res = 0;
+    static u32 httpcStorageIndex = 0;
 
      // not the exact same test but it should work
     bool isValidClientSession = clientSession != NULL && strcmp(classNameOfAutoObject(&clientSession->syncObject.autoObject), "KClientSession") == 0;
@@ -262,6 +264,8 @@ Result SendSyncRequestHook(Handle handle)
             case 0x8040142: // FSUSER_DeleteFile
             case 0x8070142: // FSUSER_DeleteDirectoryRecursively
             case 0x60084:   // socket connect
+            case 0x90040:   // httpcBeginRequest
+            //case 0xA0040:   // httpcBeginRequestAsync
             case 0x10040:   // CAMU_StartCapture
             {
                 SessionInfo *info = SessionInfo_Lookup(clientSession->parentSession);
@@ -284,6 +288,7 @@ Result SendSyncRequestHook(Handle handle)
                                 break;
                             }
 
+                            cmdbuf[0] = IPC_MakeHeader(14, 4, 0);
                             cmdbuf[2] = (header == 0x8040142) ? 0 : 1;
                             cmdbuf[3] = cmdbufOrig[7];
                             cmdbuf[4] = cmdbufOrig[5];
@@ -291,21 +296,56 @@ Result SendSyncRequestHook(Handle handle)
                         else if(strcmp(info->name, "soc:U") == 0 && header == 0x60084) // socket connect
                         {
                             u32 *addr = (u32 *)cmdbuf[6] + 1;
-                            if(0x6000000 > (u32)addr || (u32)addr >= 0x8000000)
+                            if(0x6000000 <= (u32)addr && (u32)addr < 0x8000000)
+                                cmdbuf[2] = 2;
+                            else
+                                cmdbuf[2] = 3;
+
+                            cmdbuf[0] = IPC_MakeHeader(14, 3, 0);
+                            cmdbuf[3] = *addr;
+                        }
+                        /*else if(strcmp(info->name, "http:C") == 0 && header == 0x20082) // httpcCreateContext
+                        {
+                            for(httpcStorageIndex = 0; httpcStorageIndex < sizeof(httpcHandleStorage) / sizeof(httpcHandleStorage[0]); httpcStorageIndex++)
                             {
-                                CloseHandle(plgLdrHandle);
-                                break;
+                                if(httpcHandleStorage[httpcStorageIndex].servHandle == 0)
+                                {
+                                    strncpy(httpcHandleStorage[httpcStorageIndex].url, cmdbuf[4], sizeof(httpcHandleStorage[httpcStorageIndex].url) - 1);
+                                }
+
+                                if(httpcStorageIndex == sizeof(httpcHandleStorage) / sizeof(httpcHandleStorage[0]) - 1)
+                                {
+                                    httpcStorageIndex = 0;
+                                    strncpy(httpcHandleStorage[httpcStorageIndex].url, cmdbuf[4], sizeof(httpcHandleStorage[httpcStorageIndex].url) - 1);
+                                    break;
+                                }
                             }
 
-                            cmdbuf[2] = 2;
-                            cmdbuf[3] = *addr;
+                        }*/
+                        else if(strcmp(info->name, "http:C") == 0 && (header == 0x90040 || header == 0xA0040)) // httpcBeginRequest(Async)
+                        {
+                            const char *url = NULL;
+
+                            for(u32 i = 0; i < sizeof(httpcHandleStorage) / sizeof(httpcHandleStorage[0]); i++)
+                            {
+                                if(httpcHandleStorage[i].servHandle == cmdbuf[1])
+                                {
+                                    url = httpcHandleStorage[i].url;
+                                    break;
+                                }
+                            }
+
+                            cmdbuf[0] = IPC_MakeHeader(14, 2, 2);
+                            cmdbuf[2] = 3;
+                            cmdbuf[3] = IPC_Desc_Buffer(url ? strlen(url) : 0, IPC_BUFFER_R);
+                            cmdbuf[4] = (u32)url;
                         }
                         else if(strcmp(info->name, "cam:u") == 0 && header == 0x10040) // CAMU_StartCapture
                         {
-                            cmdbuf[2] = 3;
+                            cmdbuf[0] = IPC_MakeHeader(14, 2, 0);
+                            cmdbuf[2] = 4;
                         }
 
-                        cmdbuf[0] = IPC_MakeHeader(14, 3, 0);
                         cmdbuf[1] = pid;
                         
                         if(SendSyncRequest(plgLdrHandle) >= 0)
@@ -321,30 +361,70 @@ Result SendSyncRequestHook(Handle handle)
                 break;
             }
 
-            /*case 0x60084: // socket connect
+            /*case 0x20082:
             {
                 SessionInfo *info = SessionInfo_Lookup(clientSession->parentSession);
-                if(info != NULL && strcmp(info->name, "soc:U") == 0)
+
+                if(info != NULL && strcmp(info->name, "http:C") == 0)
+                {
+                    if(++httpcStorageIndex >= sizeof(httpcHandleStorage) / sizeof(httpcHandleStorage[0]))
+                        httpcStorageIndex = 0;
+
+                    strncpy(httpcHandleStorage[httpcStorageIndex].url, (const char *)cmdbuf[4], sizeof(httpcHandleStorage[httpcStorageIndex].url) - 1);
+                    httpcHandleStorage[httpcStorageIndex].servHandle = cmdbuf[2];
+
+                    Handle plgLdrHandle;
+                    SessionInfo *plgLdrInfo = SessionInfo_FindFirst("plg:ldr");
+                    if(plgLdrInfo != NULL && createHandleForThisProcess(&plgLdrHandle, &plgLdrInfo->session->clientSession.syncObject.autoObject) >= 0)
+                    {
+                        u32 cmdbufOrig[8];
+                        const char *title = "SendSyncRequest";
+
+                        memcpy(cmdbufOrig, cmdbuf, sizeof(cmdbufOrig));
+
+                        cmdbuf[0] = IPC_MakeHeader(6, 0, 4);
+
+                        cmdbuf[1] = IPC_Desc_Buffer(strlen(title), IPC_BUFFER_R);
+                        cmdbuf[2] = (u32)title;
+                        cmdbuf[3] = IPC_Desc_Buffer(strlen((const char *)cmdbuf[4]), IPC_BUFFER_R);
+                        cmdbuf[4] = (u32)cmdbuf[4];
+
+                        SendSyncRequest(plgLdrHandle);
+
+                        CloseHandle(plgLdrHandle);
+
+                        memcpy(cmdbuf, cmdbufOrig, sizeof(cmdbufOrig));
+                    }
+                }
+
+                break;
+            }
+
+            case 0xA0040:
+            {
+                SessionInfo *info = SessionInfo_Lookup(clientSession->parentSession);
+                if(info != NULL && strcmp(info->name, "http:C") == 0)
                 {
                     Handle plgLdrHandle;
-                    SessionInfo *info = SessionInfo_FindFirst("plg:ldr");
-                    if(info != NULL && createHandleForThisProcess(&plgLdrHandle, &info->session->clientSession.syncObject.autoObject) >= 0)
+                    SessionInfo *plgLdrInfo = SessionInfo_FindFirst("plg:ldr");
+                    if(plgLdrInfo != NULL && createHandleForThisProcess(&plgLdrHandle, &plgLdrInfo->session->clientSession.syncObject.autoObject) >= 0)
                     {
-                        u32 cmdbufbak[8];
-                        u32 *addr = (u32 *)cmdbuf[6];
+                        u32 cmdbufOrig[8];
 
-                        memcpy(cmdbufbak, cmdbuf, sizeof(cmdbufbak));
-
+                        memcpy(cmdbufOrig, cmdbuf, sizeof(cmdbufOrig));
+        
                         cmdbuf[0] = IPC_MakeHeader(15, 2, 0);
-                        cmdbuf[1] = (u32)addr;
+                        cmdbuf[1] = pid;
                         cmdbuf[2] = pid;
 
                         SendSyncRequest(plgLdrHandle);
-                            
-                        memcpy(cmdbuf, cmdbufbak, sizeof(cmdbufbak));
+
                         CloseHandle(plgLdrHandle);
+
+                        memcpy(cmdbuf, cmdbufOrig, sizeof(cmdbufOrig));
                     }
                 }
+
                 break;
             }*/
         }
@@ -354,6 +434,43 @@ Result SendSyncRequestHook(Handle handle)
         clientSession->syncObject.autoObject.vtable->DecrementReferenceCount(&clientSession->syncObject.autoObject);
 
     res = skip ? res : SendSyncRequest(handle);
+
+    /*if(clientSession != NULL && res > 0 && cmdbuf[1] > 0 && cmdbuf[0] == 0x20082)
+    {
+        SessionInfo *info = SessionInfo_Lookup(clientSession->parentSession);
+
+        if(info != NULL && strcmp(info->name, "http:C") == 0)
+        {
+            if(++httpcStorageIndex >= sizeof(httpcHandleStorage) / sizeof(httpcHandleStorage[0]))
+                httpcStorageIndex = 0;
+
+            strncpy(httpcHandleStorage[httpcStorageIndex].url, (const char *)cmdbuf[4], sizeof(httpcHandleStorage[httpcStorageIndex].url) - 1);
+            httpcHandleStorage[httpcStorageIndex].servHandle = cmdbuf[2];
+
+            Handle plgLdrHandle;
+            SessionInfo *plgLdrInfo = SessionInfo_FindFirst("plg:ldr");
+            if(plgLdrInfo != NULL && createHandleForThisProcess(&plgLdrHandle, &plgLdrInfo->session->clientSession.syncObject.autoObject) >= 0)
+            {
+                u32 cmdbufOrig[8];
+                const char *title = "SendSyncRequest";
+
+                memcpy(cmdbufOrig, cmdbuf, sizeof(cmdbufOrig));
+
+                cmdbuf[0] = IPC_MakeHeader(6, 0, 4);
+
+                cmdbuf[1] = IPC_Desc_Buffer(strlen(title), IPC_BUFFER_R);
+                cmdbuf[2] = (u32)title;
+                cmdbuf[3] = IPC_Desc_Buffer(strlen((const char *)cmdbuf[4]), IPC_BUFFER_R);
+                cmdbuf[4] = (u32)cmdbuf[4];
+
+                SendSyncRequest(plgLdrHandle);
+
+                CloseHandle(plgLdrHandle);
+
+                memcpy(cmdbuf, cmdbufOrig, sizeof(cmdbufOrig));
+            }
+        }
+    }*/
 
     return res;
 }

@@ -17,12 +17,36 @@ Menu pluginOptionsMenu = {
     }
 };
 
+void DisplayMessage(const char *title, const char *message)
+{
+    ClearScreenQuickly();
+    do
+    {
+        Draw_Lock();
+        Draw_DrawString(10, 10, COLOR_TITLE, title);
+        Draw_DrawString(30, 30, COLOR_WHITE, message);
+        Draw_FlushFramebuffer();
+        Draw_Unlock();
+
+        u32 pressed;
+        do
+        {
+            pressed = waitInputWithTimeout(50);
+        } while(pressed == 0 && !menuShouldExit);
+
+        if(pressed & KEY_B)
+            break;
+
+    } while(!menuShouldExit);
+}
+
 void PluginWatcher_SetWatchLevel(void)
 {
     static const char *watchOptions[] = {
         "Detects file deletion",
         "Detects directory deletion",
-        "Detects 3gx internet connection",
+        "Detects socket internet connections",
+        "Detects httpc internet connections",
         "Detects camera access",
     };
 
