@@ -564,14 +564,6 @@ void     PluginLoader__HandleCommands(void *_ctx)
 
                 else if(type == 3)
                 {
-                    const char *url = cmdbuf[4] ? (char *)cmdbuf[4] : "Unknown";
-                    sprintf(message, "Internet access detected.\n\nURL: %s", url);
-                    
-                    skip = PluginWatcher_AskSkip(message);
-                }
-
-                else if(type == 4)
-                {
                     sprintf(message, "Camera access detected.");
                     skip = PluginWatcher_AskSkip(message);
                 }
