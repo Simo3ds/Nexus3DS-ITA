@@ -2,6 +2,7 @@
 #include "menu.h"
 #include "plugin.h"
 #include "draw.h"
+#include "luma_config.h"
 
 #include <stdio.h>
 
@@ -60,7 +61,10 @@ void PluginWatcher_SetWatchLevel(void)
         if(pressed & KEY_B)
             break;
         else if(pressed & KEY_A)
+        {
             *watchLv ^= (1 << selected);
+            LumaConfig_RequestSaveSettings();
+        }
         else if(pressed & KEY_DOWN)
             selected++;
         else if(pressed & KEY_UP)
