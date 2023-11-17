@@ -35,6 +35,7 @@
 #include "luma_config.h"
 #include "menus/n3ds.h"
 #include "menus/cheats.h"
+#include "menus/plugin_options.h"
 #include "minisoc.h"
 #include "plugin.h"
 #include "menus/screen_filters.h"

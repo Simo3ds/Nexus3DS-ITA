@@ -12,11 +12,6 @@ void        PluginLoader__UpdateMenu(void);
 void        PluginLoader__HandleKernelEvent(u32 notifId);
 void        PluginLoader__HandleCommands(void *ctx);
 
-void         PluginChecker__MenuCallback(void);
-void         PluginChecker__UpdateMenu(void);
-void         PluginWatcher__MenuCallback(void);
-void         PluginWatcher__UpdateMenu(void);
-
 void    PluginLoader__Error(const char *message, Result res);
 
 Result     MemoryBlock__SetSize(u32 size);

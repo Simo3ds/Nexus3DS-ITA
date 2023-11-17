@@ -87,51 +87,6 @@ void        PluginLoader__UpdateMenu(void)
     rosalinaMenu.items[3].title = status[PluginLoaderCtx.isEnabled];
 }
 
-void        PluginChecker__MenuCallback(void)
-{
-    PluginChecker_isEnabled = !PluginChecker_isEnabled;
-    LumaConfig_RequestSaveSettings();
-    PluginChecker__UpdateMenu();
-}
-
-void        PluginChecker__UpdateMenu(void)
-{
-    static const char *status[2] =
-    {
-        "Plugin Checker: [Disabled]",
-        "Plugin Checker: [Enabled]"
-    };
-
-    rosalinaMenu.items[4].menu->items[0].title = status[PluginChecker_isEnabled];
-}
-
-void        PluginWatcher__MenuCallback(void)
-{
-    PluginWatcher_isEnabled = !PluginWatcher_isEnabled;
-    LumaConfig_RequestSaveSettings();
-    PluginWatcher__UpdateMenu();
-
-    if(PluginWatcher_isEnabled)
-    {
-        PluginLoaderContext *ctx = &PluginLoaderCtx;
-
-        if(ctx->target != 0 && !ctx->pluginIsHome && !ctx->pluginIsSwapped)
-            PluginWatcher_isRunning = true;
-    }
-    else
-        PluginWatcher_isRunning = false;
-}
-
-void        PluginWatcher__UpdateMenu(void)
-{
-    static const char *status[2] =
-    {
-        "Plugin Watcher: [Disabled]",
-        "Plugin Watcher: [Enabled]"
-    };
-    rosalinaMenu.items[4].menu->items[1].title = status[PluginWatcher_isEnabled];
-}
-
 static ControlApplicationMemoryModeOverrideConfig g_memorymodeoverridebackup = { 0 };
 Result  PluginLoader__SetMode3AppMode(bool enable)
 {

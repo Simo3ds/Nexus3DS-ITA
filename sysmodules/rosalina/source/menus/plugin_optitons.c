@@ -1,11 +1,15 @@
 #include "menus/plugin_options.h"
 #include "menu.h"
+#include "menus.h"
 #include "plugin.h"
 #include "draw.h"
 #include "luma_config.h"
 
 #include <stdio.h>
 
+extern bool PluginChecker_isEnabled;
+extern bool PluginWatcher_isEnabled;
+extern bool PluginWatcher_isRunning;
 extern u32 PluginWatcher_WatchLevel;
 
 Menu pluginOptionsMenu = {
@@ -17,6 +21,51 @@ Menu pluginOptionsMenu = {
         {},
     }
 };
+
+void        PluginChecker__MenuCallback(void)
+{
+    PluginChecker_isEnabled = !PluginChecker_isEnabled;
+    LumaConfig_RequestSaveSettings();
+    PluginChecker__UpdateMenu();
+}
+
+void        PluginChecker__UpdateMenu(void)
+{
+    static const char *status[2] =
+    {
+        "Plugin Checker: [Disabled]",
+        "Plugin Checker: [Enabled]"
+    };
+
+    rosalinaMenu.items[4].menu->items[0].title = status[PluginChecker_isEnabled];
+}
+
+void        PluginWatcher__MenuCallback(void)
+{
+    PluginWatcher_isEnabled = !PluginWatcher_isEnabled;
+    LumaConfig_RequestSaveSettings();
+    PluginWatcher__UpdateMenu();
+
+    if(PluginWatcher_isEnabled)
+    {
+        PluginLoaderContext *ctx = &PluginLoaderCtx;
+
+        if(ctx->target != 0 && !ctx->pluginIsHome && !ctx->pluginIsSwapped)
+            PluginWatcher_isRunning = true;
+    }
+    else
+        PluginWatcher_isRunning = false;
+}
+
+void        PluginWatcher__UpdateMenu(void)
+{
+    static const char *status[2] =
+    {
+        "Plugin Watcher: [Disabled]",
+        "Plugin Watcher: [Enabled]"
+    };
+    rosalinaMenu.items[4].menu->items[1].title = status[PluginWatcher_isEnabled];
+}
 
 void PluginWatcher_SetWatchLevel(void)
 {
