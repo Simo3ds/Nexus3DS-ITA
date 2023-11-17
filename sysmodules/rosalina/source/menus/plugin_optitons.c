@@ -72,7 +72,7 @@ void PluginWatcher_SetWatchLevel(void)
     static const char *watchOptions[] = {
         "Detects file deletion",
         "Detects directory deletion",
-        "Detects internet connections",
+        "Detects internet connections in 3gx",
         "Detects camera access",
     };
 
