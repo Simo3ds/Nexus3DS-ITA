@@ -5,7 +5,7 @@
 
 #define _3GX_MAGIC_OLD (0x3130303024584733) /* "3GX$0001" */
 
-typedef struct PACKED
+typedef struct CTR_PACKED
 {
     u32             authorLen;
     u32             authorMsg;
@@ -17,13 +17,13 @@ typedef struct PACKED
     u32             descriptionMsg;
 } _3gx_Infos_Old;
 
-typedef struct PACKED
+typedef struct CTR_PACKED
 {
     u32             count;
     u32             titles;
 } _3gx_Targets_Old;
 
-typedef struct PACKED
+typedef struct CTR_PACKED
 {
     u64             magic;
     u32             version;
