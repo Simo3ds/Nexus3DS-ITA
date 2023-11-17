@@ -20,6 +20,7 @@ u64                g_titleId;
 u32                g_pid;
 
 extern bool PluginChecker_isEnabled;
+extern bool PluginConverter_UseCache;
 
 // pluginLoader.s
 void        gamePatchFunc(void);
@@ -325,28 +326,50 @@ bool     TryToLoadPlugin(Handle process)
         {
             static char convertedPath[256];
             IFile convertedPlugin;
-            Result ret;
 
             sprintf(convertedPath, "%s%s", PluginLoaderCtx.pluginPath, ".cvted");
 
-            ret = IFile_Open(&convertedPlugin, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, convertedPath), FS_OPEN_CREATE | FS_OPEN_WRITE);
-            if(R_SUCCEEDED(ret))
+            if(PluginConverter_UseCache && R_SUCCEEDED(IFile_Open(&convertedPlugin, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, convertedPath), FS_OPEN_READ)))
             {
-                if(TryToConvertPlugin(&plugin, &convertedPlugin) == 0)
+                IFile_Close(&plugin);
+
+                PluginLoaderCtx.pluginPath = convertedPath;
+                plugin = convertedPlugin;
+
+                if(R_FAILED(res = IFile_GetSize(&plugin, &fileSize)))
                 {
-                    IFile_Close(&convertedPlugin);
-                    IFile_Close(&plugin);
-
-                    ret = IFile_Open(&convertedPlugin, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, convertedPath), FS_OPEN_READ);
-                    if(R_SUCCEEDED(ret))
+                    ctx->error.message = "Couldn't get file size";
+                }
+            }
+            else
+            {
+                res = IFile_Open(&convertedPlugin, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, convertedPath), FS_OPEN_CREATE | FS_OPEN_WRITE);
+                if(R_SUCCEEDED(res))
+                {
+                    if(TryToConvertPlugin(&plugin, &convertedPlugin) == 0)
                     {
-                        PluginLoaderCtx.pluginPath = convertedPath;
-                        plugin = convertedPlugin;
+                        IFile_Close(&convertedPlugin);
+                        IFile_Close(&plugin);
 
-                        if(R_FAILED(res = IFile_GetSize(&plugin, &fileSize)))
+                        res = IFile_Open(&convertedPlugin, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, convertedPath), FS_OPEN_READ);
+                        if(R_SUCCEEDED(res))
                         {
-                            ctx->error.message = "Couldn't get file size";
+                            PluginLoaderCtx.pluginPath = convertedPath;
+                            plugin = convertedPlugin;
+
+                            if(R_FAILED(res = IFile_GetSize(&plugin, &fileSize)))
+                            {
+                                ctx->error.message = "Couldn't get file size";
+                            }
                         }
+                        else
+                        {
+                            ctx->error.message = errors[err];
+                        }
+                    }
+                    else
+                    {
+                        ctx->error.message = errors[err];
                     }
                 }
             }

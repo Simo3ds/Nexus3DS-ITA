@@ -482,6 +482,11 @@ static int configIniHandler(void* user, const char* section, const char* name, c
             CHECK_PARSE_OPTION(parseDecIntOption(&opt, value, 0, 0xFFFFFFFF));
             cfg->pluginWatcherLevel = (u32)opt;
             return 1;
+        } else if (strcmp(name, "use_cache_in_plugin_converter") == 0) {
+            bool opt;
+            CHECK_PARSE_OPTION(parseBoolOption(&opt, value));
+            cfg->pluginLoaderFlags = opt ? cfg->pluginLoaderFlags | (1 << 3) : cfg->pluginLoaderFlags & ~(1 << 3);
+            return 1;
         } else if (strcmp(name, "ntp_tz_offset_min") == 0) {
             s64 opt;
             CHECK_PARSE_OPTION(parseDecIntOption(&opt, value, -779, 899));

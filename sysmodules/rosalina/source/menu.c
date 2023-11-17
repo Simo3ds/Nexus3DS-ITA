@@ -291,6 +291,7 @@ void menuThreadMain(void)
             PluginLoader__UpdateMenu();
             PluginChecker__UpdateMenu();
             PluginWatcher__UpdateMenu();
+            PluginConverter__UpdateMenu();
             menuShow(&rosalinaMenu);
             menuLeave();
         }

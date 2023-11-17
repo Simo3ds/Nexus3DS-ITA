@@ -27,6 +27,7 @@ void        IR__Unpatch(void);
 bool PluginChecker_isEnabled = false;
 bool PluginWatcher_isEnabled = false;
 bool PluginWatcher_isRunning = false;
+bool PluginConverter_UseCache = false;
 u32  PluginWatcher_WatchLevel = 0;
 
 void        PluginLoader__Init(void)
@@ -40,8 +41,9 @@ void        PluginLoader__Init(void)
 
     svcGetSystemInfo(&pluginLoaderFlags, 0x10000, 0x180);
     ctx->isEnabled = pluginLoaderFlags & 1;
-    PluginChecker_isEnabled  = pluginLoaderFlags & (1 << 1);
-    PluginWatcher_isEnabled = pluginLoaderFlags & (1 << 2);
+    PluginChecker_isEnabled  = ((pluginLoaderFlags & (1 << 1)) != 0);
+    PluginWatcher_isEnabled = ((pluginLoaderFlags & (1 << 2)) != 0);
+    PluginConverter_UseCache = ((pluginLoaderFlags & (1 << 3)) != 0);
 
     svcGetSystemInfo(&pluginWatcherLevel, 0x10000, 0x182);
     PluginWatcher_WatchLevel = (u32)pluginWatcherLevel;

@@ -10,6 +10,7 @@
 extern bool PluginChecker_isEnabled;
 extern bool PluginWatcher_isEnabled;
 extern bool PluginWatcher_isRunning;
+extern bool PluginConverter_UseCache;
 extern u32 PluginWatcher_WatchLevel;
 
 Menu pluginOptionsMenu = {
@@ -18,6 +19,7 @@ Menu pluginOptionsMenu = {
         { "", METHOD, .method = &PluginChecker__MenuCallback },
         { "", METHOD, .method = &PluginWatcher__MenuCallback },
         { "Set watch level", METHOD, .method = &PluginWatcher_SetWatchLevel },
+        { "", METHOD, .method = &PluginConverter__ToggleUseCacheFlag },
         {},
     }
 };
@@ -65,6 +67,23 @@ void        PluginWatcher__UpdateMenu(void)
         "Plugin Watcher: [Enabled]"
     };
     rosalinaMenu.items[4].menu->items[1].title = status[PluginWatcher_isEnabled];
+}
+
+void PluginConverter__ToggleUseCacheFlag(void)
+{
+    PluginConverter_UseCache = !PluginConverter_UseCache;
+    LumaConfig_RequestSaveSettings();
+    PluginConverter__UpdateMenu();
+}
+
+void PluginConverter__UpdateMenu(void)
+{
+    static const char *status[2] =
+    {
+        "Use cache in plugin converter: [OFF]",
+        "Use cache in plugin converter: [ON]"
+    };
+    rosalinaMenu.items[4].menu->items[3].title = status[PluginConverter_UseCache];
 }
 
 void PluginWatcher_SetWatchLevel(void)
