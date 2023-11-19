@@ -47,7 +47,6 @@ void LoadPluginOrder(PluginEntry *entries, u8 count)
     char path[256];
     u64 size;
     u64 total;
-    u8 indexes[10];
 
     GetPluginOrderPath(path);
 
@@ -55,17 +54,38 @@ void LoadPluginOrder(PluginEntry *entries, u8 count)
     {
         if(R_SUCCEEDED(IFile_GetSize(&file, &size)))
         {
-            if((u32)size / sizeof(u8) != count)
-                return;
-
-            IFile_Read(&file, &total, indexes, size);
+            static u8 buffer[2048];
+            IFile_Read(&file, &total, buffer, 2048);
 
             static PluginEntry tmp[10];
             memcpy(tmp, entries, sizeof(PluginEntry) * count);
 
-            for(u8 i = 0; i < count; i++)
+            u32 index = 0;
+            for(u32 i = 0; i < total; )
             {
-                entries[i] = tmp[indexes[i]];
+                const char *name = (char *)buffer + i;
+
+                for(u32 j = 0; j < count; j++)
+                {
+                    if(strcmp(name, tmp[j].name) == 0)
+                    {
+                        entries[index++] = tmp[j];
+                        tmp[j].name[0] = 0;
+                        break;
+                    }
+                }
+
+                i += strlen(name) + 1;
+            }
+
+            // New plugins
+            for(u32 i = 0; i < count; i++)
+            {
+                if(tmp[i].name[0] != 0)
+                {
+                    entries[index++] = tmp[i];
+                    tmp[i].name[0] = 0;
+                }
             }
         }
 
@@ -87,7 +107,7 @@ void SavePluginOrder(const PluginEntry *entries, u8 count)
 
         for(u8 i = 0; i < count; i++)
         {
-            IFile_Write(&file, &total, &entries[i].index, sizeof(u8), FS_WRITE_FLUSH);
+            IFile_Write(&file, &total, &entries[i].name, strlen(entries[i].name) + 1, FS_WRITE_FLUSH);
         }
 
         IFile_Close(&file);
@@ -254,7 +274,6 @@ static Result   FindPluginFile(u64 tid)
                 break;
 
             strcpy(foundPlugins[foundPluginCount].name, filename);
-            foundPlugins[foundPluginCount].index = foundPluginCount;
 
             sprintf(path, "%s%s", g_path, filename);
             foundPluginCount++;
