@@ -36,13 +36,74 @@ static u32     strlen16(const u16 *str)
     return strEnd - str;
 }
 
+void GetPluginOrderPath(char *path)
+{
+    sprintf(path, "/luma/plugins/%016llX/plugin.order", g_titleId);
+}
+
+void LoadPluginOrder(PluginEntry *entries, u8 count)
+{
+    IFile file;
+    char path[256];
+    u64 size;
+    u64 total;
+    u8 indexes[10];
+
+    GetPluginOrderPath(path);
+
+    if(R_SUCCEEDED(IFile_Open(&file, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, path), FS_OPEN_READ)))
+    {
+        if(R_SUCCEEDED(IFile_GetSize(&file, &size)))
+        {
+            if((u32)size / sizeof(u8) != count)
+                return;
+
+            IFile_Read(&file, &total, indexes, size);
+
+            static PluginEntry tmp[10];
+            memcpy(tmp, entries, sizeof(PluginEntry) * count);
+
+            for(u8 i = 0; i < count; i++)
+            {
+                entries[i] = tmp[indexes[i]];
+            }
+        }
+
+        IFile_Close(&file);
+    }
+}
+
+void SavePluginOrder(const PluginEntry *entries, u8 count)
+{
+    IFile file;
+    u64 total;
+    char path[256];
+
+    GetPluginOrderPath(path);
+
+    if(R_SUCCEEDED(IFile_Open(&file, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, path), FS_OPEN_CREATE | FS_OPEN_WRITE)))
+    {
+        IFile_SetSize(&file, 0);
+
+        for(u8 i = 0; i < count; i++)
+        {
+            IFile_Write(&file, &total, &entries[i].index, sizeof(u8), FS_WRITE_FLUSH);
+        }
+
+        IFile_Close(&file);
+    }
+}
+
 static char *AskForFileName(PluginEntry *entries, u8 count)
 {
     char *filename = NULL;
-    u8  selected = 0;
+    u8 selected = 0;
+    s8 holding = -1;
 
     if(count == 1)
         return entries[0].name;
+
+    LoadPluginOrder(entries, count);
 
     menuEnter();
 
@@ -53,6 +114,7 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
         u32 posY;
 
         Draw_Lock();
+        Draw_ClearFramebuffer();
         Draw_DrawString(10, 10, COLOR_TITLE, "Plugin selector");
         posY = Draw_DrawString(30, 30, COLOR_WHITE, "Some 3gx files were found.");
         posY = Draw_DrawString(30, posY + 10, COLOR_WHITE, "Select the 3gx file you want to use.");
@@ -60,8 +122,18 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
 
         for(u8 i = 0; i < count; i++)
         {
-            Draw_DrawCharacter(10, posY + 15, COLOR_TITLE, i == selected ? '>' : ' ');
-            posY = Draw_DrawString(30, posY + 15, entries[i].canBoot ? COLOR_WHITE : COLOR_GRAY, entries[i].name);
+            if(holding == -1)
+            {
+                Draw_DrawCharacter(10, posY + 15, COLOR_TITLE, i == selected ? '>' : ' ');
+            }
+            if(i == holding)
+            {
+                posY = Draw_DrawString(33, posY + 14, COLOR_WHITE, entries[i].name);
+            }
+            else
+            {
+                posY = Draw_DrawString(30, posY + 15, COLOR_WHITE, entries[i].name);
+            }
         }
 
         Draw_FlushFramebuffer();
@@ -69,49 +141,59 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
 
         u32 keys;
         do {
-            keys = waitComboWithTimeout(50);
+            keys = waitComboWithTimeout(1000);
         } while(keys == 0 && !menuShouldExit);
 
         if(keys & KEY_A)
         {
-            if(entries[selected].canBoot)
-            {
-                filename = entries[selected].name;
-                break;
-            }
+            filename = entries[selected].name;
+            break;
         }
         else if(keys & KEY_B)
         {
             filename = NULL;
             break;
         }
+        else if (keys & KEY_X)
+        {
+            if(holding == -1)
+                holding = selected;
+            else
+            {
+                SavePluginOrder(entries, count);
+                selected = holding;
+                holding = -1;
+            }
+        }
         else if(keys & KEY_DOWN)
         {
-            if(++selected >= count)
+            if(holding == -1 && ++selected >= count)
                 selected = 0;
+            else if(holding != -1 && holding < count - 1)
+            {
+                PluginEntry tmp = entries[holding];
+                entries[holding] = entries[holding + 1];
+                entries[holding + 1] = tmp;
+                holding++;
+            }
         }
         else if(keys & KEY_UP)
         {
-            if(selected-- <= 0)
+            if(holding == -1 && selected-- <= 0)
                 selected = count - 1;
+            else if(holding > 0)
+            {
+                PluginEntry tmp = entries[holding];
+                entries[holding] = entries[holding - 1];
+                entries[holding - 1] = tmp;
+                holding--;
+            }
         }
     } while(!menuShouldExit);
 
     menuLeave();
 
     return filename;
-}
-
-bool    IsValidPluginFormat(const char* path)
-{
-    IFile plugin;
-    u64 total, read;
-
-    IFile_Open(&plugin, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, path), FS_OPEN_READ);
-    IFile_Read(&plugin, &total, &read, sizeof(u64));
-    IFile_Close(&plugin);
-    
-    return (read == _3GX_MAGIC);
 }
 
 static Result   FindPluginFile(u64 tid)
@@ -172,9 +254,9 @@ static Result   FindPluginFile(u64 tid)
                 break;
 
             strcpy(foundPlugins[foundPluginCount].name, filename);
+            foundPlugins[foundPluginCount].index = foundPluginCount;
 
             sprintf(path, "%s%s", g_path, filename);
-            foundPlugins[foundPluginCount].canBoot = true; // IsValidPluginFormat(path);
             foundPluginCount++;
         }
     }

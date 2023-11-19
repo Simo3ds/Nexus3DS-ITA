@@ -107,5 +107,5 @@ typedef struct ControlApplicationMemoryModeOverrideConfig {
 typedef struct
 {
     char name[256];
-    bool canBoot;
+    u8 index;
 }  PluginEntry;
