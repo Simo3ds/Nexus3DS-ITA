@@ -114,6 +114,123 @@ void SavePluginOrder(const PluginEntry *entries, u8 count)
     }
 }
 
+bool ConfirmOperation(const char *message)
+{
+    do
+    {
+        u32 posY;
+
+        Draw_Lock();
+        Draw_ClearFramebuffer();
+        Draw_DrawString(10, 10, COLOR_TITLE, "Confirmation");
+        posY = Draw_DrawString(30, 30, COLOR_WHITE, message);
+        posY = Draw_DrawString(30, posY + 30, COLOR_WHITE, "Press [A] to confirm, press [B] to cancel.");
+        Draw_FlushFramebuffer();
+        Draw_Unlock();
+
+        u32 keys;
+        do {
+            keys = waitComboWithTimeout(1000);
+        } while(keys == 0 && !menuShouldExit);
+
+        if(keys & KEY_A)
+        {
+            return true;
+        }
+        else if(keys & KEY_B)
+        {
+            return false;
+        }
+    } while(!menuShouldExit);
+
+    return false;
+}
+
+void FileOptions(PluginEntry *entries, u8 *count, u8 index)
+{
+    const char *name = entries[index].name;
+    char message[256];
+    const char *options[] = {
+        "Remove this file",
+    };
+    const u32 nbOptions = sizeof(options) / sizeof(options[0]);
+    u8 selected = 0;
+
+    sprintf(message, "Choose option for '%s'", name);
+
+    ClearScreenQuickly();
+
+    do
+    {
+        u32 posY;
+
+        Draw_Lock();
+        Draw_ClearFramebuffer();
+        Draw_DrawString(10, 10, COLOR_TITLE, "Plugin selector");
+        posY = Draw_DrawString(20, 30, COLOR_LIME, message);
+
+        posY += 20;
+
+        for(u8 i = 0; i < nbOptions; i++)
+        {
+            Draw_DrawCharacter(10, posY, COLOR_TITLE, i == selected ? '>' : ' ');
+            posY = Draw_DrawString(30, posY, COLOR_WHITE, options[i]);
+        }
+        Draw_FlushFramebuffer();
+        Draw_Unlock();
+
+        u32 keys;
+        do {
+            keys = waitComboWithTimeout(1000);
+        } while(keys == 0 && !menuShouldExit);
+
+        if(keys & KEY_A)
+        {
+            if(selected == 0)
+            {
+                if(ConfirmOperation("Are you sure you want to remove this file?"))
+                {
+                    FS_Archive sdmc;
+
+                    if(R_SUCCEEDED(FSUSER_OpenArchive(&sdmc, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""))))
+                    {
+                        char path[256];
+
+                        sprintf(path, "/luma/plugins/%016llX/%s", g_titleId, name);
+
+                        FSUSER_DeleteFile(sdmc, fsMakePath(PATH_ASCII, path));
+                        FSUSER_CloseArchive(sdmc);
+                    }
+
+                    for(u8 i = index; i < *count - 1; i++)
+                    {
+                        entries[i] = entries[i + 1];
+                    }
+
+                    *count -= 1;
+
+                    // No operations are available for this file
+                    break;
+                }
+            }
+        }
+        else if(keys & KEY_B)
+        {
+            break;
+        }
+        else if(keys & KEY_DOWN)
+        {
+            if(++selected >= nbOptions)
+                selected = 0;
+        }
+        else if(keys & KEY_UP)
+        {
+            if(selected-- <= 0)
+                selected = nbOptions - 1;
+        }
+    } while(!menuShouldExit);
+}
+
 static char *AskForFileName(PluginEntry *entries, u8 count)
 {
     char *filename = NULL;
@@ -137,7 +254,7 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
         Draw_ClearFramebuffer();
         Draw_DrawString(10, 10, COLOR_TITLE, "Plugin selector");
         posY = Draw_DrawString(30, 30, COLOR_WHITE, "Some 3gx files were found.");
-        posY = Draw_DrawString(30, posY + 10, COLOR_WHITE, "Select the 3gx file you want to use.");
+        posY = Draw_DrawString(30, posY + 10, COLOR_WHITE, "[A] Select, [B] Cancel, [X] Options, [Y] Reorder");
         posY = Draw_DrawString(20, posY + 15, COLOR_LIME, "Plugins:");
 
         for(u8 i = 0; i < count; i++)
@@ -171,10 +288,21 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
         }
         else if(keys & KEY_B)
         {
-            filename = NULL;
             break;
         }
         else if (keys & KEY_X)
+        {
+            if(holding == -1)
+            {
+                FileOptions(entries, &count, selected);
+                
+                if(count < selected + 1)
+                    selected = count - 1;
+                if(count == 0)
+                    break;
+            }
+        }
+        else if (keys & KEY_Y)
         {
             if(holding == -1)
                 holding = selected;
@@ -293,7 +421,7 @@ static Result   FindPluginFile(u64 tid)
         else
         {
             u32 len = strlen(g_path);
-            name[256 - len] = 0;
+            name[sizeof(((PluginEntry *)NULL)->name) - len] = 0;
             strcat(g_path, name);
             PluginLoaderCtx.pluginPath = g_path;
         }
