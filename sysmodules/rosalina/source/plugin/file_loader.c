@@ -148,11 +148,16 @@ bool ConfirmOperation(const char *message)
 
 void FileOptions(PluginEntry *entries, u8 *count, u8 index)
 {
+    /* Options list structure */
+    struct {
+        const char *name;
+        bool enabled;
+    } options[] = {
+        {"Remove this file", true},
+    };
+
     const char *name = entries[index].name;
     char message[256];
-    const char *options[] = {
-        "Remove this file",
-    };
     const u32 nbOptions = sizeof(options) / sizeof(options[0]);
     u8 selected = 0;
 
@@ -164,6 +169,12 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
     {
         u32 posY;
 
+        if(*count == 1)
+        {
+            // Remove file option
+            options[0].enabled = false;
+        }
+
         Draw_Lock();
         Draw_ClearFramebuffer();
         Draw_DrawString(10, 10, COLOR_TITLE, "Plugin selector");
@@ -174,7 +185,7 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
         for(u8 i = 0; i < nbOptions; i++)
         {
             Draw_DrawCharacter(10, posY, COLOR_TITLE, i == selected ? '>' : ' ');
-            posY = Draw_DrawString(30, posY, COLOR_WHITE, options[i]);
+            posY = Draw_DrawString(30, posY, options[i].enabled ? COLOR_WHITE : COLOR_GRAY, options[i].name);
         }
         Draw_FlushFramebuffer();
         Draw_Unlock();
@@ -184,7 +195,7 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
             keys = waitComboWithTimeout(1000);
         } while(keys == 0 && !menuShouldExit);
 
-        if(keys & KEY_A)
+        if((keys & KEY_A) && options[selected].enabled)
         {
             if(selected == 0)
             {
@@ -298,8 +309,6 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
                 
                 if(count < selected + 1)
                     selected = count - 1;
-                if(count == 0)
-                    break;
             }
         }
         else if (keys & KEY_Y)
