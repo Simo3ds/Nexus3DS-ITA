@@ -107,4 +107,5 @@ typedef struct ControlApplicationMemoryModeOverrideConfig {
 typedef struct
 {
     char name[128];
+    bool isDefault;
 }  PluginEntry;
