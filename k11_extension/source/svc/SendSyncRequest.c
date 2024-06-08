@@ -280,7 +280,7 @@ Result SendSyncRequestHook(Handle handle)
                                 break;
                             }
 
-                            cmdbuf[0] = IPC_MakeHeader(14, 4, 0);
+                            cmdbuf[0] = IPC_MakeHeader(100, 4, 0);
                             cmdbuf[2] = (header == 0x8040142) ? 0 : 1;
                             cmdbuf[3] = cmdbufOrig[7];
                             cmdbuf[4] = cmdbufOrig[5];
@@ -294,13 +294,13 @@ Result SendSyncRequestHook(Handle handle)
                                 break;
                             }
 
-                            cmdbuf[0] = IPC_MakeHeader(14, 3, 0);
+                            cmdbuf[0] = IPC_MakeHeader(100, 3, 0);
                             cmdbuf[2] = 2;
                             cmdbuf[3] = *addr;
                         }
                         else if(strcmp(info->name, "cam:u") == 0 && header == 0x10040) // CAMU_StartCapture
                         {
-                            cmdbuf[0] = IPC_MakeHeader(14, 2, 0);
+                            cmdbuf[0] = IPC_MakeHeader(100, 2, 0);
                             cmdbuf[2] = 3;
                         }
 

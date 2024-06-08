@@ -32,6 +32,7 @@
 #include "config_template_ini.h"
 #include "ifile.h"
 #include "menus/miscellaneous.h"
+#include "menus/sysconfig.h"
 #include "plugin/plgloader.h"
 
 extern bool PluginChecker_isEnabled;
@@ -44,6 +45,7 @@ typedef struct CfgData {
 
     u32 config, multiConfig, bootConfig;
     u32 splashDurationMsec;
+    s8 volumeSliderOverride;
 
     u64 hbldr3dsxTitleId;
     u32 rosalinaMenuCombo;
@@ -174,7 +176,6 @@ static size_t LumaConfig_SaveLumaIniConfigToStr(char *out, const CfgData *cfg)
         (int)CONFIG(AUTOBOOTEMU), (int)CONFIG(LOADEXTFIRMSANDMODULES),
         (int)CONFIG(PATCHGAMES), (int)CONFIG(REDIRECTAPPTHREADS),
         (int)CONFIG(PATCHVERSTRING), (int)CONFIG(SHOWGBABOOT),
-        (int)CONFIG(ENABLEDSIEXTFILTER), (int)CONFIG(ALLOWUPDOWNLEFTRIGHTDSI),
 
         1 + (int)MULTICONFIG(DEFAULTEMU), 4 - (int)MULTICONFIG(BRIGHTNESS),
         splashPosStr, (unsigned int)cfg->splashDurationMsec,
@@ -195,9 +196,10 @@ static size_t LumaConfig_SaveLumaIniConfigToStr(char *out, const CfgData *cfg)
         cfg->autobootTwlTitleId, (int)cfg->autobootCtrAppmemtype,
 
         forceAudioOutputStr,
+        cfg->volumeSliderOverride,
 
-        (int)CONFIG(PATCHUNITINFO), (int)CONFIG(DISABLEARM11EXCHANDLERS),
-        (int)CONFIG(ENABLESAFEFIRMROSALINA)
+        (int)CONFIG(PATCHUNITINFO), (int)CONFIG(ENABLEDSIEXTFILTER),
+        (int)CONFIG(DISABLEARM11EXCHANDLERS), (int)CONFIG(ENABLESAFEFIRMROSALINA)
     );
 
     return n < 0 ? 0 : (size_t)n;
@@ -253,6 +255,7 @@ Result LumaConfig_SaveSettings(void)
     configData.multiConfig = multiConfig;
     configData.bootConfig = bootConfig;
     configData.splashDurationMsec = splashDurationMsec;
+    configData.volumeSliderOverride = currVolumeSliderOverride;
     configData.hbldr3dsxTitleId = Luma_SharedConfig->selected_hbldr_3dsx_tid;
     configData.rosalinaMenuCombo = menuCombo;
     configData.pluginLoaderFlags = PluginLoader__IsEnabled() | (PluginChecker_isEnabled << 1) | (PluginWatcher_isEnabled << 2) | (PluginConverter_UseCache << 3);
