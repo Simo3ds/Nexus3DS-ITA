@@ -367,7 +367,7 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
                 char buf[256];
                 bool isDefault = entries[i].isDefault;
 
-                sprintf(buf, "  %s%s", entries[i].name, isDefault ? " [Default]" : "");
+                sprintf(buf, entries[i].name, isDefault ? " [Default]" : "");
                 posY = Draw_DrawString(30, posY + 15, COLOR_WHITE, buf);
             }
         }

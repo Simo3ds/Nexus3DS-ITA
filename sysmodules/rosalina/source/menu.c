@@ -40,6 +40,8 @@
 #include "plugin.h"
 #include "menus/screen_filters.h"
 #include "shell.h"
+#include "volume.h"
+#include "pmdbgext.h"
 
 u32 menuCombo = 0;
 bool isHidInitialized = false;
@@ -186,6 +188,9 @@ static u8 CTR_ALIGN(8) menuThreadStack[0x3000];
 static float batteryPercentage;
 static float batteryVoltage;
 static u8 batteryTemperature;
+// volume
+static u8 volumeSlider[2];
+static u8 dspVolumeSlider[2];
 
 static Result menuUpdateMcuInfo(void)
 {
@@ -232,6 +237,11 @@ static Result menuUpdateMcuInfo(void)
         // If it has failed, mcuFwVersion will be set to 0 again
         mcuFwVersion = SYSTEM_VERSION(major - 0x10, minor, 0);
     }
+    
+        // https://www.3dbrew.org/wiki/I2C_Registers#Device_3
+    MCUHWC_ReadRegister(0x58, dspVolumeSlider, 2); // Register-mapped ADC register
+    MCUHWC_ReadRegister(0x27, volumeSlider + 0, 1); // Raw volume slider state
+    MCUHWC_ReadRegister(0x09, volumeSlider + 1, 1); // Volume slider state
 
     if (!mcuInfoTableRead)
         mcuInfoTableRead = R_SUCCEEDED(MCUHWC_ReadRegister(0x7F, mcuInfoTable, sizeof(mcuInfoTable)));
@@ -394,12 +404,74 @@ void menuLeave(void)
     Draw_Unlock();
 }
 
+
+static u32 Get_TitleID(u64* titleId)
+{
+    FS_ProgramInfo programInfo;
+    u32 pid;
+    u32 launchFlags;
+    Result res = PMDBG_GetCurrentAppInfo(&programInfo, &pid, &launchFlags);
+    if (R_FAILED(res)) {
+        *titleId = 0;
+        return 0xFFFFFFFF;
+    }
+
+    *titleId = programInfo.programId;
+    return pid;
+}
+
+
 static void menuDraw(Menu *menu, u32 selected)
 {
     char versionString[16];
     s64 out;
-    u32 version, commitHash;
+    u32 version, commitHash, seconds, minutes, hours, days, year, month;
+    u64 milliseconds = osGetTime();
     bool isRelease;
+
+    seconds = milliseconds / 1000;
+    milliseconds %= 1000;
+    minutes = seconds / 60;
+    seconds %= 60;
+    hours = minutes / 60;
+    minutes %= 60;
+    days = hours / 24;
+    hours %= 24;
+
+    year = 1900; // osGetTime starts in 1900
+
+    while (true)
+    {
+        bool leapYear = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+        u16 daysInYear = leapYear ? 366 : 365;
+        if (days >= daysInYear)
+        {
+            days -= daysInYear;
+            ++year;
+        }
+        else
+        {
+            static const u8 daysInMonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+            for (month = 0; month < 12; ++month)
+            {
+                u8 dim = daysInMonth[month];
+
+                if (month == 1 && leapYear)
+                    ++dim;
+
+                if (days >= dim)
+                    days -= dim;
+                else
+                    break;
+            }
+            break;
+        }
+    }
+    days++;
+    month++;
+
+    u64 titleId;
+    Get_TitleID(&titleId);
 
     Result mcuInfoRes = menuUpdateMcuInfo();
 
@@ -412,7 +484,7 @@ static void menuDraw(Menu *menu, u32 selected)
     svcGetSystemInfo(&out, 0x10000, 0x200);
     isRelease = (bool)out;
 
-    if(GET_VERSION_REVISION(version) == 0)
+    if (GET_VERSION_REVISION(version) == 0)
         sprintf(versionString, "v%lu.%lu", GET_VERSION_MAJOR(version), GET_VERSION_MINOR(version));
     else
         sprintf(versionString, "v%lu.%lu.%lu", GET_VERSION_MAJOR(version), GET_VERSION_MINOR(version), GET_VERSION_REVISION(version));
@@ -421,7 +493,7 @@ static void menuDraw(Menu *menu, u32 selected)
     u32 numItems = menuCountItems(menu);
     u32 dispY = 0;
 
-    for(u32 i = 0; i < numItems; i++)
+    for (u32 i = 0; i < numItems; i++)
     {
         if (menuItemIsHidden(&menu->items[i]))
             continue;
@@ -431,7 +503,7 @@ static void menuDraw(Menu *menu, u32 selected)
         dispY += SPACING_Y;
     }
 
-    if(miniSocEnabled)
+    if (miniSocEnabled)
     {
         char ipBuffer[17];
         u32 ip = socGethostid();
@@ -450,7 +522,7 @@ static void menuDraw(Menu *menu, u32 selected)
     else
         Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 10 - SPACING_X * 15, 10, COLOR_WHITE, "%15s", "");
 
-    if(mcuInfoRes == 0)
+    if (mcuInfoRes == 0)
     {
         u32 voltageInt = (u32)batteryVoltage;
         u32 voltageFrac = (u32)(batteryVoltage * 100.0f) % 100u;
@@ -463,15 +535,32 @@ static void menuDraw(Menu *menu, u32 selected)
             voltageInt, voltageFrac,
             percentageInt, percentageFrac
         );
-        Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n, SCREEN_BOT_HEIGHT - 20, COLOR_WHITE, buf);
+        Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n, SCREEN_BOT_HEIGHT - 30, COLOR_WHITE, buf);
+        float coe = Volume_ExtractVolume(dspVolumeSlider[0], dspVolumeSlider[1], volumeSlider[0]);
+        u32 out = (u32)((coe * 100.0F) + (1 / 256.0F));
+        char volBuf[32];
+        int n2 = sprintf(volBuf, "Volume: %lu%%", out);
+        Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n2, 10, COLOR_WHITE, volBuf);
     }
     else
         Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 10 - SPACING_X * 19, SCREEN_BOT_HEIGHT - 20, COLOR_WHITE, "%19s", "");
 
-    if(isRelease)
+    if (isRelease)
         Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 20, COLOR_TITLE, "Luma3DS %s", versionString);
     else
         Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 20, COLOR_TITLE, "Luma3DS %s-%08lx", versionString, commitHash);
+
+    Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 16, SCREEN_BOT_HEIGHT - 20, COLOR_WHITE, "%04lu-%02lu-%02lu", year, month, days);
+    Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 5, SCREEN_BOT_HEIGHT - 20, COLOR_WHITE, "%02lu:%02lu:%02lu", hours, minutes, seconds);
+
+    if (titleId != 0)
+    {
+        Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 30, COLOR_WHITE, "TitleID: %016llX", titleId);
+    }
+    else
+    {
+        Draw_DrawString(10, SCREEN_BOT_HEIGHT - 30, COLOR_WHITE, "TitleID: Not Found");
+    }
 
     Draw_FlushFramebuffer();
 }

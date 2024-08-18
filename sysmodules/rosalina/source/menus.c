@@ -56,11 +56,10 @@ Menu rosalinaMenu = {
         { "Debugger options...", MENU, .menu = &debuggerMenu },
         { "System configuration...", MENU, .menu = &sysconfigMenu },
         { "Screen filters...", MENU, .menu = &screenFiltersMenu },
-        { "New 3DS menu...", MENU, .menu = &N3DSMenu, .visibility = &menuCheckN3ds },
+        { "New 3DS settings:", MENU, .menu = &N3DSMenu, .visibility = &menuCheckN3ds },
         { "Miscellaneous options...", MENU, .menu = &miscellaneousMenu },
         { "Save settings", METHOD, .method = &RosalinaMenu_SaveSettings },
-        { "Power off", METHOD, .method = &RosalinaMenu_PowerOff },
-        { "Reboot", METHOD, .method = &RosalinaMenu_Reboot },
+        { "Power options...", METHOD, .method = &RosalinaMenu_PowerOptions },
         { "System info", METHOD, .method = &RosalinaMenu_ShowSystemInfo },
         { "Credits", METHOD, .method = &RosalinaMenu_ShowCredits },
         { "Debug info", METHOD, .method = &RosalinaMenu_ShowDebugInfo, .visibility = &rosalinaMenuShouldShowDebugInfo },
@@ -333,7 +332,10 @@ void RosalinaMenu_ShowCredits(void)
                 "Special thanks to:\n"
                 "  fincs, WinterMute, mtheall, piepie62,\n"
                 "  Luma3DS contributors, libctru contributors,\n"
-                "  other people"
+                "  other people\n\n"
+                "People who made this fork possible:\n"
+                "DullPointer, Tekito-256, Gruetzig, cooolgamer,\n"
+                "JBMagination2, 2b-zipper"
             ));
 
         Draw_FlushFramebuffer();
@@ -469,7 +471,7 @@ void RosalinaMenu_ChangeScreenBrightness(void)
     Draw_Unlock();
 }
 
-void RosalinaMenu_PowerOff(void) // Soft shutdown.
+void RosalinaMenu_PowerOptions(void) // power options
 {
     Draw_Lock();
     Draw_ClearFramebuffer();
@@ -479,8 +481,12 @@ void RosalinaMenu_PowerOff(void) // Soft shutdown.
     do
     {
         Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Power off");
-        Draw_DrawString(10, 30, COLOR_WHITE, "Press A to power off, press B to go back.");
+        Draw_DrawString(10, 10, COLOR_TITLE, "Power options");
+        Draw_DrawString(10, 30, COLOR_YELLOW, "Press X to shutdown");
+        Draw_DrawString(10, 40, COLOR_YELLOW, "Press A to reboot");
+        Draw_DrawString(10, 50, COLOR_RED, "Press Y to force reboot");
+        Draw_DrawString(10, 60, COLOR_WHITE, "Press B to go back.");
+        Draw_DrawString(10, 80, COLOR_RED, "Note: Force reboot may corrupt your SD card.\nUse only when necessary!");
         Draw_FlushFramebuffer();
         Draw_Unlock();
 
@@ -489,7 +495,19 @@ void RosalinaMenu_PowerOff(void) // Soft shutdown.
         if(pressed & KEY_A)
         {
             menuLeave();
+            APT_HardwareResetAsync();
+            return;
+        }
+        else if(pressed & KEY_X)
+        {
+            menuLeave();
             srvPublishToSubscriber(0x203, 0);
+            return;
+        }
+        else if(pressed & KEY_Y)
+        {
+            svcKernelSetState(7);
+            __builtin_unreachable();
             return;
         }
         else if(pressed & KEY_B)
