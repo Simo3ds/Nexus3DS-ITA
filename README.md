@@ -32,6 +32,13 @@ See https://github.com/LumaTeam/Luma3DS/wiki (needs rework)
 ## Credits
 See https://github.com/LumaTeam/Luma3DS/wiki/Credits (needs rework)
 
+People who made this fork possible:
+- [DullPointer](https://github.com/DullPointer)
+- [Tekito-256](https://github.com/Tekito-256)
+- [Gruetzig](https://github.com/Gruetzig)
+- [cooolgamer](https://github.com/cooolgamer)
+- [JBMagination2](https://github.com/JBMagination2)
+
 ## Licensing
 This software is licensed under the terms of the GPLv3. You can find a copy of the license in the LICENSE.txt file.
 
