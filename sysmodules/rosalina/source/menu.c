@@ -542,7 +542,7 @@ static void menuDraw(Menu *menu, u32 selected)
         int n2 = sprintf(volBuf, "Volume: %lu%%", out);
         if(miniSocEnabled)
         {
-            Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n2, SCREEN_BOT_HEIGHT - 30, COLOR_WHITE, volBuf);
+            Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n2, SCREEN_BOT_HEIGHT - 40, COLOR_WHITE, volBuf);
         }
         else 
         {
