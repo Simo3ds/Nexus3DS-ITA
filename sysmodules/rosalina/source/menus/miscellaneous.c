@@ -555,9 +555,9 @@ void MiscellaneousMenu_EditPlayCoins(void)
         if (showResult)
         {
             if (R_SUCCEEDED(res))
-                Draw_DrawString(10, 110, COLOR_GREEN, "Play Coins successfully set.");
+                Draw_DrawString(10, 100, COLOR_GREEN, "Play Coins successfully set.");
             else
-                Draw_DrawFormattedString(10, 70, COLOR_RED, "Error: 0x%08lx", res);
+                Draw_DrawFormattedString(10, 100, COLOR_RED, "Error: 0x%08lx", res);
         }
         Draw_FlushFramebuffer();
         Draw_Unlock();
