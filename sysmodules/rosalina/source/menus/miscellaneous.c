@@ -73,7 +73,7 @@ Menu miscellaneousMenu = {
         { "Update time and date via NTP", METHOD, .method = &MiscellaneousMenu_UpdateTimeDateNtp },
         { "Nullify user time offset", METHOD, .method = &MiscellaneousMenu_NullifyUserTimeOffset },
         { "Dump DSP firmware", METHOD, .method = &MiscellaneousMenu_DumpDspFirm },
-        { "Set Play Coins to 300", METHOD, .method = &MiscellaneousMenu_MaxPlayCoins },
+        { "Set the number of Play Coins", METHOD, .method = &MiscellaneousMenu_EditPlayCoins },
         {},
     }
 };
@@ -528,6 +528,7 @@ static Result MiscellaneousMenu_SetPlayCoins(u16 amount)
         FSUSER_CloseArchive(archive); //dont care about error, just close archive since it opened without error
         return res;
     }
+
     res = FSFILE_Close(file);
     if (R_FAILED(res)) { //return if error
         FSUSER_CloseArchive(archive); //dont care about error, just close archive since it opened without error
@@ -537,29 +538,79 @@ static Result MiscellaneousMenu_SetPlayCoins(u16 amount)
     return res;
 }
 
-void MiscellaneousMenu_MaxPlayCoins(void)
-{
-    Result res = MiscellaneousMenu_SetPlayCoins(300);
-    Draw_Lock();
-    Draw_ClearFramebuffer();
-    Draw_FlushFramebuffer();
-    Draw_Unlock();
 
-    do
+void MiscellaneousMenu_EditPlayCoins(void)
+{
+    u16 playCoins = 0;
+    Result res = 0;
+    u32 pressed = 0;
+
+    void updateDisplay(bool showResult)
     {
         Draw_Lock();
+        Draw_ClearFramebuffer();
         Draw_DrawString(10, 10, COLOR_TITLE, "Miscellaneous options menu");
-        if(R_SUCCEEDED(res))
-            Draw_DrawString(10, 30, COLOR_WHITE, "Play Coins successfully set to 300.");
-        else
-
-            Draw_DrawFormattedString(10, 30, COLOR_WHITE,
-            "Error occured while setting Play Coins (0x%08lx).",
-            res
-        );
-
+        Draw_DrawFormattedString(10, 30, COLOR_WHITE, "Current Play Coins: %d", playCoins);
+        Draw_DrawString(10, 50, COLOR_WHITE, "DPAD Up/Down: +-1\nDPAD Right/Left: +-10\nA: Apply\nB: Go back");
+        if (showResult)
+        {
+            if (R_SUCCEEDED(res))
+                Draw_DrawString(10, 110, COLOR_GREEN, "Play Coins successfully set.");
+            else
+                Draw_DrawFormattedString(10, 70, COLOR_RED, "Error: 0x%08lx", res);
+        }
         Draw_FlushFramebuffer();
         Draw_Unlock();
     }
-    while(!(waitInput() & KEY_B) && !menuShouldExit);
+
+    updateDisplay(false);
+
+    do
+    {
+        pressed = waitInput();
+
+        if (pressed & KEY_A)
+        {
+            res = MiscellaneousMenu_SetPlayCoins(playCoins);
+            updateDisplay(true);
+        }
+        else if (pressed & KEY_B)
+        {
+            return;
+        }
+        else
+        {
+            bool updated = false;
+            if (pressed & KEY_DUP)
+            {
+                if (playCoins < 300) playCoins++;
+                updated = true;
+            }
+            else if (pressed & KEY_DDOWN)
+            {
+                if (playCoins > 0) playCoins--;
+                updated = true;
+            }
+            else if (pressed & KEY_DRIGHT)
+            {
+                if (playCoins <= 300 - 10) playCoins += 10;
+                updated = true;
+            }
+            else if (pressed & KEY_DLEFT)
+            {
+                if (playCoins >= 10) playCoins -= 10;
+                updated = true;
+            }
+
+            if (updated)
+            {
+                Draw_Lock();
+                Draw_DrawString(10, 30, COLOR_WHITE, "Current Play Coins:         ");
+                Draw_DrawFormattedString(10, 30, COLOR_WHITE, "Current Play Coins: %d", playCoins);
+                Draw_FlushFramebuffer();
+                Draw_Unlock();
+            }
+        }
+
+    } while (!menuShouldExit);
 }
