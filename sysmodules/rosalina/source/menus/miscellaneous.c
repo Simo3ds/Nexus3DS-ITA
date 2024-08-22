@@ -550,7 +550,7 @@ void MiscellaneousMenu_EditPlayCoins(void)
         Draw_Lock();
         Draw_ClearFramebuffer();
         Draw_DrawString(10, 10, COLOR_TITLE, "Miscellaneous options menu");
-        Draw_DrawFormattedString(10, 30, COLOR_WHITE, "Current Play Coins: %d", playCoins);
+        Draw_DrawFormattedString(10, 30, COLOR_WHITE, "Set Play Coins: %d", playCoins);
         Draw_DrawString(10, 50, COLOR_WHITE, "DPAD Up/Down: +-1\nDPAD Right/Left: +-10\nA: Apply\nB: Go back");
         if (showResult)
         {
@@ -605,8 +605,8 @@ void MiscellaneousMenu_EditPlayCoins(void)
             if (updated)
             {
                 Draw_Lock();
-                Draw_DrawString(10, 30, COLOR_WHITE, "Current Play Coins:         ");
-                Draw_DrawFormattedString(10, 30, COLOR_WHITE, "Current Play Coins: %d", playCoins);
+                Draw_DrawString(10, 30, COLOR_WHITE, "Set Play Coins:         ");
+                Draw_DrawFormattedString(10, 30, COLOR_WHITE, "Set Play Coins: %d", playCoins);
                 Draw_FlushFramebuffer();
                 Draw_Unlock();
             }
