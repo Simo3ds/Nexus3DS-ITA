@@ -890,8 +890,8 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                  "button hints).\n\n"
                                                  "\t* 'After payloads' displays it\n"
                                                  "afterwards.\n\n"
-                                                 "Edit the duration in configfork.ini (3s\n"
-                                                 "default).",
+                                                 "Edit the duration in configfork.ini\n"
+                                                 "(3s default).",
 
                                                  "Activate a PIN lock.\n\n"
                                                  "The PIN will be asked each time\n"
