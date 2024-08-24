@@ -38,6 +38,7 @@ People who made this fork possible:
 - [Gruetzig](https://github.com/Gruetzig)
 - [cooolgamer](https://github.com/cooolgamer)
 - [JBMagination2](https://github.com/JBMagination2)
+- [Pixel-Pop](https://github.com/Pixel-Pop)
 
 ## Licensing
 This software is licensed under the terms of the GPLv3. You can find a copy of the license in the LICENSE.txt file.

@@ -335,7 +335,7 @@ void RosalinaMenu_ShowCredits(void)
                 "  other people\n\n"
                 "People who made this fork possible:\n"
                 "DullPointer, Tekito-256, Gruetzig, cooolgamer,\n"
-                "JBMagination2, 2b-zipper"
+                "JBMagination2, Pixel-Pop, 2b-zipper"
             ));
 
         Draw_FlushFramebuffer();
