@@ -2,7 +2,7 @@
 
 *Nintendo 3DS "Custom Firmware"*
 
-As you can see, the code for the added features sucks (because my knowledge of C is severely lacking), so don't expect too much.
+As you can see, the code for the added features by [me](https://github.com/2b-zipper) sucks (because my knowledge of C is severely lacking), so don't expect too much.
 
 ## What it is
 **Luma3DS** is a program patching and reimplementing significant parts of the software running on all models of the Nintendo 3DS family of consoles.
