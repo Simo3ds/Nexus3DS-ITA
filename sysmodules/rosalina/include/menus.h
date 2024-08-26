@@ -40,7 +40,6 @@ void RosalinaMenu_SaveSettings(void);
 void RosalinaMenu_PowerOptions(void);
 void RosalinaMenu_Reboot(void);
 void RosalinaMenu_Cheats(void);
-void RosalinaMenu_ChangeVersion(void);
 
 void RosalinaMenu_ShowSystemInfo();
 
