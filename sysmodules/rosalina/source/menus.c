@@ -137,60 +137,6 @@ Result CopyFileInSdmc(const char *src, const char *dst)
     return 0;
 }
 
-void RosalinaMenu_ChangeVersion(void)
-{
-    u32 keys;
-    const char *srcParh = "/luma/firms/v9.1.firm";
-
-    ClearScreenQuickly();
-
-    do
-    {
-        Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Version changer");
-        Draw_DrawString(10, 30, COLOR_WHITE, "Press A to change the version, press B to go back.");
-        Draw_FlushFramebuffer();
-        Draw_Unlock();
-
-        keys = waitInputWithTimeout(1000);
-
-        if(keys & KEY_A)
-        {
-            ClearScreenQuickly();
-
-            Draw_Lock();
-            Draw_DrawString(10, 10, COLOR_TITLE, "Change luma3DS version");
-            Draw_DrawString(10, 30, COLOR_WHITE, "Please wait...");
-            Draw_FlushFramebuffer();
-            Draw_Unlock();
-
-            // Change the boot.firm
-            if(R_FAILED(CopyFileInSdmc(srcParh, "/boot.firm")))
-            {
-                do
-                {
-                    Draw_Lock();
-                    Draw_DrawString(10, 10, COLOR_TITLE, "Error");
-                    Draw_DrawString(10, 30, COLOR_WHITE, "Failed to change the version. Press A to go back.");
-                    Draw_FlushFramebuffer();
-                    Draw_Unlock();
-                            
-                    keys = waitInputWithTimeout(1000);
-
-                    if(keys & KEY_A)
-                    {
-                        return;
-                    }
-                } while(!menuShouldExit);
-            }
-
-            // Reboot the 3ds
-            menuLeave();
-            APT_HardwareResetAsync();
-        }
-    } while(!menuShouldExit);
-}
-
 bool rosalinaMenuShouldShowDebugInfo(void)
 {
     // Don't show on release builds
