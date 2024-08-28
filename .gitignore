@@ -1,4 +1,5 @@
 .vscode
+.lst
 out
 build
 arm11/build
