@@ -1,5 +1,4 @@
 .vscode
-.lst
 out
 build
 arm11/build
@@ -20,6 +19,7 @@ exceptions/arm11/build
 .project
 .cproject
 .settings
+*.lst
 
 Luma3DS*.zip
 hbmenu.zip
