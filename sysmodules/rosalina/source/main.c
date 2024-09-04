@@ -37,6 +37,7 @@
 #include "menus/screen_filters.h"
 #include "menus/cheats.h"
 #include "menus/sysconfig.h"
+#include "menus/config_extra.h"
 #include "input_redirection.h"
 #include "minisoc.h"
 #include "draw.h"
@@ -47,6 +48,9 @@
 #include "plugin.h"
 
 bool isN3DS;
+bool wifiOnBeforeSleep;
+
+extern config_extra configExtra;
 
 Result __sync_init(void);
 Result __sync_fini(void);
@@ -173,10 +177,39 @@ static void handleShellNotification(u32 notificationId)
         // Sequence goes like this: MCU fires notif. 0x200 on shell open
         // and shell close, then NS demuxes it and fires 0x213 and 0x214.
         handleShellOpened();
-        menuShouldExit = false;
-    } else {
+
+        if(configExtra.suppressLeds){
+            mcuHwcInit();
+            u8 off = 0;
+            MCUHWC_WriteRegister(0x28, &off, 1);
+            mcuHwcExit();
+        }
+
+        if(wifiOnBeforeSleep && configExtra.cutSleepWifi && isServiceUsable("nwm::EXT")){
+            nwmExtInit();
+            NWMEXT_ControlWirelessEnabled(true);
+            nwmExtExit();
+        }
+    } 
+    else {
         // Shell closed
         menuShouldExit = true;
+
+        if(configExtra.cutSleepWifi)
+        {      
+            u8 wireless = (*(vu8 *)((0x10140000 | (1u << 31)) + 0x180));
+
+            if (isServiceUsable("nwm::EXT") && wireless)
+            {
+                wifiOnBeforeSleep = true;
+                nwmExtInit();
+                NWMEXT_ControlWirelessEnabled(false);
+                nwmExtExit();
+            }
+            else {
+                wifiOnBeforeSleep = false;
+            }
+        }
     }
 
 }
@@ -250,11 +283,26 @@ static const ServiceManagerNotificationEntry notifications[] = {
     { 0x000, NULL },
 };
 
+static void cutPowerToCardSlotWhenTWLCard(void)
+{
+    FS_CardType card;
+    bool status;
+
+    if(R_SUCCEEDED(FSUSER_GetCardType(&card)) && card == 1){
+        FSUSER_CardSlotPowerOff(&status);
+    }
+}
+
 // Some changes to commit
 int main(void)
 {
     Sleep__Init();
     PluginLoader__Init();
+    ConfigExtra_ReadConfigExtra();
+    if (configExtra.cutSlotPower)
+    {
+        cutPowerToCardSlotWhenTWLCard();
+    }
 
     if(R_FAILED(svcCreateEvent(&preTerminationEvent, RESET_STICKY)))
         svcBreak(USERBREAK_ASSERT);

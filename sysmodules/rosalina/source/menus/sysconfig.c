@@ -27,6 +27,7 @@
 #include <3ds.h>
 #include "luma_config.h"
 #include "menus/sysconfig.h"
+#include "menus/config_extra.h"
 #include "memory.h"
 #include "draw.h"
 #include "fmt.h"
@@ -42,6 +43,7 @@ Menu sysconfigMenu = {
         { "Toggle Wireless", METHOD, .method = &SysConfigMenu_ToggleWireless },
         { "Toggle Power Button", METHOD, .method=&SysConfigMenu_TogglePowerButton },
         { "Toggle power to card slot", METHOD, .method=&SysConfigMenu_ToggleCardIfPower},
+        { "Extra Config...", MENU, .menu = &configExtraMenu },
         {},
     }
 };

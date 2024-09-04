@@ -35,6 +35,7 @@
 #include "luma_config.h"
 #include "menus/n3ds.h"
 #include "menus/cheats.h"
+#include "menus/config_extra.h"
 #include "menus/plugin_options.h"
 #include "minisoc.h"
 #include "plugin.h"
@@ -330,6 +331,8 @@ void menuThreadMain(void)
 {
     if(isN3DS)
         N3DSMenu_UpdateStatus();
+
+    ConfigExtra_UpdateAllMenuItems();
 
     while (!isServiceUsable("ac:u") || !isServiceUsable("hid:USER") || !isServiceUsable("gsp::Gpu") || !isServiceUsable("gsp::Lcd") || !isServiceUsable("cdc:CHK"))
         svcSleepThread(250 * 1000 * 1000LL);
