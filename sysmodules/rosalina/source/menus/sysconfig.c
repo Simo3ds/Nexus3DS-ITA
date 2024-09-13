@@ -44,8 +44,8 @@ Menu sysconfigMenu = {
         { "Toggle Wireless", METHOD, .method = &SysConfigMenu_ToggleWireless },
         { "Toggle Power Button", METHOD, .method=&SysConfigMenu_TogglePowerButton },
         { "Toggle power to card slot", METHOD, .method=&SysConfigMenu_ToggleCardIfPower},
-        { "Extra Config...", MENU, .menu = &configExtraMenu },
         { "Change screen brightness", METHOD, .method = &SysConfigMenu_ChangeScreenBrightness },
+        { "Extra Config...", MENU, .menu = &configExtraMenu },
         {},
     }
 };
