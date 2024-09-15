@@ -593,12 +593,18 @@ void MiscellaneousMenu_EditPlayCoins(void)
             }
             else if (pressed & KEY_DRIGHT)
             {
-                if (playCoins <= 300 - 10) playCoins += 10;
+                if (playCoins + 10 > 300)
+                    playCoins = 300;
+                else
+                    playCoins += 10;
                 updated = true;
             }
             else if (pressed & KEY_DLEFT)
             {
-                if (playCoins >= 10) playCoins -= 10;
+                if (playCoins < 10)
+                    playCoins = 0;
+                else
+                    playCoins -= 10;
                 updated = true;
             }
 
