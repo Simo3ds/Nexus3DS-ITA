@@ -43,3 +43,5 @@ void RosalinaMenu_ShowSystemInfo();
 
 bool rosalinaMenuShouldShowDebugInfo(void);
 void RosalinaMenu_ShowDebugInfo(void);
+
+void menuTakeSelfScreenshot(void);
