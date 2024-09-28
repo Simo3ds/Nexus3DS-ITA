@@ -40,6 +40,9 @@ static char new3dsMenuBuf[128 + 1];
 static QtmCalibrationData lastQtmCal = {0};
 static bool qtmCalRead = false;
 
+static QtmCalibrationData lastQtmCal = {0};
+static bool qtmCalRead = false;
+
 Menu N3DSMenu = {
     "New 3DS menu",
     {
