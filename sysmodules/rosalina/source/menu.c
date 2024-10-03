@@ -593,8 +593,8 @@ static void menuDraw(Menu *menu, u32 selected)
     else
         Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 20, COLOR_TITLE, "Luma3DS %s-%08lx", versionString, commitHash);
 
-    Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 16, SCREEN_BOT_HEIGHT - 20, COLOR_WHITE, "%04lu-%02lu-%02lu", year, month, days);
-    Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 5, SCREEN_BOT_HEIGHT - 20, COLOR_WHITE, "%02lu:%02lu:%02lu", hours, minutes, seconds);
+    Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 15.6, SCREEN_BOT_HEIGHT - 20, COLOR_WHITE, "%04lu-%02lu-%02lu", year, month, days);
+    Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 4.6, SCREEN_BOT_HEIGHT - 20, COLOR_WHITE, "%02lu:%02lu:%02lu", hours, minutes, seconds);
 
     if (titleId != 0)
     {
