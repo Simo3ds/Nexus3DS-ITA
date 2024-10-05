@@ -4,10 +4,6 @@
 #pragma once
 #include <3ds/types.h>
 
-// Originally from OAF and taken with permission,
-// though it is unclear whether LUT data can be licensed
-// like code is.
-
 static const u8 ctrToSrgbTableTop[256][3] = {
     { 0x00, 0x00, 0x00, }, // i = 0x00
     { 0x01, 0x01, 0x01, }, // i = 0x01
