@@ -167,7 +167,7 @@ void RosalinaMenu_ChangeVersion(void)
                 do
                 {
                     Draw_Lock();
-                    Draw_DrawString(10, 10, COLOR_TITLE, "Error");
+                    Draw_DrawString(10, 10, COLOR_TITLE, "Error                    ");
                     Draw_DrawString(10, 30, COLOR_WHITE, "Failed to change the version. Press A to go back.");
                     Draw_FlushFramebuffer();
                     Draw_Unlock();
