@@ -134,6 +134,65 @@ Result CopyFileInSdmc(const char *src, const char *dst)
     return 0;
 }
 
+void RosalinaMenu_ChangeVersion(void)
+{
+    u32 keys;
+    const char *srcPath = "/luma/firms/v9.1.firm";
+
+    ClearScreenQuickly();
+
+    do
+    {
+        Draw_Lock();
+        Draw_DrawString(10, 10, COLOR_TITLE, "Version changer");
+        Draw_DrawString(10, 30, COLOR_WHITE, "Press A to change the version, press B to go back.");
+        Draw_FlushFramebuffer();
+        Draw_Unlock();
+
+        keys = waitInputWithTimeout(1000);
+
+        if (keys & KEY_A)
+        {
+            ClearScreenQuickly();
+
+            Draw_Lock();
+            Draw_DrawString(10, 10, COLOR_TITLE, "Change luma3DS version");
+            Draw_DrawString(10, 30, COLOR_WHITE, "Please wait...");
+            Draw_FlushFramebuffer();
+            Draw_Unlock();
+
+            // Change the boot.firm
+            if (R_FAILED(CopyFileInSdmc(srcPath, "/boot.firm")))
+            {
+                do
+                {
+                    Draw_Lock();
+                    Draw_DrawString(10, 10, COLOR_TITLE, "Error");
+                    Draw_DrawString(10, 30, COLOR_WHITE, "Failed to change the version. Press A to go back.");
+                    Draw_FlushFramebuffer();
+                    Draw_Unlock();
+
+                    keys = waitInputWithTimeout(1000);
+
+                    if (keys & KEY_A)
+                    {
+                        return;
+                    }
+                } while (!menuShouldExit);
+            }
+
+            // Reboot the 3DS
+            menuLeave();
+            APT_HardwareResetAsync();
+        }
+        else if (keys & KEY_B)
+        {
+            // Exit the menu if B is pressed
+            return;
+        }
+    } while (!menuShouldExit);
+}
+
 bool rosalinaMenuShouldShowDebugInfo(void)
 {
     // Don't show on release builds
@@ -304,10 +363,7 @@ void RosalinaMenu_ShowCredits(void)
                 "Special thanks to:\n"
                 "  fincs, WinterMute, mtheall, piepie62,\n"
                 "  Luma3DS contributors, libctru contributors,\n"
-                "  other people\n\n"
-                "People who made this fork possible:\n"
-                "DullPointer, Tekito-256, Gruetzig, cooolgamer,\n"
-                "JBMagination2, Pixel-Pop, 2b-zipper"
+                "  other people"
             ));
 
         Draw_FlushFramebuffer();
