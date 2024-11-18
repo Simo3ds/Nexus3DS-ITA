@@ -363,7 +363,10 @@ void RosalinaMenu_ShowCredits(void)
                 "Special thanks to:\n"
                 "  fincs, WinterMute, mtheall, piepie62,\n"
                 "  Luma3DS contributors, libctru contributors,\n"
-                "  other people"
+                "  other people\n\n"
+                "People who made this fork possible:\n"
+                "  DullPointer, Tekito-256, Gruetzig, cooolgamer,\n"
+                "  JBMagination2, Pixel-Pop, 2b-zipper"
             ));
 
         Draw_FlushFramebuffer();
