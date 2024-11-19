@@ -91,14 +91,6 @@ To build Luma3DS, the following is needed:
 
 While Luma3DS releases are bundled with `3ds-hbmenu`, Luma3DS actually compiles into one single file: `boot.firm`. Just copy it over to the root of your SD card ([ftpd](https://github.com/mtheall/ftpd) is the easiest way to do so), and you're done.
 
-People who made this fork possible:
-- [DullPointer](https://github.com/DullPointer)
-- [Tekito-256](https://github.com/Tekito-256)
-- [Gruetzig](https://github.com/Gruetzig)
-- [cooolgamer](https://github.com/cooolgamer)
-- [JBMagination2](https://github.com/JBMagination2)
-- [Pixel-Pop](https://github.com/Pixel-Pop)
-
 ## Licensing
 This software is licensed under the terms of the GPLv3. You can find a copy of the license in the LICENSE.txt file.
 
@@ -118,3 +110,12 @@ Luma3DS would not be what it is without the contributions and constructive feedb
 * Everyone who has contributed to the Luma3DS repository
 * Everyone who has assisted with troubleshooting end-users
 * Everyone who has provided constructive feedback to Luma3DS
+
+People who made this fork possible:
+- [DullPointer](https://github.com/DullPointer)
+- [Tekito-256](https://github.com/Tekito-256)
+- [Gruetzig](https://github.com/Gruetzig)
+- [cooolgamer](https://github.com/cooolgamer)
+- [JBMagination2](https://github.com/JBMagination2)
+- [Pixel-Pop](https://github.com/Pixel-Pop)
+
