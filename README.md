@@ -9,6 +9,9 @@
 ![Rosalina menu screenshot](img/rosalina_menu_v1321.png)
 
 ## Description
+
+This project is based on several forks of Luma3DS and incorporates unique features and fixes.
+
 **Luma3DS** patches and reimplements significant parts of the system software running on all models of the Nintendo 3DS family of consoles. It aims to greatly improve the user experience and support the 3DS far beyond its end-of-life. Features include:
 
 * **First-class support for homebrew applications**
