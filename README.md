@@ -115,10 +115,10 @@ Luma3DS would not be what it is without the contributions and constructive feedb
 * Everyone who has provided constructive feedback to Luma3DS
 
 People who made this fork possible:
-- [DullPointer](https://github.com/DullPointer)
-- [Tekito-256](https://github.com/Tekito-256)
-- [Gruetzig](https://github.com/Gruetzig)
-- [cooolgamer](https://github.com/cooolgamer)
-- [JBMagination2](https://github.com/JBMagination2)
-- [Pixel-Pop](https://github.com/Pixel-Pop)
+- **[@DullPointer](https://github.com/DullPointer)** Created Luma3DS fork with many additional features
+- **[@Tekito-256](https://github.com/Tekito-256)** Added plugin-related features such as Plugin Selector
+- **[@Gruetzig](https://github.com/Gruetzig)** Added the game coin maximization function
+- **[@cooolgamer](https://github.com/cooolgamer)** Added several features, such as Power options
+- **[@JBMagination2](https://github.com/JBMagination2)** Added time to Rosalina menu
+- **[@Pixel-Pop](https://github.com/Pixel-Pop)** Added feature to load logo.bin
 
