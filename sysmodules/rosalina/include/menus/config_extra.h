@@ -2,6 +2,7 @@ typedef struct {
 	bool suppressLeds;
 	bool cutSlotPower;
 	bool cutSleepWifi;
+	bool autoSave;
 } config_extra;
 
 extern config_extra configExtra;
@@ -14,3 +15,4 @@ void ConfigExtra_UpdateMenuItem(int menuIndex, bool value);
 void ConfigExtra_UpdateAllMenuItems();
 void ConfigExtra_ReadConfigExtra();
 void ConfigExtra_WriteConfigExtra();
+void ConfigExtra_SetAutoSave();
