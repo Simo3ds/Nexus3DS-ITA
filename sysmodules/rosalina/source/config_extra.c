@@ -9,14 +9,15 @@
 config_extra configExtra = { .suppressLeds = false, .cutSlotPower = false, .cutSleepWifi = false, .autoSave = true };
 bool configExtraSaved = false;
 
-static const char menuText[4][32] = {
+static const char menuText[5][32] = {
     "Automatically suppress LEDs",
     "Cut power to TWL Flashcards",
     "Cut 3DS Wifi in sleep mode",
-    "Enable auto-save"
+    "Enable auto-save",
+    "Save config. Changes saved"
 };
 
-static char menuDisplay[4][64];
+static char menuDisplay[5][64];
 
 Menu configExtraMenu = {
     "Extra config menu",
@@ -25,6 +26,7 @@ Menu configExtraMenu = {
         { menuText[1], METHOD, .method = &ConfigExtra_SetCutSlotPower},
         { menuText[2], METHOD, .method = &ConfigExtra_SetCutSleepWifi},
         { menuText[3], METHOD, .method = &ConfigExtra_SetAutoSave},
+        { menuText[4], METHOD, .method = &ConfigExtra_WriteConfigExtra},
         {},
     }
 };
@@ -33,21 +35,38 @@ void ConfigExtra_SetSuppressLeds(void)
 {
     configExtra.suppressLeds = !configExtra.suppressLeds;
     ConfigExtra_UpdateMenuItem(0, configExtra.suppressLeds);
-    if (configExtra.autoSave) ConfigExtra_WriteConfigExtra();
-}
+    if (configExtra.autoSave) {
+        ConfigExtra_WriteConfigExtra();
+        configExtraSaved = true;
+    } else {
+        configExtraSaved = false;
+        ConfigExtra_UpdateMenuItem(4, configExtraSaved);
+    }}
 
 void ConfigExtra_SetCutSlotPower(void) 
 {
     configExtra.cutSlotPower = !configExtra.cutSlotPower;
     ConfigExtra_UpdateMenuItem(1, configExtra.cutSlotPower);
-    if (configExtra.autoSave) ConfigExtra_WriteConfigExtra();
+    if (configExtra.autoSave) {
+        ConfigExtra_WriteConfigExtra();
+        configExtraSaved = true;
+    } else {
+        configExtraSaved = false;
+        ConfigExtra_UpdateMenuItem(4, configExtraSaved);
+    }
 }
 
 void ConfigExtra_SetCutSleepWifi(void) 
 {
     configExtra.cutSleepWifi = !configExtra.cutSleepWifi;
     ConfigExtra_UpdateMenuItem(2, configExtra.cutSleepWifi);
-    if (configExtra.autoSave) ConfigExtra_WriteConfigExtra();
+    if (configExtra.autoSave) {
+        ConfigExtra_WriteConfigExtra();
+        configExtraSaved = true;
+    } else {
+        configExtraSaved = false;
+        ConfigExtra_UpdateMenuItem(4, configExtraSaved);
+    }
 }
 
 void ConfigExtra_SetAutoSave(void)
@@ -59,7 +78,11 @@ void ConfigExtra_SetAutoSave(void)
 
 void ConfigExtra_UpdateMenuItem(int menuIndex, bool value)
 {
-    sprintf(menuDisplay[menuIndex], "%s %s", value ? "(x)" : "( )", menuText[menuIndex]);
+    if (menuIndex == 4) {
+        sprintf(menuDisplay[menuIndex], "%s: %s", menuText[menuIndex], value ? "[true]" : "[false]");
+    } else {
+        sprintf(menuDisplay[menuIndex], "%s %s", value ? "(x)" : "( )", menuText[menuIndex]);
+    }
     configExtraMenu.items[menuIndex].title = menuDisplay[menuIndex];
 }
 
@@ -69,6 +92,7 @@ void ConfigExtra_UpdateAllMenuItems(void)
     ConfigExtra_UpdateMenuItem(1, configExtra.cutSlotPower);
     ConfigExtra_UpdateMenuItem(2, configExtra.cutSleepWifi);
     ConfigExtra_UpdateMenuItem(3, configExtra.autoSave);
+    ConfigExtra_UpdateMenuItem(4, configExtraSaved);
 }
 
 void ConfigExtra_ReadConfigExtra(void)
@@ -108,6 +132,7 @@ void ConfigExtra_WriteConfigExtra(void)
         if(R_SUCCEEDED(res)) 
         {
             configExtraSaved = true;
+            ConfigExtra_UpdateMenuItem(4, configExtraSaved);
         }
     }
 }
