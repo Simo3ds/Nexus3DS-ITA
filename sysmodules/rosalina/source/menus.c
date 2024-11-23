@@ -57,7 +57,7 @@ Menu rosalinaMenu = {
         { "System configuration...", MENU, .menu = &sysconfigMenu },
         { "Miscellaneous options...", MENU, .menu = &miscellaneousMenu },
         { "Save settings", METHOD, .method = &RosalinaMenu_SaveSettings },
-        { "Power options...", METHOD, .method = &RosalinaMenu_PowerOptions },
+        { "Power off / reboot", METHOD, .method = &RosalinaMenu_PowerOffOrReboot },
         { "System info", METHOD, .method = &RosalinaMenu_ShowSystemInfo },
         { "Credits", METHOD, .method = &RosalinaMenu_ShowCredits },
         { "Debug info", METHOD, .method = &RosalinaMenu_ShowDebugInfo, .visibility = &rosalinaMenuShouldShowDebugInfo },
@@ -234,7 +234,11 @@ void RosalinaMenu_PowerOffOrReboot(void)
     {
         Draw_Lock();
         Draw_DrawString(10, 10, COLOR_TITLE, "Power Off / Reboot");
-        Draw_DrawString(10, 30, COLOR_WHITE, "Press A to power off.\nPress Y to reboot.\nPress B to go back.");
+        Draw_DrawString(10, 30, COLOR_YELLOW, "Press A to power off.");
+        Draw_DrawString(10, 40, COLOR_YELLOW, "Press Y to reboot.");
+        Draw_DrawString(10, 50, COLOR_RED, "Press X to force reboot.");
+        Draw_DrawString(10, 60, COLOR_WHITE, "Press B to go back.");
+        Draw_DrawString(10, 80, COLOR_RED, "Note: Force reboot may corrupt your SD card.");
         Draw_FlushFramebuffer();
         Draw_Unlock();
 
@@ -251,6 +255,13 @@ void RosalinaMenu_PowerOffOrReboot(void)
             // Soft shutdown
             menuLeave();
             srvPublishToSubscriber(0x203, 0);
+            return;
+        }
+        else if(pressed & KEY_X)
+        {
+            // Force reboot
+            svcKernelSetState(7);
+            __builtin_unreachable();
             return;
         }
         else if (pressed & KEY_B)
@@ -373,52 +384,6 @@ void RosalinaMenu_ShowCredits(void)
         Draw_Unlock();
     } while (!(waitInput() & KEY_B) && !menuShouldExit);
 }
-
-void RosalinaMenu_PowerOptions(void) // power options
-{
-    Draw_Lock();
-    Draw_ClearFramebuffer();
-    Draw_FlushFramebuffer();
-    Draw_Unlock();
-
-    do
-    {
-        Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Power options");
-        Draw_DrawString(10, 30, COLOR_YELLOW, "Press X to shutdown");
-        Draw_DrawString(10, 40, COLOR_YELLOW, "Press A to reboot");
-        Draw_DrawString(10, 50, COLOR_RED, "Press Y to force reboot");
-        Draw_DrawString(10, 60, COLOR_WHITE, "Press B to go back.");
-        Draw_DrawString(10, 80, COLOR_RED, "Note: Force reboot may corrupt your SD card.\nUse only when necessary!");
-        Draw_FlushFramebuffer();
-        Draw_Unlock();
-
-        u32 pressed = waitInputWithTimeout(1000);
-
-        if(pressed & KEY_A)
-        {
-            menuLeave();
-            APT_HardwareResetAsync();
-            return;
-        }
-        else if(pressed & KEY_X)
-        {
-            menuLeave();
-            srvPublishToSubscriber(0x203, 0);
-            return;
-        }
-        else if(pressed & KEY_Y)
-        {
-            svcKernelSetState(7);
-            __builtin_unreachable();
-            return;
-        }
-        else if(pressed & KEY_B)
-            return;
-    }
-    while(!menuShouldExit);
-}
-
 
 #define TRY(expr)               \
     if (R_FAILED(res = (expr))) \
