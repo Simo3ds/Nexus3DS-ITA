@@ -116,7 +116,7 @@ Luma3DS would not be what it is without the contributions and constructive feedb
 * Everyone who has assisted with troubleshooting end-users
 * Everyone who has provided constructive feedback to Luma3DS
 
-People who made this fork possible:
+People who made this fork possible (in no particular order):
 - **[@DullPointer](https://github.com/DullPointer)** Created Luma3DS fork with many additional features
 - **[@Tekito-256](https://github.com/Tekito-256)** Added plugin-related features such as Plugin Selector
 - **[@Gruetzig](https://github.com/Gruetzig)** Added the play coin maximization feature
