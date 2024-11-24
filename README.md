@@ -117,10 +117,20 @@ Luma3DS would not be what it is without the contributions and constructive feedb
 * Everyone who has provided constructive feedback to Luma3DS
 
 People who made this fork possible (in no particular order):
-- **[@DullPointer](https://github.com/DullPointer)** Created Luma3DS fork with many additional features
-- **[@Tekito-256](https://github.com/Tekito-256)** Added plugin-related features such as Plugin Selector
-- **[@Gruetzig](https://github.com/Gruetzig)** Added playcoin maxing feature
-- **[@cooolgamer](https://github.com/cooolgamer)** Added several features, such as Power options
-- **[@JBMagination2](https://github.com/JBMagination2)** Added time to Rosalina menu
-- **[@Pixel-Pop](https://github.com/Pixel-Pop)** Added feature to load logo.bin
+- **[@DullPointer](https://github.com/DullPointer)** Created Luma3DS fork with many additional features  
+  [GitHub Repository](https://github.com/DullPointer/Luma3DS_archive)
 
+- **[@Tekito-256](https://github.com/Tekito-256)** Added plugin-related features such as Plugin Selector  
+  [GitHub Repository](https://github.com/Tekito-256/Luma3DS)
+
+- **[@Gruetzig](https://github.com/Gruetzig)** Added playcoin maxing feature  
+  [GitHub Repository](https://github.com/Gruetzig/Luma3DS)
+
+- **[@cooolgamer](https://github.com/cooolgamer)** Added several features, such as Power options  
+  [GitHub Repository](https://github.com/cooolgamorg/CustomLuma3DS)  
+
+- **[@JBMagination2](https://github.com/JBMagination2)** Added time to Rosalina menu  
+  [GitHub Repository](https://github.com/JBMagination2/Luma3DS)
+
+- **[@Pixel-Pop](https://github.com/Pixel-Pop)** Added feature to load logo.bin  
+  [GitHub Repository](https://github.com/Pixel-Pop/Luma3DS)
