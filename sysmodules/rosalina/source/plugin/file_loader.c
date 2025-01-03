@@ -599,7 +599,7 @@ static char *memstr(char *haystack, const char *needle, int size)
     return NULL;
 }
 
-bool TryToLoadPlugin(Handle process)
+bool TryToLoadPlugin(Handle process, bool isHomebrew)
 {
     u64 tid;
     u64 fileSize;
@@ -835,7 +835,14 @@ nextProcess:
     if (!res && fileHeader.infos.compatibility == PLG_COMPAT_EMULATOR)
     {
         ctx->error.message = "Plugin is only compatible with emulators";
-        return false;
+        res = -1;
+    }
+
+    // Check if plugin can load on homebrew
+    if (!res && (isHomebrew && !fileHeader.infos.allowHomebrewLoad)) {
+        // Do not display message as this is a common case
+        ctx->error.message = NULL;
+        res = -1;
     }
 
     // Flags
