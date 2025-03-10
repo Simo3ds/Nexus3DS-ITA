@@ -24,14 +24,14 @@ Menu pluginOptionsMenu = {
     }
 };
 
-void        PluginChecker__MenuCallback(void)
+void PluginChecker__MenuCallback(void)
 {
     PluginChecker_isEnabled = !PluginChecker_isEnabled;
     LumaConfig_RequestSaveSettings();
     PluginChecker__UpdateMenu();
 }
 
-void        PluginChecker__UpdateMenu(void)
+void PluginChecker__UpdateMenu(void)
 {
     static const char *status[2] =
     {
@@ -42,7 +42,7 @@ void        PluginChecker__UpdateMenu(void)
     rosalinaMenu.items[4].menu->items[0].title = status[PluginChecker_isEnabled];
 }
 
-void        PluginWatcher__MenuCallback(void)
+void PluginWatcher__MenuCallback(void)
 {
     PluginWatcher_isEnabled = !PluginWatcher_isEnabled;
     LumaConfig_RequestSaveSettings();
@@ -59,7 +59,7 @@ void        PluginWatcher__MenuCallback(void)
         PluginWatcher_isRunning = false;
 }
 
-void        PluginWatcher__UpdateMenu(void)
+void PluginWatcher__UpdateMenu(void)
 {
     static const char *status[2] =
     {
