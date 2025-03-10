@@ -37,6 +37,7 @@
 #include "menus/cheats.h"
 #include "menus/config_extra.h"
 #include "menus/plugin_options.h"
+#include "menus/sysconfig.h"
 #include "minisoc.h"
 #include "plugin.h"
 #include "menus/screen_filters.h"
@@ -571,10 +572,15 @@ static void menuDraw(Menu *menu, u32 selected)
             percentageInt, percentageFrac
         );
         Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n, SCREEN_BOT_HEIGHT - 30, COLOR_WHITE, buf);
-        float coe = Volume_ExtractVolume(dspVolumeSlider[0], dspVolumeSlider[1], volumeSlider[0]);
-        u32 out = (u32)((coe * 100.0F) + (1 / 256.0F));
         char volBuf[32];
-        int n2 = sprintf(volBuf, "Volume: %lu%%", out);
+        int n2;
+        if (currVolumeSliderOverride >= 0) {
+            n2 = sprintf(volBuf, "Volume: %d%% (Override)", currVolumeSliderOverride);
+        } else {
+            float coe = Volume_ExtractVolume(dspVolumeSlider[0], dspVolumeSlider[1], volumeSlider[0]);
+            n2 = sprintf(volBuf, "Volume: %lu%%", (u32)((coe * 100.0F) + (1 / 256.0F)));
+        }
+
         if (miniSocEnabled)
         {
             Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 10 - SPACING_X * 20, SCREEN_BOT_HEIGHT - 40, COLOR_BLACK, "%20s", "");
