@@ -31,6 +31,12 @@ Menu configExtraMenu = {
     }
 };
 
+void ConfigExtra_Init(void)
+{
+    ConfigExtra_ReadConfigExtra();
+    ConfigExtra_UpdateAllMenuItems();
+}
+
 void ConfigExtra_SetSuppressLeds(void) 
 {
     configExtra.suppressLeds = !configExtra.suppressLeds;
@@ -41,7 +47,8 @@ void ConfigExtra_SetSuppressLeds(void)
     } else {
         configExtraSaved = false;
         ConfigExtra_UpdateMenuItem(4, configExtraSaved);
-    }}
+    }
+}
 
 void ConfigExtra_SetCutSlotPower(void) 
 {

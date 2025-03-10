@@ -313,6 +313,7 @@ int main(void)
     Cheat_SeedRng(svcGetSystemTick());
     ScreenFiltersMenu_LoadConfig();
     SysConfigMenu_LoadConfig();
+    ConfigExtra_Init();
 
     MyThread *menuThread = menuCreateThread();
     MyThread *taskRunnerThread = taskRunnerCreateThread();

@@ -16,3 +16,4 @@ void ConfigExtra_UpdateAllMenuItems();
 void ConfigExtra_ReadConfigExtra();
 void ConfigExtra_WriteConfigExtra();
 void ConfigExtra_SetAutoSave();
+void ConfigExtra_Init();
