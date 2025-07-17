@@ -220,7 +220,8 @@ void RosalinaMenu_SaveSettings(void)
             Draw_DrawFormattedString(10, 30, COLOR_WHITE, "Operation failed (0x%08lx).", res);
         Draw_FlushFramebuffer();
         Draw_Unlock();
-    } while (!(waitInput() & KEY_B) && !menuShouldExit);
+    }
+    while (!(waitInput() & KEY_B) && !menuShouldExit);
 }
 
 void RosalinaMenu_PowerOffOrReboot(void)
@@ -266,7 +267,8 @@ void RosalinaMenu_PowerOffOrReboot(void)
         }
         else if (pressed & KEY_B)
             return;
-    } while (!menuShouldExit);
+    }
+    while (!menuShouldExit);
 }
 
 void RosalinaMenu_ShowSystemInfo(void)
@@ -296,7 +298,8 @@ void RosalinaMenu_ShowSystemInfo(void)
 
         Draw_FlushFramebuffer();
         Draw_Unlock();
-    } while (!(waitInput() & KEY_B) && !menuShouldExit);
+    }
+    while (!(waitInput() & KEY_B) && !menuShouldExit);
 }
 
 void RosalinaMenu_ShowDebugInfo(void)
@@ -330,23 +333,27 @@ void RosalinaMenu_ShowDebugInfo(void)
             u32 clkDiv = 1 << (1 + (speedInfo.sdClkCtrl & 0xFF));
             posY = Draw_DrawFormattedString(
                 10, posY, COLOR_WHITE, "SDMC speed: HS=%d %lukHz\n",
-                (int)speedInfo.highSpeedModeEnabled, SYSCLOCK_SDMMC / (1000 * clkDiv));
+                (int)speedInfo.highSpeedModeEnabled, SYSCLOCK_SDMMC / (1000 * clkDiv)
+            );
         }
         if (R_SUCCEEDED(FSUSER_GetNandSpeedInfo(&speedInfo)))
         {
             u32 clkDiv = 1 << (1 + (speedInfo.sdClkCtrl & 0xFF));
             posY = Draw_DrawFormattedString(
                 10, posY, COLOR_WHITE, "NAND speed: HS=%d %lukHz\n",
-                (int)speedInfo.highSpeedModeEnabled, SYSCLOCK_SDMMC / (1000 * clkDiv));
+                (int)speedInfo.highSpeedModeEnabled, SYSCLOCK_SDMMC / (1000 * clkDiv)
+            );
         }
         {
             posY = Draw_DrawFormattedString(
                 10, posY, COLOR_WHITE, "APPMEMTYPE: %lu\n",
-                OS_KernelConfig->app_memtype);
+                OS_KernelConfig->app_memtype
+            );
         }
         Draw_FlushFramebuffer();
         Draw_Unlock();
-    } while (!(waitInput() & KEY_B) && !menuShouldExit);
+    }
+    while (!(waitInput() & KEY_B) && !menuShouldExit);
 }
 
 void RosalinaMenu_ShowCredits(void)
@@ -361,7 +368,7 @@ void RosalinaMenu_ShowCredits(void)
         Draw_Lock();
         Draw_DrawString(10, 10, COLOR_TITLE, "Rosalina -- Luma3DS credits");
 
-        u32 posY = Draw_DrawString(10, 30, COLOR_WHITE, "Luma3DS (c) 2016-2024 AuroraWright, TuxSH") + SPACING_Y;
+        u32 posY = Draw_DrawString(10, 30, COLOR_WHITE, "Luma3DS (c) 2016-2025 AuroraWright, TuxSH") + SPACING_Y;
 
         posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "3DSX loading code by fincs");
         posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "Networking code & basic GDB functionality by Stary");
@@ -382,12 +389,11 @@ void RosalinaMenu_ShowCredits(void)
 
         Draw_FlushFramebuffer();
         Draw_Unlock();
-    } while (!(waitInput() & KEY_B) && !menuShouldExit);
+    }
+    while (!(waitInput() & KEY_B) && !menuShouldExit);
 }
 
-#define TRY(expr)               \
-    if (R_FAILED(res = (expr))) \
-        goto end;
+#define TRY(expr) if(R_FAILED(res = (expr))) goto end;
 
 static s64 timeSpentConvertingScreenshot = 0;
 static s64 timeSpentWritingScreenshot = 0;
@@ -454,8 +460,7 @@ void RosalinaMenu_TakeScreenshot(void)
     timeSpentConvertingScreenshot = 0;
     timeSpentWritingScreenshot = 0;
 
-    if (R_FAILED(svcGetSystemInfo(&out, 0x10000, 0x203)))
-        svcBreak(USERBREAK_ASSERT);
+    if (R_FAILED(svcGetSystemInfo(&out, 0x10000, 0x203))) svcBreak(USERBREAK_ASSERT);
     isSdMode = (bool)out;
 
     archiveId = isSdMode ? ARCHIVE_SDMC : ARCHIVE_NAND_RW;
@@ -536,7 +541,8 @@ end:
 
         Draw_FlushFramebuffer();
         Draw_Unlock();
-    } while (!(waitInput() & KEY_B) && !menuShouldExit);
+    }
+    while (!(waitInput() & KEY_B) && !menuShouldExit);
 }
 
 static Result menuWriteSelfScreenshot(IFile *file)
@@ -589,8 +595,7 @@ void menuTakeSelfScreenshot(void)
     timeSpentConvertingScreenshot = 0;
     timeSpentWritingScreenshot = 0;
 
-    if (R_FAILED(svcGetSystemInfo(&out, 0x10000, 0x203)))
-        svcBreak(USERBREAK_ASSERT);
+    if (R_FAILED(svcGetSystemInfo(&out, 0x10000, 0x203))) svcBreak(USERBREAK_ASSERT);
     isSdMode = (bool)out;
 
     archiveId = isSdMode ? ARCHIVE_SDMC : ARCHIVE_NAND_RW;

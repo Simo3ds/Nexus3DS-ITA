@@ -152,7 +152,8 @@ void MiscellaneousMenu_SwitchBoot3dsxTargetTitle(void)
 
         Draw_FlushFramebuffer();
         Draw_Unlock();
-    } while (!(waitInput() & KEY_B) && !menuShouldExit);
+    }
+    while (!(waitInput() & KEY_B) && !menuShouldExit);
 }
 
 void MiscellaneousMenu_ChangeMenuCombo(void)
@@ -188,7 +189,8 @@ void MiscellaneousMenu_ChangeMenuCombo(void)
 
         Draw_FlushFramebuffer();
         Draw_Unlock();
-    } while (!(waitInput() & KEY_B) && !menuShouldExit);
+    }
+    while (!(waitInput() & KEY_B) && !menuShouldExit);
 }
 
 void MiscellaneousMenu_InputRedirection(void)
@@ -291,7 +293,8 @@ void MiscellaneousMenu_InputRedirection(void)
                         COLOR_WHITE,
                         "This might cause a key press to be repeated in\n"
                         "Home Menu for no reason.\n\n"
-                        "Just pressing ZL/ZR on the console is enough to fix\nthis.\n");
+                        "Just pressing ZL/ZR on the console is enough to fix\nthis.\n"
+                    );
                 }
             }
             else
@@ -300,7 +303,8 @@ void MiscellaneousMenu_InputRedirection(void)
 
         Draw_FlushFramebuffer();
         Draw_Unlock();
-    } while (!(waitInput() & KEY_B) && !menuShouldExit);
+    }
+    while (!(waitInput() & KEY_B) && !menuShouldExit);
 }
 
 void MiscellaneousMenu_UpdateTimeDateNtp(void)
@@ -342,15 +346,12 @@ void MiscellaneousMenu_UpdateTimeDateNtp(void)
         Draw_Unlock();
 
         input = waitInput();
-        if (input & KEY_LEFT)
-            utcOffset = (27 + utcOffset - 1) % 27; // ensure utcOffset >= 0
-        if (input & KEY_RIGHT)
-            utcOffset = (utcOffset + 1) % 27;
-        if (input & KEY_UP)
-            utcOffsetMinute = (utcOffsetMinute + 1) % 60;
-        if (input & KEY_DOWN)
-            utcOffsetMinute = (60 + utcOffsetMinute - 1) % 60;
-    } while (!(input & (KEY_A | KEY_B)) && !menuShouldExit);
+        if (input & KEY_LEFT) utcOffset = (27 + utcOffset - 1) % 27; // ensure utcOffset >= 0
+        if (input & KEY_RIGHT) utcOffset = (utcOffset + 1) % 27;
+        if (input & KEY_UP) utcOffsetMinute = (utcOffsetMinute + 1) % 60;
+        if (input & KEY_DOWN) utcOffsetMinute = (60 + utcOffsetMinute - 1) % 60;
+    }
+    while (!(input & (KEY_A | KEY_B)) && !menuShouldExit);
 
     if (input & KEY_B)
         return;
@@ -371,11 +372,6 @@ void MiscellaneousMenu_UpdateTimeDateNtp(void)
         }
     }
 
-    Draw_Lock();
-    Draw_ClearFramebuffer();
-    Draw_FlushFramebuffer();
-    Draw_Unlock();
-
     do
     {
         Draw_Lock();
@@ -393,7 +389,8 @@ void MiscellaneousMenu_UpdateTimeDateNtp(void)
 
         Draw_FlushFramebuffer();
         Draw_Unlock();
-    } while (!(waitInput() & KEY_B) && !menuShouldExit);
+    }
+    while (!(waitInput() & KEY_B) && !menuShouldExit);
 }
 
 void MiscellaneousMenu_NullifyUserTimeOffset(void)
@@ -415,7 +412,8 @@ void MiscellaneousMenu_NullifyUserTimeOffset(void)
             Draw_DrawFormattedString(10, 30, COLOR_WHITE, "Operation failed (0x%08lx).", res);
         Draw_FlushFramebuffer();
         Draw_Unlock();
-    } while (!(waitInput() & KEY_B) && !menuShouldExit);
+    }
+    while (!(waitInput() & KEY_B) && !menuShouldExit);
 }
 
 static Result MiscellaneousMenu_DumpDspFirmCallback(Handle procHandle, u32 textSz, u32 roSz, u32 rwSz)
@@ -432,8 +430,7 @@ static Result MiscellaneousMenu_DumpDspFirmCallback(Handle procHandle, u32 textS
     memcpy(&magic, "DSP1", 4);
     const u32 *off = (u32 *)rwStart;
 
-    for (; off < (u32 *)rwEnd && *off != magic; off++)
-        ;
+    for (; off < (u32 *)rwEnd && *off != magic; off++);
 
     if (off >= (u32 *)rwEnd || off < (u32 *)(rwStart + 0x100))
         return -2;
@@ -462,7 +459,8 @@ static Result MiscellaneousMenu_DumpDspFirmCallback(Handle procHandle, u32 textS
     if (R_SUCCEEDED(res))
         res = IFile_Open(
             &file, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""),
-            fsMakePath(PATH_ASCII, "/3ds/dspfirm.cdc"), FS_OPEN_CREATE | FS_OPEN_WRITE);
+            fsMakePath(PATH_ASCII, "/3ds/dspfirm.cdc"), FS_OPEN_CREATE | FS_OPEN_WRITE
+        );
 
     u64 total;
     if (R_SUCCEEDED(res))
@@ -496,7 +494,8 @@ void MiscellaneousMenu_DumpDspFirm(void)
                 res);
         Draw_FlushFramebuffer();
         Draw_Unlock();
-    } while (!(waitInput() & KEY_B) && !menuShouldExit);
+    }
+    while (!(waitInput() & KEY_B) && !menuShouldExit);
 }
 
 
