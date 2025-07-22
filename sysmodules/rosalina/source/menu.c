@@ -635,10 +635,50 @@ void menuShow(Menu *root)
 
     bool menuComboReleased = false;
 
+    u8 prevVolumeSlider[2] = {0};
+    s8 prevVolumeOverride = currVolumeSliderOverride;
+    bool firstRun = true;
+    u32 frameCounter = 0;
+
     do
     {
-        u32 pressed = waitInputWithTimeout(1000);
+        u32 pressed = waitInputWithTimeout(30);
         numItems = menuCountItems(currentMenu);
+        frameCounter++;
+
+        bool volumeChanged = false;
+        if (firstRun || currVolumeSliderOverride != prevVolumeOverride)
+        {
+            volumeChanged = true;
+            prevVolumeOverride = currVolumeSliderOverride;
+            firstRun = false;
+        }
+        else
+        {
+            if (pressed == 0 && isServiceUsable("mcu::HWC"))
+            {
+                u8 currentVolumeSlider[2];
+                
+                Handle *mcuHwcHandlePtr = mcuHwcGetSessionHandle();
+                Handle oldHandle = *mcuHwcHandlePtr;
+                *mcuHwcHandlePtr = 0;
+                
+                if (R_SUCCEEDED(srvGetServiceHandle(mcuHwcHandlePtr, "mcu::HWC")) ||
+                    R_SUCCEEDED(svcControlService(SERVICEOP_STEAL_CLIENT_SESSION, mcuHwcHandlePtr, "mcu::HWC")))
+                {
+                    if (R_SUCCEEDED(MCUHWC_ReadRegister(0x09, currentVolumeSlider + 1, 1)))
+                    {
+                        if (currentVolumeSlider[1] != prevVolumeSlider[1])
+                        {
+                            volumeChanged = true;
+                            prevVolumeSlider[1] = currentVolumeSlider[1];
+                        }
+                    }
+                    svcCloseHandle(*mcuHwcHandlePtr);
+                }
+                *mcuHwcHandlePtr = oldHandle;
+            }
+        }
 
         if(!menuComboReleased && (scanHeldKeys() & menuCombo) != menuCombo)
         {
@@ -702,9 +742,14 @@ void menuShow(Menu *root)
             } while (menuItemIsHidden(&currentMenu->items[selectedItem])); // assume at least one item is visible
         }
 
-        Draw_Lock();
-        menuDraw(currentMenu, selectedItem);
-        Draw_Unlock();
+        if (pressed != 0 || volumeChanged || frameCounter >= 33) // 33 * 30ms ≈ 1 second
+        {
+            if (frameCounter >= 33) frameCounter = 0;
+            
+            Draw_Lock();
+            menuDraw(currentMenu, selectedItem);
+            Draw_Unlock();
+        }
     }
     while(!menuShouldExit);
 }
