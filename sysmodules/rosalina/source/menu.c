@@ -638,24 +638,22 @@ void menuShow(Menu *root)
     u8 prevVolumeSlider[2] = {0};
     s8 prevVolumeOverride = currVolumeSliderOverride;
     bool firstRun = true;
-    u32 frameCounter = 0;
+    u32 updateCounter = 0;
 
     do
     {
         u32 pressed = waitInputWithTimeout(30);
         numItems = menuCountItems(currentMenu);
-        frameCounter++;
+        updateCounter++;
 
-        bool volumeChanged = false;
         if (firstRun || currVolumeSliderOverride != prevVolumeOverride)
         {
-            volumeChanged = true;
             prevVolumeOverride = currVolumeSliderOverride;
             firstRun = false;
         }
-        else
+        else if (pressed == 0)
         {
-            if (pressed == 0 && isServiceUsable("mcu::HWC"))
+            if (isServiceUsable("mcu::HWC"))
             {
                 u8 currentVolumeSlider[2];
                 
@@ -670,7 +668,6 @@ void menuShow(Menu *root)
                     {
                         if (currentVolumeSlider[1] != prevVolumeSlider[1])
                         {
-                            volumeChanged = true;
                             prevVolumeSlider[1] = currentVolumeSlider[1];
                         }
                     }
@@ -742,14 +739,9 @@ void menuShow(Menu *root)
             } while (menuItemIsHidden(&currentMenu->items[selectedItem])); // assume at least one item is visible
         }
 
-        if (pressed != 0 || volumeChanged || frameCounter >= 33) // 33 * 30ms ≈ 1 second
-        {
-            if (frameCounter >= 33) frameCounter = 0;
-            
-            Draw_Lock();
-            menuDraw(currentMenu, selectedItem);
-            Draw_Unlock();
-        }
+        Draw_Lock();
+        menuDraw(currentMenu, selectedItem);
+        Draw_Unlock();
     }
     while(!menuShouldExit);
 }
