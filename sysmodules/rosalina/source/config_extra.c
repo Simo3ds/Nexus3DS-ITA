@@ -9,65 +9,79 @@
 config_extra configExtra = { .suppressLeds = false, .cutSlotPower = false, .cutSleepWifi = false };
 bool configExtraSaved = false;
 
-static const char menuText[3][32] = {
-    "Automatically suppress LEDs",
-    "Cut power to TWL Flashcards",
-    "Cut 3DS Wifi in sleep mode"
-};
+static inline const char* ConfigExtra_GetCheckboxDisplay(bool value)
+{
+    return value ? "(x)" : "( )";
+}
 
-static char menuDisplay[3][64];
-
-Menu configExtraMenu = {
-    "Extra config menu",
+void ConfigExtra_DrawDetailedMenu(void)
+{
+    static const char *configOptions[] = {
+        "Automatically suppress LEDs",
+        "Cut power to TWL Flashcards", 
+        "Cut 3DS Wifi in sleep mode"
+    };
+    
+    bool *configValues[] = {
+        &configExtra.suppressLeds,
+        &configExtra.cutSlotPower,
+        &configExtra.cutSleepWifi
+    };
+    
+    s32 selected = 0;
+    s32 nbOptions = sizeof(configOptions) / sizeof(const char *);
+    
+    do
     {
-        { menuText[0], METHOD, .method = &ConfigExtra_SetSuppressLeds},
-        { menuText[1], METHOD, .method = &ConfigExtra_SetCutSlotPower},
-        { menuText[2], METHOD, .method = &ConfigExtra_SetCutSleepWifi},
-        {},
-    }
-};
+        u32 posY = 20;
+        
+        Draw_Lock();
+        
+        Draw_DrawString(10, 10, COLOR_TITLE, "Extra config menu");
+        
+        for(s32 i = 0; i < nbOptions; i++)
+        {
+            char buf[256];
+            const char *checkbox = ConfigExtra_GetCheckboxDisplay(*configValues[i]);
+            
+            sprintf(buf, "%s %s", checkbox, configOptions[i]);
+            Draw_DrawCharacter(10, posY + SPACING_Y, COLOR_TITLE, i == selected ? '>' : ' ');
+            posY = Draw_DrawString(30, posY + SPACING_Y, COLOR_WHITE, buf);
+        }
+        
+        Draw_FlushFramebuffer();
+        Draw_Unlock();
+        
+        u32 pressed;
+        do
+        {
+            pressed = waitInputWithTimeout(50);
+        } while(pressed == 0 && !menuShouldExit);
+        
+        if(pressed & KEY_B)
+            break;
+        else if(pressed & KEY_A)
+        {
+            *configValues[selected] = !(*configValues[selected]);
+            ConfigExtra_WriteConfigExtra();
+            configExtraSaved = true;
+        }
+        else if(pressed & KEY_DOWN)
+            selected++;
+        else if(pressed & KEY_UP)
+            selected--;
+            
+        if(selected < 0)
+            selected = nbOptions - 1;
+        else if(selected >= nbOptions)
+            selected = 0;
+            
+    } while(!menuShouldExit);
+}
 
 void ConfigExtra_Init(void)
 {
     ConfigExtra_ReadConfigExtra();
-    ConfigExtra_UpdateAllMenuItems();
-}
-
-void ConfigExtra_SetSuppressLeds(void) 
-{
-    configExtra.suppressLeds = !configExtra.suppressLeds;
-    ConfigExtra_UpdateMenuItem(0, configExtra.suppressLeds);
-    ConfigExtra_WriteConfigExtra();
-    configExtraSaved = true;
-}
-
-void ConfigExtra_SetCutSlotPower(void) 
-{
-    configExtra.cutSlotPower = !configExtra.cutSlotPower;
-    ConfigExtra_UpdateMenuItem(1, configExtra.cutSlotPower);
-    ConfigExtra_WriteConfigExtra();
-    configExtraSaved = true;
-}
-
-void ConfigExtra_SetCutSleepWifi(void) 
-{
-    configExtra.cutSleepWifi = !configExtra.cutSleepWifi;
-    ConfigExtra_UpdateMenuItem(2, configExtra.cutSleepWifi);
-    ConfigExtra_WriteConfigExtra();
-    configExtraSaved = true;
-}
-
-void ConfigExtra_UpdateMenuItem(int menuIndex, bool value)
-{
-    sprintf(menuDisplay[menuIndex], "%s %s", value ? "(x)" : "( )", menuText[menuIndex]);
-    configExtraMenu.items[menuIndex].title = menuDisplay[menuIndex];
-}
-
-void ConfigExtra_UpdateAllMenuItems(void)
-{
-    ConfigExtra_UpdateMenuItem(0, configExtra.suppressLeds);
-    ConfigExtra_UpdateMenuItem(1, configExtra.cutSlotPower);
-    ConfigExtra_UpdateMenuItem(2, configExtra.cutSleepWifi);
 }
 
 void ConfigExtra_ReadConfigExtra(void)

@@ -372,7 +372,6 @@ void menuThreadMain(void)
             svcSleepThread(250 * 1000 * 1000LL);
         menuInitializeQtm();
         N3DSMenu_UpdateStatus();
-        ConfigExtra_UpdateAllMenuItems();
     }
 
     handleShellOpened();
