@@ -66,8 +66,6 @@ enum singleOptions
     ENABLEDSIEXTFILTER,
     DISABLEARM11EXCHANDLERS,
     ENABLESAFEFIRMROSALINA,
-
-    NUMCONFIGURABLE = PATCHUNITINFO,
 };
 
 typedef enum ConfigurationStatus

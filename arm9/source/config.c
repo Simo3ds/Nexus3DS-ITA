@@ -65,9 +65,6 @@ static const char *singleOptionIniNamesBoot[] = {
     "app_syscore_threads_on_core_2",
     "show_system_settings_string",
     "show_gba_boot_screen",
-};
-
-static const char *singleOptionIniNamesMisc[] = {
     "use_dev_unitinfo",
     "enable_dsi_external_filter",
     "disable_arm11_exception_handlers",
@@ -574,15 +571,6 @@ static int configIniHandler(void* user, const char* section, const char* name, c
             CHECK_PARSE_OPTION(-1);
         }
     } else if (strcmp(section, "misc") == 0) {
-        for (size_t i = 0; i < sizeof(singleOptionIniNamesMisc)/sizeof(singleOptionIniNamesMisc[0]); i++) {
-            if (strcmp(name, singleOptionIniNamesMisc[i]) == 0) {
-                bool opt;
-                CHECK_PARSE_OPTION(parseBoolOption(&opt, value));
-                cfg->config |= (u32)opt << (i + (u32)PATCHUNITINFO);
-                return 1;
-            }
-        }
-
         if (strcmp(name, "force_audio_output") == 0) {
             if (strcasecmp(value, "off") == 0) {
                 cfg->multiConfig |= 0 << (2 * (u32)FORCEAUDIOOUTPUT);
@@ -686,6 +674,8 @@ static size_t saveLumaIniConfigToStr(char *out)
         (int)CONFIG(AUTOBOOTEMU), (int)CONFIG(LOADEXTFIRMSANDMODULES),
         (int)CONFIG(PATCHGAMES), (int)CONFIG(REDIRECTAPPTHREADS),
         (int)CONFIG(PATCHVERSTRING), (int)CONFIG(SHOWGBABOOT),
+        (int)CONFIG(PATCHUNITINFO), (int)CONFIG(ENABLEDSIEXTFILTER),
+        (int)CONFIG(DISABLEARM11EXCHANDLERS), (int)CONFIG(ENABLESAFEFIRMROSALINA),
 
         1 + (int)MULTICONFIG(DEFAULTEMU), 4 - (int)MULTICONFIG(BRIGHTNESS),
         splashPosStr, (unsigned int)cfg->splashDurationMsec,
@@ -708,10 +698,7 @@ static size_t saveLumaIniConfigToStr(char *out)
         cfg->autobootTwlTitleId, (int)cfg->autobootCtrAppmemtype,
 
         forceAudioOutputStr,
-        cfg->volumeSliderOverride,
-
-        (int)CONFIG(PATCHUNITINFO), (int)CONFIG(ENABLEDSIEXTFILTER),
-        (int)CONFIG(DISABLEARM11EXCHANDLERS), (int)CONFIG(ENABLESAFEFIRMROSALINA)
+        cfg->volumeSliderOverride
     );
 
     return n < 0 ? 0 : (size_t)n;
@@ -872,6 +859,10 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                "( ) Redirect app. syscore threads to core2",
                                                "( ) Show NAND or user string in System Settings",
                                                "( ) Show GBA boot screen in patched AGB_FIRM",
+                                               "( ) Enable development UNITINFO",
+                                               "( ) Enable DSi external filters",
+                                               "( ) Disable arm11 exception handlers",
+                                               "( ) Enable Rosalina on SAFE_FIRM",
 
                                                // Should always be the last 2 entries
                                                "\nBoot chainloader",
@@ -961,6 +952,38 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                  "Enable showing the GBA boot screen\n"
                                                  "when booting GBA games.",
 
+                                                 "Make the console be always detected\n"
+                                                 "as a development unit, and conversely.\n"
+                                                 "(which breaks online features, amiibo\n"
+                                                 "and retail CIAs, but allows installing\n"
+                                                 "and booting some developer software).\n\n"
+                                                 "Only select this if you know what you\n"
+                                                 "are doing!",
+
+                                                 "Enables replacing the default\n"
+                                                 "convolution-based upscaling filter used\n"
+                                                 "for DS(i) software by the contents\n"
+                                                 "of the binary file\n"
+                                                 "/luma/twl_upscaling_filter.bin",
+
+                                                 "Disables the fatal error exception\n"
+                                                 "handlers for the Arm11 CPU.\n\n"
+                                                 "Note: Disabling the exception handlers\n"
+                                                 "will disqualify you from submitting\n"
+                                                 "issues or bug reports to the Luma3DS\n"
+                                                 "GitHub repository!\n\n"
+                                                 "Only select this if you know what you\n"
+                                                 "are doing!",
+
+                                                 "Enables Rosalina, the kernel ext.\n"
+                                                 "and sysmodule reimplementations on\n"
+                                                 "SAFE_FIRM (New 3DS only).\n\n"
+                                                 "Also suppresses QTM error 0xF96183FE,\n"
+                                                 "allowing to use 8.1-11.3 N3DS on\n"
+                                                 "New 2DS XL consoles.\n\n"
+                                                 "Only select this if you know what you\n"
+                                                 "are doing!",
+
                                                 // Should always be the last 2 entries
                                                 "Boot to the Nexus3DS chainloader menu.",
 
@@ -1004,6 +1027,11 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
         { .visible = ISN3DS },
         { .visible = true },
         { .visible = true },
+        { .visible = true },
+        { .visible = false },
+        { .visible = false },
+        { .visible = ISN3DS },
+        // Should always be visible
         { .visible = true },
         { .visible = true },
     };
@@ -1206,7 +1234,7 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
     for(u32 i = 0; i < multiOptionsAmount; i++)
         configData.multiConfig |= multiOptions[i].enabled << (i * 2);
 
-    configData.config &= ~((1 << (u32)NUMCONFIGURABLE) - 1);
+    configData.config = 0;
     for(u32 i = 0; i < singleOptionsAmount; i++)
         configData.config |= (singleOptions[i].enabled ? 1 : 0) << i;
 
