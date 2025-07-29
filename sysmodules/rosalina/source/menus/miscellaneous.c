@@ -592,11 +592,11 @@ void MiscellaneousMenu_EditPlayCoins(void)
         Draw_DrawString(20, 60, COLOR_WHITE, "DPAD Up/Down: +-1\nDPAD Right/Left: +-10\nA: Apply");
         if (showResult) {
             if (R_SUCCEEDED(res))
-                Draw_DrawString(20, 110, COLOR_GREEN, "Play Coins successfully set.");
+                Draw_DrawString(20, 100, COLOR_GREEN, "Play Coins successfully set.");
             else
-                Draw_DrawFormattedString(20, 110, COLOR_RED, "Error: 0x%08lx", res);
+                Draw_DrawFormattedString(20, 100, COLOR_RED, "Error: 0x%08lx", res);
         }
-        Draw_DrawString(20, 130, COLOR_GRAY, "Press B to go back.");
+        Draw_DrawString(20, 120, COLOR_GRAY, "Press B to go back.");
         Draw_FlushFramebuffer();
         Draw_Unlock();
     }
