@@ -26,8 +26,8 @@
 
 #include <3ds.h>
 #include <3ds/os.h>
-#include "menus.h"
 #include "menu.h"
+#include "menus.h"
 #include "draw.h"
 #include "menus/process_list.h"
 #include "menus/n3ds.h"
@@ -234,8 +234,16 @@ void RosalinaMenu_ShowSystemInfo(void)
         {
             posY = Draw_DrawFormattedString(10, posY, COLOR_WHITE, "MCU FW version:     %lu.%lu\n", GET_VERSION_MAJOR(mcuFwVersion), GET_VERSION_MINOR(mcuFwVersion));
             posY = Draw_DrawFormattedString(10, posY, COLOR_WHITE, "PMIC vendor:        %hhu\n", mcuInfoTable[1]);
-            posY = Draw_DrawFormattedString(10, posY, COLOR_WHITE, "Battery vendor:     %hhu\n\n", mcuInfoTable[2]);
+            posY = Draw_DrawFormattedString(10, posY, COLOR_WHITE, "Battery vendor:     %hhu\n", mcuInfoTable[2]);
+            posY = Draw_DrawString(10, posY, COLOR_WHITE, "\n");
         }
+
+        u64 titleId = 0;
+        Get_TitleID(&titleId);
+        if (titleId != 0)
+            posY = Draw_DrawFormattedString(10, posY, COLOR_WHITE, "TitleID: %016llX\n", titleId);
+        else
+            posY = Draw_DrawString(10, posY, COLOR_GRAY, "TitleID: Not Found\n");
 
         Draw_FlushFramebuffer();
         Draw_Unlock();

@@ -25,6 +25,7 @@
 */
 
 #include <3ds.h>
+#include <stdio.h>
 #include "menu.h"
 #include "draw.h"
 #include "fmt.h"
@@ -447,7 +448,7 @@ void menuLeave(void)
 }
 
 
-static u32 Get_TitleID(u64* titleId)
+u32 Get_TitleID(u64* titleId)
 {
     FS_ProgramInfo programInfo;
     u32 pid;
@@ -531,7 +532,20 @@ static void menuDraw(Menu *menu, u32 selected)
     else
         sprintf(versionString, "v%lu.%lu.%lu", GET_VERSION_MAJOR(version), GET_VERSION_MINOR(version), GET_VERSION_REVISION(version));
 
-    Draw_DrawString(10, 10, COLOR_TITLE, menu->title);
+    Draw_DrawString(10, 8, COLOR_CYAN, "+");
+    for (u32 i = 0; i < 35; i++) {
+        Draw_DrawCharacter(18 + i * 6, 8, COLOR_CYAN, '-');
+    }
+    Draw_DrawString(222, 8, COLOR_CYAN, "+");
+    Draw_DrawString(10, 16, COLOR_CYAN, "|");
+    Draw_DrawString(222, 16, COLOR_CYAN, "|");
+    Draw_DrawString(20, 16, COLOR_ORANGE, menu->title);
+    Draw_DrawString(10, 24, COLOR_CYAN, "+");
+    for (u32 i = 0; i < 35; i++) {
+        Draw_DrawCharacter(18 + i * 6, 24, COLOR_CYAN, '-');
+    }
+    Draw_DrawString(222, 24, COLOR_CYAN, "+");
+    
     u32 numItems = menuCountItems(menu);
     u32 dispY = 0;
 
@@ -540,9 +554,66 @@ static void menuDraw(Menu *menu, u32 selected)
         if (menuItemIsHidden(&menu->items[i]))
             continue;
 
-        Draw_DrawString(30, 30 + dispY, COLOR_WHITE, menu->items[i].title);
-        Draw_DrawCharacter(10, 30 + dispY, COLOR_TITLE, i == selected ? '>' : ' ');
+        u32 yPos = 40 + dispY;
+
+        const int scrollSpeed = 2;
+        const int scrollWaitFrames = 40;
+        const int scrollInitialWaitFrames = 15;
+        static int scrollOffset = 0;
+        static int lastSelected = -1;
+        static int scrollDir = 1;
+        static int scrollWait = 0;
+        if (i == selected) {
+            if (lastSelected != (int)i) {
+                scrollOffset = 0;
+                lastSelected = i;
+                scrollDir = 1;
+                scrollWait = scrollInitialWaitFrames;
+            }
+            int titleLen = strlen(menu->items[i].title);
+            if (titleLen > 36) {
+                int maxOffset = (titleLen - 36) * 8;
+                if (scrollWait > 0) {
+                    scrollWait--;
+                } else {
+                    scrollOffset += scrollSpeed * scrollDir;
+                    if (scrollDir == 1 && scrollOffset >= maxOffset) {
+                        scrollOffset = maxOffset;
+                        scrollWait = scrollWaitFrames;
+                        scrollDir = -1;
+                    } else if (scrollDir == -1 && scrollOffset <= 0) {
+                        scrollOffset = 0;
+                        scrollWait = scrollWaitFrames;
+                        scrollDir = 1;
+                    }
+                }
+                Draw_DrawString(15, yPos, COLOR_ORANGE, ">>");
+                char buf[37];
+                strncpy(buf, menu->items[i].title + (scrollOffset/8), 36);
+                buf[36] = '\0';
+                Draw_DrawString(35, yPos, COLOR_CYAN, buf);
+                Draw_DrawString(250, yPos, COLOR_ORANGE, "<<        ");
+            } else {
+                Draw_DrawString(15, yPos, COLOR_ORANGE, ">>");
+                Draw_DrawString(35, yPos, COLOR_CYAN, menu->items[i].title);
+                Draw_DrawString(250, yPos, COLOR_ORANGE, "<<        ");
+            }
+        } else {
+            Draw_DrawString(15, yPos, COLOR_GRAY, " *");
+            Draw_DrawString(250, yPos, COLOR_WHITE, "  ");
+            Draw_DrawString(35, yPos, COLOR_WHITE, menu->items[i].title);
+        }
+        
         dispY += SPACING_Y;
+    }
+
+    {
+        char volBuf[32];
+        int n2;
+        float coe = Volume_ExtractVolume(dspVolumeSlider[0], dspVolumeSlider[1], volumeSlider[0]);
+        u32 volInt = (u32)((coe * 100.0F) + (1 / 256.0F));
+        n2 = sprintf(volBuf, " Volume: %lu%%", volInt);
+        Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n2, 10, COLOR_LIGHT_BLUE, volBuf);
     }
 
     if (miniSocEnabled)
@@ -551,11 +622,12 @@ static void menuDraw(Menu *menu, u32 selected)
         u32 ip = socGethostid();
         u8 *addr = (u8 *)&ip;
         int n = sprintf(ipBuffer, "%hhu.%hhu.%hhu.%hhu", addr[0], addr[1], addr[2], addr[3]);
-        Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n, 10, COLOR_WHITE, ipBuffer);
+        Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n, SCREEN_BOT_HEIGHT - 40, COLOR_GREEN, ipBuffer);
     }
-
     else
-        Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 10 - SPACING_X * 15, 10, COLOR_WHITE, "%15s", "");
+    {
+        Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 10 - SPACING_X * 15, SCREEN_BOT_HEIGHT - 40, COLOR_WHITE, "%15s", "");
+    }
 
     if (mcuInfoRes == 0)
     {
@@ -570,45 +642,16 @@ static void menuDraw(Menu *menu, u32 selected)
             voltageInt, voltageFrac,
             percentageInt, percentageFrac
         );
-        Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n, SCREEN_BOT_HEIGHT - 30, COLOR_WHITE, buf);
-        char volBuf[32];
-        int n2;
-        if (currVolumeSliderOverride >= 0) {
-            n2 = sprintf(volBuf, "Volume: %d%% (Override)", currVolumeSliderOverride);
-        } else {
-            float coe = Volume_ExtractVolume(dspVolumeSlider[0], dspVolumeSlider[1], volumeSlider[0]);
-            n2 = sprintf(volBuf, "Volume: %lu%%", (u32)((coe * 100.0F) + (1 / 256.0F)));
-        }
-
-        if (miniSocEnabled)
-        {
-            Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 10 - SPACING_X * 20, SCREEN_BOT_HEIGHT - 40, COLOR_BLACK, "%20s", "");
-            Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n2, SCREEN_BOT_HEIGHT - 40, COLOR_WHITE, volBuf);
-        }
-        else 
-        {
-            Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n2, 10, COLOR_WHITE, volBuf);
-        }
+        Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n, SCREEN_BOT_HEIGHT - 30, COLOR_CYAN, buf);
     }
-    else
-        Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 10 - SPACING_X * 19, SCREEN_BOT_HEIGHT - 20, COLOR_WHITE, "%19s", "");
 
     if (isRelease)
-        Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 20, COLOR_TITLE, "Nexus3DS %s", versionString);
+        Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 20, COLOR_ORANGE, "Nexus3DS\nBased on Luma3DS %s", versionString);
     else
-        Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 20, COLOR_TITLE, "Nexus3DS %s-%08lx", versionString, commitHash);
+        Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 20, COLOR_ORANGE, "Nexus3DS\nBased on Luma3DS %s-%08lx", versionString, commitHash);
 
-    Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 15.6, SCREEN_BOT_HEIGHT - 20, COLOR_WHITE, "%04lu-%02lu-%02lu", year, month, days);
-    Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 4.6, SCREEN_BOT_HEIGHT - 20, COLOR_WHITE, "%02lu:%02lu:%02lu", hours, minutes, seconds);
-
-    if (titleId != 0)
-    {
-        Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 30, COLOR_WHITE, "TitleID: %016llX", titleId);
-    }
-    else
-    {
-        Draw_DrawString(10, SCREEN_BOT_HEIGHT - 30, COLOR_WHITE, "TitleID: Not Found");
-    }
+    Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 15.6, SCREEN_BOT_HEIGHT - 20, COLOR_CYAN, "%04lu-%02lu-%02lu", year, month, days);
+    Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 4.6, SCREEN_BOT_HEIGHT - 20, COLOR_CYAN, "%02lu:%02lu:%02lu", hours, minutes, seconds);
 
     Draw_FlushFramebuffer();
 }

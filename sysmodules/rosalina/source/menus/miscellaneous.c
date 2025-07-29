@@ -166,7 +166,19 @@ void MiscellaneousMenu_ChangeMenuCombo(void)
     LumaConfig_ConvertComboToString(comboStrOrig, menuCombo);
 
     Draw_Lock();
-    Draw_DrawString(10, 10, COLOR_TITLE, "Miscellaneous options menu");
+    Draw_DrawString(10, 8, COLOR_CYAN, "+");
+    for (u32 i = 0; i < 33; i++) {
+        Draw_DrawCharacter(18 + i * 6, 8, COLOR_CYAN, '-');
+    }
+    Draw_DrawString(210, 8, COLOR_CYAN, "+");
+    Draw_DrawString(10, 16, COLOR_CYAN, "|");
+    Draw_DrawString(210, 16, COLOR_CYAN, "|");
+    Draw_DrawString(20, 16, COLOR_ORANGE, "Miscellaneous options menu");
+    Draw_DrawString(10, 24, COLOR_CYAN, "+");
+    for (u32 i = 0; i < 33; i++) {
+        Draw_DrawCharacter(18 + i * 6, 24, COLOR_CYAN, '-');
+    }
+    Draw_DrawString(210, 24, COLOR_CYAN, "+");
 
     posY = Draw_DrawFormattedString(10, 30, COLOR_WHITE, "The current menu combo is:  %s", comboStrOrig);
     posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "Please enter the new combo:");

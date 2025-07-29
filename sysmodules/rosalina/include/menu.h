@@ -91,6 +91,8 @@ u32 waitCombo(void);
 bool menuCheckN3ds(void);
 u32 menuCountItems(const Menu *menu);
 
+u32 Get_TitleID(u64* titleId);
+
 MyThread *menuCreateThread(void);
 void    menuEnter(void);
 void    menuLeave(void);
