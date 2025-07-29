@@ -1,5 +1,5 @@
 /*
-*   This file is part of Luma3DS
+*   This file is part of Nexus3DS
 *   Copyright (C) 2016-2020 Aurora Wright, TuxSH
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -360,7 +360,7 @@ static int configIniHandler(void* user, const char* section, const char* name, c
             CHECK_PARSE_OPTION(-1);
         }
     } else if (strcmp(section, "boot") == 0) {
-        // Simple options displayed on the Luma3DS boot screen
+        // Simple options displayed on the Nexus3DS boot screen
         for (size_t i = 0; i < sizeof(singleOptionIniNamesBoot)/sizeof(singleOptionIniNamesBoot[0]); i++) {
             if (strcmp(name, singleOptionIniNamesBoot[i]) == 0) {
                 bool opt;
@@ -370,7 +370,7 @@ static int configIniHandler(void* user, const char* section, const char* name, c
             }
         }
 
-        // Multi-choice options displayed on the Luma3DS boot screen
+        // Multi-choice options displayed on the Nexus3DS boot screen
 
         if (strcmp(name, "default_emunand_number") == 0) {
             s64 opt;
@@ -648,9 +648,9 @@ static size_t saveLumaIniConfigToStr(char *out)
     }
 
     if (VERSION_BUILD != 0) {
-        sprintf(lumaVerStr, "Luma3DS v%d.%d.%d", (int)VERSION_MAJOR, (int)VERSION_MINOR, (int)VERSION_BUILD);
+        sprintf(lumaVerStr, "Nexus3DS v%d.%d.%d", (int)VERSION_MAJOR, (int)VERSION_MINOR, (int)VERSION_BUILD);
     } else {
-        sprintf(lumaVerStr, "Luma3DS v%d.%d", (int)VERSION_MAJOR, (int)VERSION_MINOR);
+        sprintf(lumaVerStr, "Nexus3DS v%d.%d", (int)VERSION_MAJOR, (int)VERSION_MINOR);
     }
 
     if (ISRELEASE) {
@@ -897,7 +897,7 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
 
                                                  "Activate a PIN lock.\n\n"
                                                  "The PIN will be asked each time\n"
-                                                 "Luma3DS boots.\n\n"
+                                                 "Nexus3DS boots.\n\n"
                                                  "4, 6 or 8 digits can be selected.\n\n"
                                                  "The ABXY buttons and the directional\n"
                                                  "pad buttons can be used as keys.\n\n"
@@ -962,7 +962,7 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                  "when booting GBA games.",
 
                                                 // Should always be the last 2 entries
-                                                "Boot to the Luma3DS chainloader menu.",
+                                                "Boot to the Nexus3DS chainloader menu.",
 
                                                  "Save the changes and exit. To discard\n"
                                                  "any changes press the POWER button.\n"
