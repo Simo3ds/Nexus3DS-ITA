@@ -49,8 +49,7 @@ Menu rosalinaMenu = {
         { "Take screenshot", METHOD, .method = &RosalinaMenu_TakeScreenshot },
         { "Screen filters...", MENU, .menu = &screenFiltersMenu },
         { "Cheats...", METHOD, .method = &RosalinaMenu_Cheats },
-        { "", METHOD, .method = PluginLoader__MenuCallback},
-        { "Plugin options...", MENU, .menu = &pluginOptionsMenu },
+        { "", MENU, .menu = &pluginOptionsMenu}, // Plugin loader
         { "New 3DS settings:", MENU, .menu = &N3DSMenu, .visibility = &menuCheckN3ds },
         { "Process list", METHOD, .method = &RosalinaMenu_ProcessList },
         { "Debugger options...", MENU, .menu = &debuggerMenu },

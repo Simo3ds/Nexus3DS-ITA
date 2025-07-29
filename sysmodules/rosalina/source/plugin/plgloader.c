@@ -91,19 +91,12 @@ bool        PluginLoader__IsEnabled(void)
     return PluginLoaderCtx.isEnabled;
 }
 
-void        PluginLoader__MenuCallback(void)
-{
-    PluginLoaderCtx.isEnabled = !PluginLoaderCtx.isEnabled;
-    LumaConfig_RequestSaveSettings();
-    PluginLoader__UpdateMenu();
-}
-
 void        PluginLoader__UpdateMenu(void)
 {
     static const char *status[2] =
     {
-        "Plugin Loader: [Disabled]",
-        "Plugin Loader: [Enabled]"
+        "Plugin Loader options... [Disabled]",
+        "Plugin Loader options... [Enabled]"
     };
 
     rosalinaMenu.items[3].title = status[PluginLoaderCtx.isEnabled];

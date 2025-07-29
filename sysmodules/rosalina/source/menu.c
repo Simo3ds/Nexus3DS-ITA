@@ -397,6 +397,7 @@ void menuThreadMain(void)
             menuEnter();
             if(isN3DS) N3DSMenu_UpdateStatus();
             PluginLoader__UpdateMenu();
+            PluginLoaderOptions__UpdateMenu();
             PluginChecker__UpdateMenu();
             PluginWatcher__UpdateMenu();
             PluginConverter__UpdateMenu();

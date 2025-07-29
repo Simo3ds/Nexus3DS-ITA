@@ -17,6 +17,7 @@ extern u32 PluginWatcher_WatchLevel;
 Menu pluginOptionsMenu = {
     "Plugin options menu",
     {
+        { "", METHOD, .method = &PluginLoaderOptions__MenuCallback },
         { "", METHOD, .method = &PluginChecker__MenuCallback },
         { "", METHOD, .method = &PluginWatcher__MenuCallback },
         { "Set watch level", METHOD, .method = &PluginWatcher_SetWatchLevel },
@@ -24,6 +25,25 @@ Menu pluginOptionsMenu = {
         {},
     }
 };
+
+void PluginLoaderOptions__MenuCallback(void)
+{
+    PluginLoaderCtx.isEnabled = !PluginLoaderCtx.isEnabled;
+    LumaConfig_RequestSaveSettings();
+    PluginLoader__UpdateMenu();
+    PluginLoaderOptions__UpdateMenu();
+}
+
+void PluginLoaderOptions__UpdateMenu(void)
+{
+    static const char *status[2] =
+    {
+        "Plugin Loader: [Disabled]",
+        "Plugin Loader: [Enabled]"
+    };
+
+    rosalinaMenu.items[3].menu->items[0].title = status[PluginLoaderCtx.isEnabled];
+}
 
 void PluginChecker__MenuCallback(void)
 {
@@ -40,7 +60,7 @@ void PluginChecker__UpdateMenu(void)
         "Plugin Checker: [Enabled]"
     };
 
-    rosalinaMenu.items[4].menu->items[0].title = status[PluginChecker_isEnabled];
+    rosalinaMenu.items[3].menu->items[1].title = status[PluginChecker_isEnabled];
 }
 
 void PluginWatcher__MenuCallback(void)
@@ -67,7 +87,7 @@ void PluginWatcher__UpdateMenu(void)
         "Plugin Watcher: [Disabled]",
         "Plugin Watcher: [Enabled]"
     };
-    rosalinaMenu.items[4].menu->items[1].title = status[PluginWatcher_isEnabled];
+    rosalinaMenu.items[3].menu->items[2].title = status[PluginWatcher_isEnabled];
 }
 
 void PluginConverter__ToggleUseCacheFlag(void)
@@ -84,7 +104,7 @@ void PluginConverter__UpdateMenu(void)
         "Use cache in plugin converter: [OFF]",
         "Use cache in plugin converter: [ON]"
     };
-    rosalinaMenu.items[4].menu->items[3].title = status[PluginConverter_UseCache];
+    rosalinaMenu.items[3].menu->items[4].title = status[PluginConverter_UseCache];
 }
 
 void PluginWatcher_SetWatchLevel(void)
