@@ -66,8 +66,6 @@ typedef struct DspFirm
     u8 data[];
 } DspFirm;
 
-void RosalinaMenu_ChangeVersion(void);
-
 Menu miscellaneousMenu = {
     "Miscellaneous options menu",
     {
@@ -78,7 +76,6 @@ Menu miscellaneousMenu = {
         {"Nullify user time offset", METHOD, .method = &MiscellaneousMenu_NullifyUserTimeOffset},
         {"Dump DSP firmware", METHOD, .method = &MiscellaneousMenu_DumpDspFirm},
         {"Set the number of Play Coins", METHOD, .method = &MiscellaneousMenu_EditPlayCoins},
-        {"Change Luma3DS Version (To v9.1)", METHOD, .method = &RosalinaMenu_ChangeVersion},
         {},
     }};
 
