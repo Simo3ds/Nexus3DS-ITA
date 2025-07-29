@@ -616,16 +616,17 @@ static void menuDraw(Menu *menu, u32 selected)
         Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n2, 10, COLOR_LIGHT_BLUE, volBuf);
     }
 
-    if (miniSocEnabled)
-    {
-        char ipBuffer[17];
+    if (miniSocEnabled) {
         u32 ip = socGethostid();
-        u8 *addr = (u8 *)&ip;
-        int n = sprintf(ipBuffer, "%hhu.%hhu.%hhu.%hhu", addr[0], addr[1], addr[2], addr[3]);
-        Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n, SCREEN_BOT_HEIGHT - 40, COLOR_GREEN, ipBuffer);
-    }
-    else
-    {
+        if (ip != 0) {
+            char ipBuffer[17];
+            u8 *addr = (u8 *)&ip;
+            int n = sprintf(ipBuffer, "%hhu.%hhu.%hhu.%hhu", addr[0], addr[1], addr[2], addr[3]);
+            Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n, SCREEN_BOT_HEIGHT - 40, COLOR_GREEN, ipBuffer);
+        } else {
+            Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 10 - SPACING_X * 15, SCREEN_BOT_HEIGHT - 40, COLOR_WHITE, "%15s", "");
+        }
+    } else {
         Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 10 - SPACING_X * 15, SCREEN_BOT_HEIGHT - 40, COLOR_WHITE, "%15s", "");
     }
 
@@ -645,10 +646,13 @@ static void menuDraw(Menu *menu, u32 selected)
         Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n, SCREEN_BOT_HEIGHT - 30, COLOR_CYAN, buf);
     }
 
-    if (isRelease)
-        Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 20, COLOR_ORANGE, "Nexus3DS\nBased on Luma3DS %s", versionString);
-    else
-        Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 20, COLOR_ORANGE, "Nexus3DS\nBased on Luma3DS %s-%08lx", versionString, commitHash);
+    if (isRelease) {
+        Draw_DrawString(10, SCREEN_BOT_HEIGHT - 30, COLOR_ORANGE, "Nexus3DS");
+        Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 20, COLOR_ORANGE, "Based on Luma3DS %s", versionString);
+    } else {
+        Draw_DrawString(10, SCREEN_BOT_HEIGHT - 30, COLOR_ORANGE, "Nexus3DS");
+        Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 20, COLOR_ORANGE, "Based on Luma3DS %s-%08lx", versionString, commitHash);
+    }
 
     Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 15.6, SCREEN_BOT_HEIGHT - 20, COLOR_CYAN, "%04lu-%02lu-%02lu", year, month, days);
     Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 4.6, SCREEN_BOT_HEIGHT - 20, COLOR_CYAN, "%02lu:%02lu:%02lu", hours, minutes, seconds);
