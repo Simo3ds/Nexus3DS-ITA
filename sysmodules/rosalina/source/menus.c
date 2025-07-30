@@ -153,11 +153,11 @@ void RosalinaMenu_SaveSettings(void)
     do
     {
         Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Save settings");
+        Draw_DrawMenuFrame("Save settings");
         if (R_SUCCEEDED(res))
-            Draw_DrawString(10, 30, COLOR_WHITE, "Operation succeeded.");
+            Draw_DrawString(10, 40, COLOR_WHITE, "Operation succeeded.");
         else
-            Draw_DrawFormattedString(10, 30, COLOR_WHITE, "Operation failed (0x%08lx).", res);
+            Draw_DrawFormattedString(10, 40, COLOR_WHITE, "Operation failed (0x%08lx).", res);
         Draw_FlushFramebuffer();
         Draw_Unlock();
     }
@@ -174,12 +174,12 @@ void RosalinaMenu_PowerOffOrReboot(void)
     do
     {
         Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Power Off / Reboot");
-        Draw_DrawString(10, 30, COLOR_YELLOW, "Press A to power off.");
-        Draw_DrawString(10, 40, COLOR_YELLOW, "Press Y to reboot.");
-        Draw_DrawString(10, 50, COLOR_RED, "Press X to force reboot.");
-        Draw_DrawString(10, 60, COLOR_WHITE, "Press B to go back.");
-        Draw_DrawString(10, 80, COLOR_RED, "Note: Force reboot may corrupt your SD card.");
+        Draw_DrawMenuFrame("Power Off / Reboot");
+        Draw_DrawString(10, 40, COLOR_WHITE, "Press A to power off.");
+        Draw_DrawString(10, 50, COLOR_WHITE, "Press Y to reboot.");
+        Draw_DrawString(10, 60, COLOR_WHITE, "Press X to force reboot.");
+        Draw_DrawString(10, 70, COLOR_WHITE, "Press B to go back.");
+        Draw_DrawString(10, 90, COLOR_WHITE, "Note: Force reboot may corrupt your SD card.");
         Draw_FlushFramebuffer();
         Draw_Unlock();
 
@@ -218,9 +218,9 @@ void RosalinaMenu_ShowSystemInfo(void)
     do
     {
         Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Rosalina -- System info");
+        Draw_DrawMenuFrame("Rosalina -- System info");
 
-        u32 posY = 30;
+        u32 posY = 40;
 
         if (areScreenTypesInitialized)
         {
@@ -270,9 +270,9 @@ void RosalinaMenu_ShowDebugInfo(void)
     do
     {
         Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Rosalina -- Debug info");
+        Draw_DrawMenuFrame("Rosalina -- Debug info");
 
-        u32 posY = 30;
+        u32 posY = 40;
 
         posY = Draw_DrawString(10, posY, COLOR_WHITE, memoryMap);
         posY = Draw_DrawFormattedString(10, posY, COLOR_WHITE, "Kernel ext PA: %08lx - %08lx\n\n", kextPa, kextPa + kextSize);
@@ -314,9 +314,9 @@ void RosalinaMenu_ShowCredits(void)
     do
     {
         Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Rosalina -- Luma3DS credits");
+        Draw_DrawMenuFrame("Rosalina -- Luma3DS credits");
 
-        u32 posY = Draw_DrawString(10, 30, COLOR_WHITE, "Luma3DS (c) 2016-2025 AuroraWright, TuxSH") + SPACING_Y;
+        u32 posY = Draw_DrawString(10, 40, COLOR_WHITE, "Luma3DS (c) 2016-2025 AuroraWright, TuxSH") + SPACING_Y;
 
         posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "3DSX loading code by fincs");
         posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "Networking code & basic GDB functionality by Stary");
@@ -474,14 +474,14 @@ end:
     do
     {
         Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Screenshot");
+        Draw_DrawMenuFrame("Screenshot");
         if (R_FAILED(res))
-            Draw_DrawFormattedString(10, 30, COLOR_WHITE, "Operation failed (0x%08lx).", (u32)res);
+            Draw_DrawFormattedString(10, 40, COLOR_WHITE, "Operation failed (0x%08lx).", (u32)res);
         else
         {
             u32 t1 = (u32)(1000 * timeSpentConvertingScreenshot / SYSCLOCK_ARM11);
             u32 t2 = (u32)(1000 * timeSpentWritingScreenshot / SYSCLOCK_ARM11);
-            u32 posY = 30;
+            u32 posY = 40;
             posY = Draw_DrawString(10, posY, COLOR_WHITE, "Operation succeeded.\n\n");
             posY = Draw_DrawFormattedString(10, posY, COLOR_WHITE, "Time spent converting:    %5lums\n", t1);
             posY = Draw_DrawFormattedString(10, posY, COLOR_WHITE, "Time spent writing files: %5lums\n", t2);

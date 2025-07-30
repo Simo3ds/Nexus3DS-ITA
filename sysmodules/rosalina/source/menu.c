@@ -533,19 +533,7 @@ static void menuDraw(Menu *menu, u32 selected)
     else
         sprintf(versionString, "v%lu.%lu.%lu", GET_VERSION_MAJOR(version), GET_VERSION_MINOR(version), GET_VERSION_REVISION(version));
 
-    Draw_DrawString(10, 8, COLOR_CYAN, "+");
-    for (u32 i = 0; i < 35; i++) {
-        Draw_DrawCharacter(18 + i * 6, 8, COLOR_CYAN, '-');
-    }
-    Draw_DrawString(222, 8, COLOR_CYAN, "+");
-    Draw_DrawString(10, 16, COLOR_CYAN, "|");
-    Draw_DrawString(222, 16, COLOR_CYAN, "|");
-    Draw_DrawString(20, 16, COLOR_ORANGE, menu->title);
-    Draw_DrawString(10, 24, COLOR_CYAN, "+");
-    for (u32 i = 0; i < 35; i++) {
-        Draw_DrawCharacter(18 + i * 6, 24, COLOR_CYAN, '-');
-    }
-    Draw_DrawString(222, 24, COLOR_CYAN, "+");
+    Draw_DrawMenuFrame(menu->title);
     
     u32 numItems = menuCountItems(menu);
     u32 dispY = 0;
@@ -556,55 +544,7 @@ static void menuDraw(Menu *menu, u32 selected)
             continue;
 
         u32 yPos = 40 + dispY;
-
-        const int scrollSpeed = 2;
-        const int scrollWaitFrames = 40;
-        const int scrollInitialWaitFrames = 15;
-        static int scrollOffset = 0;
-        static int lastSelected = -1;
-        static int scrollDir = 1;
-        static int scrollWait = 0;
-        if (i == selected) {
-            if (lastSelected != (int)i) {
-                scrollOffset = 0;
-                lastSelected = i;
-                scrollDir = 1;
-                scrollWait = scrollInitialWaitFrames;
-            }
-            int titleLen = strlen(menu->items[i].title);
-            if (titleLen > 36) {
-                int maxOffset = (titleLen - 36) * 8;
-                if (scrollWait > 0) {
-                    scrollWait--;
-                } else {
-                    scrollOffset += scrollSpeed * scrollDir;
-                    if (scrollDir == 1 && scrollOffset >= maxOffset) {
-                        scrollOffset = maxOffset;
-                        scrollWait = scrollWaitFrames;
-                        scrollDir = -1;
-                    } else if (scrollDir == -1 && scrollOffset <= 0) {
-                        scrollOffset = 0;
-                        scrollWait = scrollWaitFrames;
-                        scrollDir = 1;
-                    }
-                }
-                Draw_DrawString(15, yPos, COLOR_ORANGE, ">>");
-                char buf[37];
-                strncpy(buf, menu->items[i].title + (scrollOffset/8), 36);
-                buf[36] = '\0';
-                Draw_DrawString(35, yPos, COLOR_CYAN, buf);
-                Draw_DrawString(250, yPos, COLOR_ORANGE, "<<        ");
-            } else {
-                Draw_DrawString(15, yPos, COLOR_ORANGE, ">>");
-                Draw_DrawString(35, yPos, COLOR_CYAN, menu->items[i].title);
-                Draw_DrawString(250, yPos, COLOR_ORANGE, "<<        ");
-            }
-        } else {
-            Draw_DrawString(15, yPos, COLOR_GRAY, " *");
-            Draw_DrawString(250, yPos, COLOR_WHITE, "  ");
-            Draw_DrawString(35, yPos, COLOR_WHITE, menu->items[i].title);
-        }
-        
+        Draw_DrawMenuCursor(yPos, (i == selected), menu->items[i].title);
         dispY += SPACING_Y;
     }
 

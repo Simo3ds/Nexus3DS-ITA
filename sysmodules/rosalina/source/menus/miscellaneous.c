@@ -139,15 +139,7 @@ void MiscellaneousMenu_SwitchBoot3dsxTargetTitle(void)
     Draw_Unlock();
     do {
         Draw_Lock();
-        Draw_DrawString(10, 8, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 8, COLOR_CYAN, '-');
-        Draw_DrawString(222, 8, COLOR_CYAN, "+");
-        Draw_DrawString(10, 16, COLOR_CYAN, "|");
-        Draw_DrawString(222, 16, COLOR_CYAN, "|");
-        Draw_DrawString(20, 16, COLOR_ORANGE, "Miscellaneous options menu");
-        Draw_DrawString(10, 24, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 24, COLOR_CYAN, '-');
-        Draw_DrawString(222, 24, COLOR_CYAN, "+");
+        Draw_DrawMenuFrame("Miscellaneous options menu");
         if (R_SUCCEEDED(res))
             Draw_DrawString(20, 40, COLOR_WHITE, "Operation succeeded.");
         else
@@ -169,30 +161,14 @@ void MiscellaneousMenu_ChangeMenuCombo(void)
     Draw_Unlock();
     LumaConfig_ConvertComboToString(comboStrOrig, menuCombo);
     Draw_Lock();
-    Draw_DrawString(10, 8, COLOR_CYAN, "+");
-    for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 8, COLOR_CYAN, '-');
-    Draw_DrawString(222, 8, COLOR_CYAN, "+");
-    Draw_DrawString(10, 16, COLOR_CYAN, "|");
-    Draw_DrawString(222, 16, COLOR_CYAN, "|");
-    Draw_DrawString(20, 16, COLOR_ORANGE, "Miscellaneous options menu");
-    Draw_DrawString(10, 24, COLOR_CYAN, "+");
-    for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 24, COLOR_CYAN, '-');
-    Draw_DrawString(222, 24, COLOR_CYAN, "+");
+    Draw_DrawMenuFrame("Miscellaneous options menu");
     posY = Draw_DrawFormattedString(20, 40, COLOR_WHITE, "The current menu combo is:  %s", comboStrOrig);
     posY = Draw_DrawString(20, posY + SPACING_Y, COLOR_WHITE, "Please enter the new combo:");
     menuCombo = waitCombo();
     LumaConfig_ConvertComboToString(comboStr, menuCombo);
     do {
         Draw_Lock();
-        Draw_DrawString(10, 8, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 8, COLOR_CYAN, '-');
-        Draw_DrawString(222, 8, COLOR_CYAN, "+");
-        Draw_DrawString(10, 16, COLOR_CYAN, "|");
-        Draw_DrawString(222, 16, COLOR_CYAN, "|");
-        Draw_DrawString(20, 16, COLOR_ORANGE, "Miscellaneous options menu");
-        Draw_DrawString(10, 24, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 24, COLOR_CYAN, '-');
-        Draw_DrawString(222, 24, COLOR_CYAN, "+");
+        Draw_DrawMenuFrame("Miscellaneous options menu");
         posY = Draw_DrawFormattedString(20, 40, COLOR_WHITE, "The current menu combo is:  %s", comboStrOrig);
         posY = Draw_DrawFormattedString(20, posY + SPACING_Y, COLOR_WHITE, "Please enter the new combo: %s", comboStr) + SPACING_Y;
         posY = Draw_DrawString(20, posY + SPACING_Y, COLOR_GREEN, "Successfully changed the menu combo.");
@@ -244,15 +220,7 @@ void MiscellaneousMenu_InputRedirection(void)
 
     do {
         Draw_Lock();
-        Draw_DrawString(10, 8, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 8, COLOR_CYAN, '-');
-        Draw_DrawString(222, 8, COLOR_CYAN, "+");
-        Draw_DrawString(10, 16, COLOR_CYAN, "|");
-        Draw_DrawString(222, 16, COLOR_CYAN, "|");
-        Draw_DrawString(20, 16, COLOR_ORANGE, "Miscellaneous options menu");
-        Draw_DrawString(10, 24, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 24, COLOR_CYAN, '-');
-        Draw_DrawString(222, 24, COLOR_CYAN, "+");
+        Draw_DrawMenuFrame("Miscellaneous options menu");
 
         u32 posY = 40;
         if (!wasEnabled && cantStart)
@@ -330,15 +298,7 @@ void MiscellaneousMenu_UpdateTimeDateNtp(void)
 
     do {
         Draw_Lock();
-        Draw_DrawString(10, 8, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 8, COLOR_CYAN, '-');
-        Draw_DrawString(222, 8, COLOR_CYAN, "+");
-        Draw_DrawString(10, 16, COLOR_CYAN, "|");
-        Draw_DrawString(222, 16, COLOR_CYAN, "|");
-        Draw_DrawString(20, 16, COLOR_ORANGE, "Miscellaneous options menu");
-        Draw_DrawString(10, 24, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 24, COLOR_CYAN, '-');
-        Draw_DrawString(222, 24, COLOR_CYAN, "+");
+        Draw_DrawMenuFrame("Miscellaneous options menu");
 
         absOffset = utcOffset - 12;
         absOffset = absOffset < 0 ? -absOffset : absOffset;
@@ -377,15 +337,7 @@ void MiscellaneousMenu_UpdateTimeDateNtp(void)
 
     do {
         Draw_Lock();
-        Draw_DrawString(10, 8, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 8, COLOR_CYAN, '-');
-        Draw_DrawString(222, 8, COLOR_CYAN, "+");
-        Draw_DrawString(10, 16, COLOR_CYAN, "|");
-        Draw_DrawString(222, 16, COLOR_CYAN, "|");
-        Draw_DrawString(20, 16, COLOR_ORANGE, "Miscellaneous options menu");
-        Draw_DrawString(10, 24, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 24, COLOR_CYAN, '-');
-        Draw_DrawString(222, 24, COLOR_CYAN, "+");
+        Draw_DrawMenuFrame("Miscellaneous options menu");
 
         absOffset = utcOffset;
         absOffset = absOffset < 0 ? -absOffset : absOffset;
@@ -415,15 +367,7 @@ void MiscellaneousMenu_NullifyUserTimeOffset(void)
 
     do {
         Draw_Lock();
-        Draw_DrawString(10, 8, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 8, COLOR_CYAN, '-');
-        Draw_DrawString(222, 8, COLOR_CYAN, "+");
-        Draw_DrawString(10, 16, COLOR_CYAN, "|");
-        Draw_DrawString(222, 16, COLOR_CYAN, "|");
-        Draw_DrawString(20, 16, COLOR_ORANGE, "Miscellaneous options menu");
-        Draw_DrawString(10, 24, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 24, COLOR_CYAN, '-');
-        Draw_DrawString(222, 24, COLOR_CYAN, "+");
+        Draw_DrawMenuFrame("Miscellaneous options menu");
         if (R_SUCCEEDED(res))
             Draw_DrawString(20, 40, COLOR_GREEN, "Operation succeeded.\n\nPlease reboot to finalize the changes.");
         else
@@ -501,15 +445,7 @@ void MiscellaneousMenu_DumpDspFirm(void)
 
     do {
         Draw_Lock();
-        Draw_DrawString(10, 8, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 8, COLOR_CYAN, '-');
-        Draw_DrawString(222, 8, COLOR_CYAN, "+");
-        Draw_DrawString(10, 16, COLOR_CYAN, "|");
-        Draw_DrawString(222, 16, COLOR_CYAN, "|");
-        Draw_DrawString(20, 16, COLOR_ORANGE, "Miscellaneous options menu");
-        Draw_DrawString(10, 24, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 24, COLOR_CYAN, '-');
-        Draw_DrawString(222, 24, COLOR_CYAN, "+");
+        Draw_DrawMenuFrame("Miscellaneous options menu");
         if (R_SUCCEEDED(res))
             Draw_DrawString(20, 40, COLOR_GREEN, "DSP firm. successfully written to\n/3ds/dspfirm.cdc on the SD card.");
         else
@@ -579,15 +515,7 @@ void MiscellaneousMenu_EditPlayCoins(void)
     {
         Draw_Lock();
         Draw_ClearFramebuffer();
-        Draw_DrawString(10, 8, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 8, COLOR_CYAN, '-');
-        Draw_DrawString(222, 8, COLOR_CYAN, "+");
-        Draw_DrawString(10, 16, COLOR_CYAN, "|");
-        Draw_DrawString(222, 16, COLOR_CYAN, "|");
-        Draw_DrawString(20, 16, COLOR_ORANGE, "Miscellaneous options menu");
-        Draw_DrawString(10, 24, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 24, COLOR_CYAN, '-');
-        Draw_DrawString(222, 24, COLOR_CYAN, "+");
+        Draw_DrawMenuFrame("Miscellaneous options menu");
         Draw_DrawFormattedString(20, 40, COLOR_WHITE, "Set Play Coins: %d", playCoins);
         Draw_DrawString(20, 60, COLOR_WHITE, "DPAD Up/Down: +-1\nDPAD Right/Left: +-10\nA: Apply");
         if (showResult) {
@@ -635,8 +563,9 @@ void MiscellaneousMenu_EditPlayCoins(void)
 
             if (updated) {
                 Draw_Lock();
-                Draw_DrawString(20, 40, COLOR_WHITE, "                ");
+                Draw_DrawString(20, 40, COLOR_WHITE, "Set Play Coins:         ");
                 Draw_DrawFormattedString(20, 40, COLOR_WHITE, "Set Play Coins: %d", playCoins);
+                Draw_DrawString(20, 100, COLOR_WHITE, "                            ");
                 Draw_FlushFramebuffer();
                 Draw_Unlock();
             }

@@ -63,19 +63,7 @@ void SysConfigMenu_ToggleLEDs(void)
     do
     {
         Draw_Lock();
-        Draw_DrawString(10, 8, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 33; i++) {
-            Draw_DrawCharacter(18 + i * 6, 8, COLOR_CYAN, '-');
-        }
-        Draw_DrawString(210, 8, COLOR_CYAN, "+");
-        Draw_DrawString(10, 16, COLOR_CYAN, "|");
-        Draw_DrawString(210, 16, COLOR_CYAN, "|");
-        Draw_DrawString(20, 16, COLOR_ORANGE, "System configuration menu");
-        Draw_DrawString(10, 24, COLOR_CYAN, "+");
-        for (u32 i = 0; i < 33; i++) {
-            Draw_DrawCharacter(18 + i * 6, 24, COLOR_CYAN, '-');
-        }
-        Draw_DrawString(210, 24, COLOR_CYAN, "+");
+        Draw_DrawMenuFrame("System configuration menu");
         Draw_DrawString(10, 30, COLOR_WHITE, "Press A to toggle, press B to go back.");
         Draw_DrawString(10, 50, COLOR_RED, "WARNING:");
         Draw_DrawString(10, 60, COLOR_WHITE, "  * Entering sleep mode will reset the LED state!");

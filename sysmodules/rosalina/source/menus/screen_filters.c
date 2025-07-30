@@ -381,23 +381,72 @@ static u32 ScreenFiltersMenu_AdvancedConfigurationHelper(const ScreenFilter *fil
 {
     char buf[64];
 
-    Draw_DrawCharacter(10, posY, COLOR_TITLE, pos == offset++ ? '>' : ' ');
-    posY = Draw_DrawFormattedString(30, posY, COLOR_WHITE, "Temperature: %12dK    \n", filter->cct);
+    if (pos == offset) {
+        Draw_DrawString(15, posY, COLOR_ORANGE, ">>");
+        posY = Draw_DrawFormattedString(35, posY, COLOR_CYAN, "Temperature: %12dK", filter->cct);
+        Draw_DrawString(250, posY, COLOR_ORANGE, "<<");
+        posY += SPACING_Y;
+    } else {
+        Draw_DrawString(15, posY, COLOR_GRAY, " *");
+        posY = Draw_DrawFormattedString(35, posY, COLOR_WHITE, "Temperature: %12dK", filter->cct);
+        Draw_DrawString(250, posY, COLOR_WHITE, "  ");
+        posY += SPACING_Y;
+    }
+    offset++;
 
     floatToString(buf, filter->gamma, 2, true);
-    Draw_DrawCharacter(10, posY, COLOR_TITLE, pos == offset++ ? '>' : ' ');
-    posY = Draw_DrawFormattedString(30, posY, COLOR_WHITE, "Gamma:       %13s    \n", buf);
+    if (pos == offset) {
+        Draw_DrawString(15, posY, COLOR_ORANGE, ">>");
+        posY = Draw_DrawFormattedString(35, posY, COLOR_CYAN, "Gamma:       %13s", buf);
+        Draw_DrawString(250, posY, COLOR_ORANGE, "<<");
+        posY += SPACING_Y;
+    } else {
+        Draw_DrawString(15, posY, COLOR_GRAY, " *");
+        posY = Draw_DrawFormattedString(35, posY, COLOR_WHITE, "Gamma:       %13s", buf);
+        Draw_DrawString(250, posY, COLOR_WHITE, "  ");
+        posY += SPACING_Y;
+    }
+    offset++;
 
     floatToString(buf, filter->contrast, 2, true);
-    Draw_DrawCharacter(10, posY, COLOR_TITLE, pos == offset++ ? '>' : ' ');
-    posY = Draw_DrawFormattedString(30, posY, COLOR_WHITE, "Contrast:    %13s    \n", buf);
+    if (pos == offset) {
+        Draw_DrawString(15, posY, COLOR_ORANGE, ">>");
+        posY = Draw_DrawFormattedString(35, posY, COLOR_CYAN, "Contrast:    %13s", buf);
+        Draw_DrawString(250, posY, COLOR_ORANGE, "<<");
+        posY += SPACING_Y;
+    } else {
+        Draw_DrawString(15, posY, COLOR_GRAY, " *");
+        posY = Draw_DrawFormattedString(35, posY, COLOR_WHITE, "Contrast:    %13s", buf);
+        Draw_DrawString(250, posY, COLOR_WHITE, "  ");
+        posY += SPACING_Y;
+    }
+    offset++;
 
     floatToString(buf, filter->brightness, 2, true);
-    Draw_DrawCharacter(10, posY, COLOR_TITLE, pos == offset++ ? '>' : ' ');
-    posY = Draw_DrawFormattedString(30, posY, COLOR_WHITE, "Brightness:  %13s    \n", buf);
+    if (pos == offset) {
+        Draw_DrawString(15, posY, COLOR_ORANGE, ">>");
+        posY = Draw_DrawFormattedString(35, posY, COLOR_CYAN, "Brightness:  %13s", buf);
+        Draw_DrawString(250, posY, COLOR_ORANGE, "<<");
+        posY += SPACING_Y;
+    } else {
+        Draw_DrawString(15, posY, COLOR_GRAY, " *");
+        posY = Draw_DrawFormattedString(35, posY, COLOR_WHITE, "Brightness:  %13s", buf);
+        Draw_DrawString(250, posY, COLOR_WHITE, "  ");
+        posY += SPACING_Y;
+    }
+    offset++;
 
-    Draw_DrawCharacter(10, posY, COLOR_TITLE, pos == offset++ ? '>' : ' ');
-    posY = Draw_DrawFormattedString(30, posY, COLOR_WHITE, "Invert:      %13s    \n", filter->invert ? "true" : "false");
+    if (pos == offset) {
+        Draw_DrawString(15, posY, COLOR_ORANGE, ">>");
+        posY = Draw_DrawFormattedString(35, posY, COLOR_CYAN, "Invert:      %13s", filter->invert ? "true" : "false");
+        Draw_DrawString(250, posY, COLOR_ORANGE, "<<");
+        posY += SPACING_Y;
+    } else {
+        Draw_DrawString(15, posY, COLOR_GRAY, " *");
+        posY = Draw_DrawFormattedString(35, posY, COLOR_WHITE, "Invert:      %13s", filter->invert ? "true" : "false");
+        Draw_DrawString(250, posY, COLOR_WHITE, "  ");
+        posY += SPACING_Y;
+    }
 
     return posY;
 }
@@ -416,17 +465,17 @@ void ScreenFiltersMenu_AdvancedConfiguration(void)
     do
     {
         Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Screen filters menu");
+        Draw_DrawMenuFrame("Screen filters menu");
 
-        posY = 30;
-        posY = Draw_DrawString(10, posY, COLOR_WHITE, "Use left/right to increase/decrease the sel. value.\n");
-        posY = Draw_DrawString(10, posY, COLOR_WHITE, "Hold R to change the value faster.\n");
-        posY = Draw_DrawFormattedString(10, posY, COLOR_WHITE, "Update both screens: %s (L to toggle)   \n", sync ? "yes" : "no") + SPACING_Y;
+        posY = 40;
+        posY = Draw_DrawString(20, posY, COLOR_WHITE, "Use left/right to increase/decrease sel. value.\n");
+        posY = Draw_DrawString(20, posY, COLOR_WHITE, "Hold R to change the value faster.\n");
+        posY = Draw_DrawFormattedString(20, posY, COLOR_WHITE, "Update both screens: %s (L to toggle)   \n", sync ? "yes" : "no") + SPACING_Y;
 
-        posY = Draw_DrawString(10, posY, COLOR_WHITE, "Top screen:\n");
+        posY = Draw_DrawString(20, posY, COLOR_WHITE, "Top screen:\n");
         posY = ScreenFiltersMenu_AdvancedConfigurationHelper(&topScreenFilter, 0, pos, posY) + SPACING_Y;
 
-        posY = Draw_DrawString(10, posY, COLOR_WHITE, "Bottom screen:\n");
+        posY = Draw_DrawString(20, posY, COLOR_WHITE, "Bottom screen:\n");
         posY = ScreenFiltersMenu_AdvancedConfigurationHelper(&bottomScreenFilter, 5, pos, posY) + SPACING_Y;
 
         input = waitInputWithTimeoutEx(&held, -1);
