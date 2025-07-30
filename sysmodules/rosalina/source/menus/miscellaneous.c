@@ -291,13 +291,13 @@ void MiscellaneousMenu_InputRedirection(void)
                 posY = Draw_DrawString(20, posY, COLOR_GREEN, "InputRedirection stopped successfully.\n\n");
                 if (isN3DS) {
                     posY = Draw_DrawString(20, posY, COLOR_WHITE,
-                        "This might cause a key press to be repeated in Home Menu for no reason.\n\nJust pressing ZL/ZR on the console is enough to fix this.\n");
+                        "This might cause a key press to be repeated\nin Home Menu for no reason.\n\nJust pressing ZL/ZR on the console is\nenough to fix this.\n");
                 }
             } else {
-                Draw_DrawString(20, posY, COLOR_RED, buf);
+                posY = Draw_DrawString(20, posY, COLOR_RED, buf);
             }
         }
-        Draw_DrawString(20, 100, COLOR_GRAY, "Press B to go back.");
+        Draw_DrawString(20, posY + SPACING_Y, COLOR_GRAY, "Press B to go back.");
         Draw_FlushFramebuffer();
         Draw_Unlock();
     } while (!(waitInput() & KEY_B) && !menuShouldExit);
@@ -603,42 +603,29 @@ void MiscellaneousMenu_EditPlayCoins(void)
 
     updateDisplay(false);
 
-    do
-    {
-        pressed = waitInput();
+    do {
+        pressed = waitInputWithTimeout(50);
 
-        if (pressed & KEY_A)
-        {
+        if (pressed & KEY_A) {
             res = MiscellaneousMenu_SetPlayCoins(playCoins);
             updateDisplay(true);
-        }
-        else if (pressed & KEY_B)
-        {
+        } else if (pressed & KEY_B) {
             return;
-        }
-        else
-        {
+        } else {
             bool updated = false;
-            if (pressed & KEY_DUP)
-            {
+            if (pressed & KEY_DUP) {
                 if (playCoins < 300) playCoins++;
                 updated = true;
-            }
-            else if (pressed & KEY_DDOWN)
-            {
+            } else if (pressed & KEY_DDOWN) {
                 if (playCoins > 0) playCoins--;
                 updated = true;
-            }
-            else if (pressed & KEY_DRIGHT)
-            {
+            } else if (pressed & KEY_DRIGHT) {
                 if (playCoins + 10 > 300)
                     playCoins = 300;
                 else
                     playCoins += 10;
                 updated = true;
-            }
-            else if (pressed & KEY_DLEFT)
-            {
+            } else if (pressed & KEY_DLEFT) {
                 if (playCoins < 10)
                     playCoins = 0;
                 else
@@ -646,8 +633,7 @@ void MiscellaneousMenu_EditPlayCoins(void)
                 updated = true;
             }
 
-            if (updated)
-            {
+            if (updated) {
                 Draw_Lock();
                 Draw_DrawString(20, 40, COLOR_WHITE, "                ");
                 Draw_DrawFormattedString(20, 40, COLOR_WHITE, "Set Play Coins: %d", playCoins);
@@ -655,6 +641,5 @@ void MiscellaneousMenu_EditPlayCoins(void)
                 Draw_Unlock();
             }
         }
-
     } while (!menuShouldExit);
 }
