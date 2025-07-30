@@ -2046,14 +2046,14 @@ void RosalinaMenu_Cheats(void)
         do
         {
             Draw_Lock();
-            Draw_DrawString(10, 10, COLOR_TITLE, "Cheats");
+            Draw_DrawMenuFrame("Cheats");
             if (titleId == 0)
             {
-                Draw_DrawString(10, 30, COLOR_WHITE, "No suitable title found");
+                Draw_DrawString(10, 40, COLOR_WHITE, "No suitable title found");
             }
             else
             {
-                Draw_DrawFormattedString(10, 30, COLOR_WHITE, "No cheats found for title %016llX", titleId);
+                Draw_DrawFormattedString(10, 40, COLOR_WHITE, "No cheats found for title %016llX", titleId);
             }
 
             Draw_FlushFramebuffer();
@@ -2074,7 +2074,7 @@ void RosalinaMenu_Cheats(void)
             }
             if (R_SUCCEEDED(r))
             {
-                Draw_DrawFormattedString(10, 10, COLOR_TITLE, "Cheat list");
+                Draw_DrawMenuFrame("Cheat list");
 
                 for (s32 i = 0; i < CHEATS_PER_MENU_PAGE && page * CHEATS_PER_MENU_PAGE + i < cheatCount; i++)
                 {
@@ -2084,14 +2084,22 @@ void RosalinaMenu_Cheats(void)
                     const char * keyAct = (cheats[j]->hasKeyCode ? "*" : " ");
                     sprintf(buf, "%s%s%s", checkbox, keyAct, cheats[j]->name);
 
-                    Draw_DrawString(30, 30 + i * SPACING_Y, cheats[j]->valid ? COLOR_WHITE : COLOR_RED, buf);
-                    Draw_DrawCharacter(10, 30 + i * SPACING_Y, COLOR_TITLE, j == selected ? '>' : ' ');
+                    bool isSelected = (j == selected);
+                    u32 color = cheats[j]->valid ? COLOR_WHITE : COLOR_RED;
+                    if (isSelected) {
+                        Draw_DrawString(15, 40 + i * SPACING_Y, COLOR_ORANGE, ">>");
+                        Draw_DrawString(35, 40 + i * SPACING_Y, COLOR_CYAN, buf);
+                    } else {
+                        Draw_DrawString(15, 40 + i * SPACING_Y, COLOR_GRAY, " *");
+                        Draw_DrawString(35, 40 + i * SPACING_Y, color, buf);
+                    }
                 }
             }
             else
             {
-                Draw_DrawFormattedString(10, 10, COLOR_TITLE, "ERROR: %08lx", r);
-                Draw_DrawFormattedString(10, 30, COLOR_RED, failureReason);
+                Draw_DrawMenuFrame("ERROR");
+                Draw_DrawFormattedString(10, 40, COLOR_RED, "Error: %08lx", r);
+                Draw_DrawFormattedString(10, 50, COLOR_RED, failureReason);
             }
             Draw_FlushFramebuffer();
             Draw_Unlock();

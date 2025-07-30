@@ -107,9 +107,9 @@ static void ProcessListMenu_DumpMemory(const char *name, void *start, u32 size)
 #define TRY(expr) if(R_FAILED(res = (expr))) goto end;
 
     Draw_Lock();
-    Draw_DrawString(10, 10, COLOR_TITLE, "Memory dump");
+    Draw_DrawMenuFrame("Memory dump");
     const char * wait_message = "Please wait, this may take a while...";
-    Draw_DrawString(10, 30, COLOR_WHITE, wait_message);
+    Draw_DrawString(10, 40, COLOR_WHITE, wait_message);
     Draw_FlushFramebuffer();
     Draw_Unlock();
 
@@ -195,17 +195,17 @@ end:
     do
     {
         Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Memory dump");
-        Draw_DrawFormattedString(10, 30, COLOR_WHITE, "%*s", strlen(wait_message), " ");
+        Draw_DrawMenuFrame("Memory dump");
+        Draw_DrawFormattedString(10, 40, COLOR_WHITE, "%*s", strlen(wait_message), " ");
         if(R_FAILED(res))
         {
-            Draw_DrawFormattedString(10, 30, COLOR_WHITE, "Operation failed (0x%.8lx).", res);
+            Draw_DrawFormattedString(10, 40, COLOR_WHITE, "Operation failed (0x%.8lx).", res);
         }
         else
         {
-            Draw_DrawString(10, 30, COLOR_WHITE, "Operation succeeded.");
+            Draw_DrawString(10, 40, COLOR_WHITE, "Operation succeeded.");
         }
-        Draw_DrawString(10, 30+SPACING_Y, COLOR_WHITE, "Press B to go back.");
+        Draw_DrawString(10, 40+SPACING_Y, COLOR_WHITE, "Press B to go back.");
 
         Draw_FlushFramebuffer();
         Draw_Unlock();
@@ -403,10 +403,10 @@ static void ProcessListMenu_MemoryViewer(const ProcessInfo *info)
             void drawMenu(void)
             {
                 Draw_Lock();
-                Draw_DrawString(10, 10, COLOR_TITLE, "Memory viewer");
+                Draw_DrawMenuFrame("Memory viewer");
 
                 // Instructions
-                const u32 instructionsY = 30;
+                const u32 instructionsY = 40;
                 u32 viewerY = instructionsY + SPACING_Y + 6;
                 Draw_DrawString(10, instructionsY, COLOR_WHITE, "D-PAD to move, X to jump, Y to search, A to edit.");
 
@@ -703,7 +703,7 @@ void RosalinaMenu_ProcessList(void)
         Draw_Lock();
         if(page != pagePrev)
             Draw_ClearFramebuffer();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Process list");
+        Draw_DrawMenuFrame("Process list");
 
         if(gdbServer.super.running)
         {
@@ -711,7 +711,7 @@ void RosalinaMenu_ProcessList(void)
             u32 ip = socGethostid();
             u8 *addr = (u8 *)&ip;
             int n = sprintf(ipBuffer, "%hhu.%hhu.%hhu.%hhu", addr[0], addr[1], addr[2], addr[3]);
-            Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n, 10, COLOR_WHITE, ipBuffer);
+            Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n, 16, COLOR_GREEN, ipBuffer);
         }
 
 
@@ -720,8 +720,8 @@ void RosalinaMenu_ProcessList(void)
             char buf[65] = {0};
             ProcessListMenu_FormatInfoLine(buf, &infos[page * PROCESSES_PER_MENU_PAGE + i]);
 
-            Draw_DrawString(30, 30 + i * SPACING_Y, COLOR_WHITE, buf);
-            Draw_DrawCharacter(10, 30 + i * SPACING_Y, COLOR_TITLE, page * PROCESSES_PER_MENU_PAGE + i == selected ? '>' : ' ');
+            bool isSelected = (page * PROCESSES_PER_MENU_PAGE + i == selected);
+            Draw_DrawMenuCursor(40 + i * SPACING_Y, isSelected, buf);
         }
 
         Draw_FlushFramebuffer();

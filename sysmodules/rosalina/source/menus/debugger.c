@@ -127,15 +127,15 @@ void DebuggerMenu_EnableDebugger(void)
     do
     {
         Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Debugger options menu");
+        Draw_DrawMenuFrame("Debugger options menu");
 
         if(alreadyEnabled)
-            Draw_DrawString(10, 30, COLOR_WHITE, "Already enabled!");
+            Draw_DrawString(10, 40, COLOR_WHITE, "Already enabled!");
         else if(!isSocURegistered)
-            Draw_DrawString(10, 30, COLOR_WHITE, "Can't start the debugger before the system has fi-\nnished loading.");
+            Draw_DrawString(10, 40, COLOR_WHITE, "Can't start the debugger before the system has fi-\nnished loading.");
         else
         {
-            Draw_DrawString(10, 30, COLOR_WHITE, "Starting debugger...");
+            Draw_DrawString(10, 40, COLOR_WHITE, "Starting debugger...");
 
             if(!done)
             {
@@ -155,9 +155,9 @@ void DebuggerMenu_EnableDebugger(void)
                 done = true;
             }
             if(res == 0)
-                Draw_DrawString(10, 30, COLOR_WHITE, "Starting debugger... OK.");
+                Draw_DrawString(10, 40, COLOR_WHITE, "Starting debugger... OK.");
             else
-                Draw_DrawString(10, 30, COLOR_WHITE, buf);
+                Draw_DrawString(10, 40, COLOR_WHITE, buf);
         }
 
         Draw_FlushFramebuffer();
@@ -179,8 +179,8 @@ void DebuggerMenu_DisableDebugger(void)
     do
     {
         Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Debugger options menu");
-        Draw_DrawString(10, 30, COLOR_WHITE, initialized ? (res == 0 ? "Debugger disabled successfully." : buf) : "Debugger not enabled.");
+        Draw_DrawMenuFrame("Debugger options menu");
+        Draw_DrawString(10, 40, COLOR_WHITE, initialized ? (res == 0 ? "Debugger disabled successfully." : buf) : "Debugger not enabled.");
         Draw_FlushFramebuffer();
         Draw_Unlock();
     }
@@ -228,8 +228,8 @@ void DebuggerMenu_DebugNextApplicationByForce(void)
     do
     {
         Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Debugger options menu");
-        Draw_DrawString(10, 30, COLOR_WHITE, buf);
+        Draw_DrawMenuFrame("Debugger options menu");
+        Draw_DrawString(10, 40, COLOR_WHITE, buf);
         Draw_FlushFramebuffer();
         Draw_Unlock();
     }

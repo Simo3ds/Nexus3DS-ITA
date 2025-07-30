@@ -45,22 +45,23 @@ void GetPlgSelectorSettingsPath(char *path)
 
 bool ConfirmOperation(const char *message)
 {
+    Draw_Lock();
+    Draw_ClearFramebuffer();
+    Draw_Unlock();
+    
     do
     {
-        u32 posY;
-
         Draw_Lock();
-        Draw_ClearFramebuffer();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Confirmation");
-        posY = Draw_DrawString(30, 30, COLOR_WHITE, message);
-        posY = Draw_DrawString(30, posY + 30, COLOR_WHITE, "Press [A] to confirm, press [B] to cancel.");
+        Draw_DrawMenuFrame("Confirmation");
+        Draw_DrawString(10, 40, COLOR_WHITE, message);
+        Draw_DrawString(10, 70, COLOR_WHITE, "Press [A] to confirm, press [B] to cancel.");
         Draw_FlushFramebuffer();
         Draw_Unlock();
 
         u32 keys;
         do
         {
-            keys = waitComboWithTimeout(1000);
+            keys = waitInputWithTimeout(1000);
         } while (keys == 0 && !menuShouldExit);
 
         if (keys & KEY_A)
@@ -194,6 +195,11 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
     sprintf(message, "Choose option for '%s'", name);
 
     ClearScreenQuickly();
+    
+    Draw_Lock();
+    hidSetRepeatParameters(200, 100);
+    Draw_ClearFramebuffer();
+    Draw_Unlock();
 
     // Init options status
     if (entries[index].isDefault)
@@ -207,19 +213,22 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
 
     do
     {
-        u32 posY;
-
         Draw_Lock();
-        Draw_ClearFramebuffer();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Plugin selector");
-        posY = Draw_DrawString(20, 30, COLOR_LIME, message);
-
-        posY += 5;
+        Draw_DrawMenuFrame("Plugin selector");
+        Draw_DrawString(10, 40, COLOR_LIME, message);
 
         for (u8 i = 0; i < nbOptions; i++)
         {
-            Draw_DrawCharacter(10, posY + 14, COLOR_TITLE, i == selected ? '>' : ' ');
-            posY = Draw_DrawString(30, posY + 14, options[i].enabled ? COLOR_WHITE : COLOR_GRAY, options[i].name);
+            bool isSelected = (i == selected);
+            u32 color = options[i].enabled ? COLOR_WHITE : COLOR_GRAY;
+            
+            if (isSelected) {
+                Draw_DrawString(15, 40 + (i + 2) * SPACING_Y, COLOR_ORANGE, ">>");
+                Draw_DrawString(35, 40 + (i + 2) * SPACING_Y, COLOR_CYAN, options[i].name);
+            } else {
+                Draw_DrawString(15, 40 + (i + 2) * SPACING_Y, COLOR_GRAY, " *");
+                Draw_DrawString(35, 40 + (i + 2) * SPACING_Y, color, options[i].name);
+            }
         }
         Draw_FlushFramebuffer();
         Draw_Unlock();
@@ -227,7 +236,7 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
         u32 keys;
         do
         {
-            keys = waitComboWithTimeout(1000);
+            keys = waitInputWithTimeout(1000);
         } while (keys == 0 && !menuShouldExit);
 
         if ((keys & KEY_A) && options[selected].enabled)
@@ -344,38 +353,44 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
     menuEnter();
 
     ClearScreenQuickly();
+    
+    Draw_Lock();
+    hidSetRepeatParameters(200, 100);
+    Draw_ClearFramebuffer();
+    Draw_Unlock();
 
     do
     {
-        u32 posY;
-
         Draw_Lock();
-        Draw_ClearFramebuffer();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Plugin selector");
-        posY = Draw_DrawString(30, 30, COLOR_WHITE, "Some 3gx files were found.");
-        posY = Draw_DrawString(30, posY + 10, COLOR_WHITE, "[A] Select, [B] Cancel, [X] Options, [Y] Reorder");
-        posY = Draw_DrawString(20, posY + 15, COLOR_LIME, "Plugins:");
+        Draw_DrawMenuFrame("Plugin selector");
+        Draw_DrawString(10, 40, COLOR_WHITE, "Some 3gx files were found.");
+        Draw_DrawString(10, 50, COLOR_WHITE, "[A] Select, [B] Cancel, [X] Options, [Y] Reorder");
 
         for (u8 i = 0; i < count; i++)
         {
-            if (holding == -1)
-            {
-                Draw_DrawCharacter(10, posY + 15, COLOR_TITLE, i == selected ? '>' : ' ');
-            }
+            static char buf[256];
+            bool isDefault = entries[i].isDefault;
+            bool isSelected = (i == selected && holding == -1);
+
+            char name[128];
+            strncpy(name, entries[i].name, sizeof(name) - 1);
+
             if (i == holding)
             {
-                posY = Draw_DrawString(33, posY + 14, COLOR_WHITE, entries[i].name);
+                sprintf(buf, "%s%s", (const char *)name, (isDefault ? " [Default]" : ""));
+                Draw_DrawString(33, 40 + (i + 3) * SPACING_Y, COLOR_WHITE, buf);
             }
             else
             {
-                static char buf[256];
-                bool isDefault = entries[i].isDefault;
-
-                char name[128];
-                strncpy(name, entries[i].name, sizeof(name) - 1);
-
-                sprintf(buf, "  %s%s", (const char *)name, (isDefault ? " [Default]" : ""));
-                posY = Draw_DrawString(30, posY + 15, COLOR_WHITE, buf);
+                sprintf(buf, "%s%s", (const char *)name, (isDefault ? " [Default]" : ""));
+                
+                if (isSelected) {
+                    Draw_DrawString(15, 40 + (i + 3) * SPACING_Y, COLOR_ORANGE, ">>");
+                    Draw_DrawString(35, 40 + (i + 3) * SPACING_Y, COLOR_CYAN, buf);
+                } else {
+                    Draw_DrawString(15, 40 + (i + 3) * SPACING_Y, COLOR_GRAY, " *");
+                    Draw_DrawString(35, 40 + (i + 3) * SPACING_Y, COLOR_WHITE, buf);
+                }
             }
         }
 
@@ -385,7 +400,7 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
         u32 keys;
         do
         {
-            keys = waitComboWithTimeout(1000);
+            keys = waitInputWithTimeout(1000);
         } while (keys == 0 && !menuShouldExit);
 
         if (keys & KEY_A)
@@ -408,16 +423,28 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
 
                 if (count < selected + 1)
                     selected = count - 1;
+
+                Draw_Lock();
+                Draw_ClearFramebuffer();
+                Draw_Unlock();
             }
         }
         else if (keys & KEY_Y)
         {
             if (holding == -1)
+            {
                 holding = selected;
+                Draw_Lock();
+                Draw_ClearFramebuffer();
+                Draw_Unlock();
+            }
             else
             {
                 selected = holding;
                 holding = -1;
+                Draw_Lock();
+                Draw_ClearFramebuffer();
+                Draw_Unlock();
             }
         }
         else if (keys & KEY_DOWN)
@@ -430,6 +457,9 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
                 entries[holding] = entries[holding + 1];
                 entries[holding + 1] = tmp;
                 holding++;
+                Draw_Lock();
+                Draw_ClearFramebuffer();
+                Draw_Unlock();
             }
         }
         else if (keys & KEY_UP)
@@ -442,6 +472,9 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
                 entries[holding] = entries[holding - 1];
                 entries[holding - 1] = tmp;
                 holding--;
+                Draw_Lock();
+                Draw_ClearFramebuffer();
+                Draw_Unlock();
             }
         }
     } while (!menuShouldExit);
@@ -777,10 +810,10 @@ bool TryToLoadPlugin(Handle process, bool isHomebrew)
             {
                 Draw_Lock();
 
-                Draw_DrawString(10, 10, COLOR_RED, "---WARNING---");
-                posY = Draw_DrawString(30, 30, COLOR_WHITE, "This 3gx may be a destruction 3gx!");
-                posY = Draw_DrawString(30, posY + 20, COLOR_WHITE, textBuf);
-                posY = Draw_DrawString(30, posY + 20, COLOR_WHITE, "Press A to use 3gx, press B to don't use 3gx.");
+                Draw_DrawMenuFrame("---WARNING---");
+                posY = Draw_DrawString(10, 40, COLOR_WHITE, "This 3gx may be a destruction 3gx!");
+                posY = Draw_DrawString(10, posY + 20, COLOR_WHITE, textBuf);
+                posY = Draw_DrawString(10, posY + 20, COLOR_WHITE, "Press A to use 3gx, press B to don't use 3gx.");
 
                 Draw_FlushFramebuffer();
                 Draw_Unlock();
@@ -793,9 +826,9 @@ bool TryToLoadPlugin(Handle process, bool isHomebrew)
                     {
                         Draw_Lock();
 
-                        Draw_DrawString(10, 10, COLOR_RED, "---WARNING---");
-                        posY = Draw_DrawString(30, 30, COLOR_WHITE, "Do you really want to use 3gx?");
-                        posY = Draw_DrawString(30, posY + 20, COLOR_WHITE, "Press A to continue, press B to go back.");
+                        Draw_DrawMenuFrame("---WARNING---");
+                        posY = Draw_DrawString(10, 40, COLOR_WHITE, "Do you really want to use 3gx?");
+                        posY = Draw_DrawString(10, posY + 20, COLOR_WHITE, "Press A to continue, press B to go back.");
 
                         Draw_FlushFramebuffer();
                         Draw_Unlock();
