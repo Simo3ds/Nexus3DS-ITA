@@ -283,9 +283,9 @@ void MiscellaneousMenu_InputRedirection(void)
                 done = true;
             }
             if (res == 0)
-                Draw_DrawString(20, posY + SPACING_Y, COLOR_GREEN, "Starting InputRedirection... OK.");
+                posY = Draw_DrawString(20, posY + SPACING_Y, COLOR_GREEN, "Starting InputRedirection... OK.");
             else
-                Draw_DrawString(20, posY + SPACING_Y, COLOR_RED, buf);
+                posY = Draw_DrawString(20, posY + SPACING_Y, COLOR_RED, buf);
         } else {
             if (res == 0) {
                 posY = Draw_DrawString(20, posY, COLOR_GREEN, "InputRedirection stopped successfully.\n\n");
@@ -297,7 +297,7 @@ void MiscellaneousMenu_InputRedirection(void)
                 posY = Draw_DrawString(20, posY, COLOR_RED, buf);
             }
         }
-        Draw_DrawString(20, posY + SPACING_Y, COLOR_GRAY, "Press B to go back.");
+        Draw_DrawString(20, posY + SPACING_Y * 2, COLOR_GRAY, "Press B to go back.");
         Draw_FlushFramebuffer();
         Draw_Unlock();
     } while (!(waitInput() & KEY_B) && !menuShouldExit);
@@ -511,10 +511,10 @@ void MiscellaneousMenu_DumpDspFirm(void)
         for (u32 i = 0; i < 35; i++) Draw_DrawCharacter(18 + i * 6, 24, COLOR_CYAN, '-');
         Draw_DrawString(222, 24, COLOR_CYAN, "+");
         if (R_SUCCEEDED(res))
-            Draw_DrawString(20, 40, COLOR_GREEN, "DSP firm. successfully written to /3ds/dspfirm.cdc\non the SD card.");
+            Draw_DrawString(20, 40, COLOR_GREEN, "DSP firm. successfully written to\n/3ds/dspfirm.cdc on the SD card.");
         else
             Draw_DrawFormattedString(20, 40, COLOR_RED,
-                "Operation failed (0x%08lx).\n\nMake sure that Home Menu is running and that your SD card is inserted.",
+                "Operation failed (0x%08lx).\n\nMake sure that Home Menu is running and that\nyour SD card is inserted.",
                 res);
         Draw_DrawString(20, 100, COLOR_GRAY, "Press B to go back.");
         Draw_FlushFramebuffer();
