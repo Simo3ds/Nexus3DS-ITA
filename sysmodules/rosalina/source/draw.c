@@ -413,17 +413,19 @@ void Draw_DrawMenuFrame(const char *title)
 void Draw_DrawMenuCursor(u32 yPos, bool selected, const char *text)
 {
     static int scrollOffset = 0;
-    static int lastSelected = -1;
+    static u32 lastSelectedHash = 0;
     static int scrollDir = 1;
     static int scrollWait = 0;
     const int scrollSpeed = 2;
     const int scrollWaitFrames = 40;
     const int scrollInitialWaitFrames = 15;
+
+    u32 currentHash = yPos ^ ((u32)text);
     
     if (selected) {
-        if (lastSelected != (int)yPos) {
+        if (lastSelectedHash != currentHash) {
             scrollOffset = 0;
-            lastSelected = yPos;
+            lastSelectedHash = currentHash;
             scrollDir = 1;
             scrollWait = scrollInitialWaitFrames;
         }
@@ -449,12 +451,11 @@ void Draw_DrawMenuCursor(u32 yPos, bool selected, const char *text)
             strncpy(buf, text + (scrollOffset/8), 36);
             buf[36] = '\0';
             Draw_DrawString(35, yPos, COLOR_CYAN, buf);
-            Draw_DrawString(250, yPos, COLOR_ORANGE, "<<        ");
         } else {
             Draw_DrawString(15, yPos, COLOR_ORANGE, ">>");
             Draw_DrawString(35, yPos, COLOR_CYAN, text);
-            Draw_DrawString(250, yPos, COLOR_ORANGE, "<<        ");
         }
+        Draw_DrawString(250, yPos, COLOR_ORANGE, "<<        ");
     } else {
         Draw_DrawString(15, yPos, COLOR_GRAY, " *");
         Draw_DrawString(250, yPos, COLOR_WHITE, "  ");
