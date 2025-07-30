@@ -397,7 +397,7 @@ void Draw_DrawMenuFrame(const char *title)
 {
     Draw_DrawString(10, 8, COLOR_CYAN, "+");
     for (u32 i = 0; i < 35; i++) {
-        Draw_DrawCharacter(18 + i * 6, 8, COLOR_CYAN, '-');
+        Draw_DrawCharacter(16 + i * 6, 8, COLOR_CYAN, '-');
     }
     Draw_DrawString(222, 8, COLOR_CYAN, "+");
     Draw_DrawString(10, 16, COLOR_CYAN, "|");
@@ -405,7 +405,7 @@ void Draw_DrawMenuFrame(const char *title)
     Draw_DrawString(20, 16, COLOR_ORANGE, title);
     Draw_DrawString(10, 24, COLOR_CYAN, "+");
     for (u32 i = 0; i < 35; i++) {
-        Draw_DrawCharacter(18 + i * 6, 24, COLOR_CYAN, '-');
+        Draw_DrawCharacter(16 + i * 6, 24, COLOR_CYAN, '-');
     }
     Draw_DrawString(222, 24, COLOR_CYAN, "+");
 }
