@@ -112,7 +112,7 @@ void PluginWatcher_SetWatchLevel(void)
     static const char *watchOptions[] = {
         "Detects file deletion",
         "Detects directory deletion",
-        "Detects internet connections in 3gx",
+        "Detects internet connections",
         "Detects camera access",
     };
 
@@ -151,15 +151,17 @@ void PluginWatcher_SetWatchLevel(void)
             LumaConfig_RequestSaveSettings();
         }
         else if(pressed & KEY_DOWN)
+        {
             selected++;
+            if(selected >= nbOptions)
+                selected = 0;
+        }
         else if(pressed & KEY_UP)
+        {
             selected--;
-
-        if(selected < 0)
-            selected = nbOptions - 1;
-        else if(selected >= nbOptions)
-            selected = 0;
+            if(selected < 0)
+                selected = nbOptions - 1;
+        }
 
     } while(!menuShouldExit);
-
 }
