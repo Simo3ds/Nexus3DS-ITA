@@ -309,13 +309,13 @@ bool payloadMenu(char *path, bool *hasDisplayedMenu)
         initScreens();
         *hasDisplayedMenu = true;
 
-        drawString(true, 10, 10, COLOR_TITLE, "Luma3DS chainloader");
+        drawString(true, 10, 10, COLOR_TITLE, "Nexus3DS chainloader");
         drawString(true, 10, 10 + SPACING_Y, COLOR_TITLE, "Press A to select, START to quit");
 
-        for(u32 i = 0, posY = 10 + 3 * SPACING_Y, color = COLOR_RED; i < payloadNum; i++, posY += SPACING_Y)
+        for(u32 i = 0, posY = 10 + 3 * SPACING_Y, color = COLOR_CYAN; i < payloadNum; i++, posY += SPACING_Y)
         {
             drawString(true, 10, posY, color, payloadList[i]);
-            if(color == COLOR_RED) color = COLOR_WHITE;
+            if(color == COLOR_CYAN) color = COLOR_WHITE;
         }
 
         while(pressed != BUTTON_A && pressed != BUTTON_START)
@@ -349,7 +349,7 @@ bool payloadMenu(char *path, bool *hasDisplayedMenu)
             if(oldSelectedPayload == selectedPayload) continue;
 
             drawString(true, 10, 10 + (3 + oldSelectedPayload) * SPACING_Y, COLOR_WHITE, payloadList[oldSelectedPayload]);
-            drawString(true, 10, 10 + (3 + selectedPayload) * SPACING_Y, COLOR_RED, payloadList[selectedPayload]);
+            drawString(true, 10, 10 + (3 + selectedPayload) * SPACING_Y, COLOR_CYAN, payloadList[selectedPayload]);
         }
     }
 
