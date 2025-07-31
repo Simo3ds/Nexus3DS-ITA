@@ -578,7 +578,7 @@ void SysConfigMenu_ChangeScreenBrightness(void)
         posY = Draw_DrawString(10, posY, COLOR_WHITE, "Up/Down for +-1, Right/Left for +-10.\n");
         posY = Draw_DrawString(10, posY, COLOR_WHITE, "Hold X/A for Top/Bottom screen only. \n");
         posY = Draw_DrawString(10, posY, COLOR_WHITE, "Hold L or R to use raw max. limit. \n");
-        posY = Draw_DrawString(10, posY, COLOR_WHITE, "Press Y power off bottom backlight.\n\n");
+        posY = Draw_DrawString(10, posY, COLOR_WHITE, "Press Y to toggle top and bottom backlight.\n\n");
         posY = Draw_DrawString(10, posY, COLOR_TITLE, "Press START to begin, B to exit.\n\n");
 
         posY = Draw_DrawString(10, posY, COLOR_RED, "WARNING: Over-brighten at own risk!\n");
