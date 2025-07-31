@@ -139,6 +139,14 @@ void setBrightnessAlt(u32 lumTop, u32 lumBot)
     u8 *screenTop = (u8 *)PA_PTR(regbaseTop +  offset);
     u8 *screenBot = (u8 *)PA_PTR(regbaseBot +  offset);
 
-    *screenBot = luminanceToBrightness(lumBot, coeffsBot, 0, ratioBot);
-    *screenTop = luminanceToBrightness(lumTop, coeffsTop, 0, ratioTop);
+    u32 brightnessBot = luminanceToBrightness(lumBot, coeffsBot, s_blPwmData.brightnessMin, ratioBot);
+    u32 brightnessTop = luminanceToBrightness(lumTop, coeffsTop, s_blPwmData.brightnessMin, ratioTop);
+
+    if (brightnessBot < s_blPwmData.brightnessMin) brightnessBot = s_blPwmData.brightnessMin;
+    if (brightnessBot > s_blPwmData.brightnessMax) brightnessBot = s_blPwmData.brightnessMax;
+    if (brightnessTop < s_blPwmData.brightnessMin) brightnessTop = s_blPwmData.brightnessMin;
+    if (brightnessTop > s_blPwmData.brightnessMax) brightnessTop = s_blPwmData.brightnessMax;
+
+    *screenBot = brightnessBot;
+    *screenTop = brightnessTop;
 }
