@@ -93,7 +93,6 @@ To build Nexus3DS, the following is needed:
 * up-to-date devkitARM and libctru:
     * install `dkp-pacman` (or, for distributions that already provide pacman, add repositories): https://devkitpro.org/wiki/devkitPro_pacman
     * install packages from `3ds-dev` metapackage: `sudo dkp-pacman -S 3ds-dev --needed`
-    * while libctru and Nexus3DS releases are kept in sync, you may have to build libctru from source for non-release Nexus3DS commits
 
 Nexus3DS compiles into one single file: `boot.firm`. Just copy it over to the root of your SD card ([ftpd](https://github.com/mtheall/ftpd) is the easiest way to do so), and you're done.
 
