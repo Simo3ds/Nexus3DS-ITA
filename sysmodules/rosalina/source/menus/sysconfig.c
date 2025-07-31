@@ -549,7 +549,7 @@ void SysConfigMenu_ChangeScreenBrightness(void)
     u32 minLum = getMinLuminancePreset();
     u32 maxLum = getMaxLuminancePreset();
     u32 trueMax = 172;
-    u32 trueMin = 0;
+    u32 trueMin = 16;
     luminanceTop = luminanceTop == 173 ? trueMax : luminanceTop;
 
     do
