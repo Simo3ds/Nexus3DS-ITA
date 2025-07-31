@@ -538,12 +538,19 @@ void SysConfigMenu_ChangeScreenBrightness(void)
     Draw_FlushFramebuffer();
     Draw_Unlock();
 
-    // gsp:LCD GetLuminance is stubbed on O3DS so we have to implement it ourselves... damn it.
+    u8 sysModel;
+    cfguInit();
+    CFGU_GetSystemModel(&sysModel);
+    cfguExit();
+    bool hasTopScreen = (sysModel != 3); // 3 = o2DS
+
     u32 luminanceTop = getCurrentLuminance(true);
     u32 luminanceBot = getCurrentLuminance(false);
     u32 minLum = getMinLuminancePreset();
     u32 maxLum = getMaxLuminancePreset();
-    u32 trueMax = 255; // Raw maximum brightness limit
+    u32 trueMax = 172;
+    u32 trueMin = 0;
+    luminanceTop = luminanceTop == 173 ? trueMax : luminanceTop;
 
     do
     {
@@ -602,16 +609,13 @@ void SysConfigMenu_ChangeScreenBrightness(void)
     s32 lumTop = (s32)luminanceTop;
     s32 lumBot = (s32)luminanceBot;
 
-    do
-    {
-        u32 kHeld = 0;
-        kHeld = HID_PAD;
+    do {
+        u32 kHeld = HID_PAD;
         u32 pressed = waitInputWithTimeout(1000);
-        if (pressed & DIRECTIONAL_KEYS)
-        {
+        if (pressed & DIRECTIONAL_KEYS) {
             s32 increment = 0;
             s32 currentMax = (kHeld & (KEY_L | KEY_R)) ? (s32)trueMax : (s32)maxLum;
-            
+
             if (pressed & KEY_UP)
                 increment = 1;
             else if (pressed & KEY_DOWN)
@@ -621,48 +625,54 @@ void SysConfigMenu_ChangeScreenBrightness(void)
             else if (pressed & KEY_LEFT)
                 increment = -10;
 
-            if (kHeld & KEY_X) // Top screen only
-            {
+            if (kHeld & KEY_X) {
                 lumTop += increment;
-                lumTop = lumTop < (s32)minLum ? (s32)minLum : lumTop;
+                lumTop = lumTop < (s32)trueMin ? (s32)trueMin : lumTop;
                 lumTop = lumTop > currentMax ? currentMax : lumTop;
-            }
-            else if (kHeld & KEY_A) // Bottom screen only
-            {
+            } else if (kHeld & KEY_A) {
                 lumBot += increment;
-                lumBot = lumBot < (s32)minLum ? (s32)minLum : lumBot;
+                lumBot = lumBot < (s32)trueMin ? (s32)trueMin : lumBot;
                 lumBot = lumBot > currentMax ? currentMax : lumBot;
-            }
-            else // Both screens
-            {
+            } else {
                 lumTop += increment;
                 lumBot += increment;
-                lumTop = lumTop < (s32)minLum ? (s32)minLum : lumTop;
+                lumTop = lumTop < (s32)trueMin ? (s32)trueMin : lumTop;
                 lumTop = lumTop > currentMax ? currentMax : lumTop;
-                lumBot = lumBot < (s32)minLum ? (s32)minLum : lumBot;
+                lumBot = lumBot < (s32)trueMin ? (s32)trueMin : lumBot;
                 lumBot = lumBot > currentMax ? currentMax : lumBot;
             }
 
-            // We need to call gsp here because updating the active duty LUT is a bit tedious (plus, GSP has internal state).
-            // This is actually SetLuminance:
-            if(kHeld & KEY_X)
-            {
-                GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_TOP), lumTop);
-            }
-            else if(kHeld & KEY_A)
-            {
-                GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_BOTTOM), lumBot);
-            }
-            else
-            {
-                GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_TOP), lumTop);
-                GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_BOTTOM), lumBot);
+            if ((lumTop < (s32)minLum || lumTop > (s32)maxLum) || (lumBot < (s32)minLum || lumBot > (s32)maxLum)) {
+                setBrightnessAlt(lumTop, lumBot);
+            } else {
+                if (kHeld & KEY_X)
+                    GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_TOP), lumTop);
+                else if (kHeld & KEY_A)
+                    GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_BOTTOM), lumBot);
+                else {
+                    GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_TOP), lumTop);
+                    GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_BOTTOM), lumBot);
+                }
             }
         }
 
-        if (pressed & KEY_Y)
-        {
-            // Power off bottom backlight
+        if ((pressed & KEY_Y) && hasTopScreen) {
+            u8 result, botStatus, topStatus;
+            mcuHwcInit();
+            MCUHWC_ReadRegister(0x0F, &result, 1); // https://www.3dbrew.org/wiki/I2C_Registers#Device_3
+            mcuHwcExit();
+            botStatus = (result >> 5) & 1;
+            topStatus = (result >> 6) & 1;
+
+            if (botStatus == 1 && topStatus == 1) {
+                GSPLCD_PowerOffBacklight(BIT(GSP_SCREEN_BOTTOM));
+            } else if (botStatus == 0 && topStatus == 1) {
+                GSPLCD_PowerOnBacklight(BIT(GSP_SCREEN_BOTTOM));
+                GSPLCD_PowerOffBacklight(BIT(GSP_SCREEN_TOP));
+            } else if (topStatus == 0) {
+                GSPLCD_PowerOnBacklight(BIT(GSP_SCREEN_TOP));
+            }
+        } else if (pressed & KEY_Y) {
             GSPLCD_PowerOffBacklight(GSPLCD_SCREEN_BOTTOM);
         }
 
