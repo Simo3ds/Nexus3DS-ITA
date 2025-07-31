@@ -542,10 +542,17 @@ void MiscellaneousMenu_EditPlayCoins(void)
         } else {
             bool updated = false;
             if (pressed & KEY_DUP) {
-                if (playCoins < 300) playCoins++;
+                if (playCoins < 300)
+                    playCoins++;
+                else
+                    playCoins = 0;
                 updated = true;
             } else if (pressed & KEY_DDOWN) {
-                if (playCoins > 0) playCoins--;
+                if (playCoins > 0) {
+                    playCoins--;
+                } else {
+                    playCoins = 300;
+                }
                 updated = true;
             } else if (pressed & KEY_DRIGHT) {
                 if (playCoins + 10 > 300)

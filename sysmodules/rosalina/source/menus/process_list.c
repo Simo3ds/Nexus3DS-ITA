@@ -406,7 +406,7 @@ static void ProcessListMenu_MemoryViewer(const ProcessInfo *info)
                 Draw_DrawMenuFrame("Memory viewer");
 
                 // Instructions
-                const u32 instructionsY = 40;
+                const u32 instructionsY = 36;
                 u32 viewerY = instructionsY + SPACING_Y + 6;
                 Draw_DrawString(10, instructionsY, COLOR_WHITE, "D-PAD to move, X to jump, Y to search, A to edit.");
 
