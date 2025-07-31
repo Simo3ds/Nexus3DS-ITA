@@ -45,6 +45,9 @@ void GetPlgSelectorSettingsPath(char *path)
 
 bool ConfirmOperation(const char *message)
 {
+    extern u32 g_blockMenuOpen;
+    
+    g_blockMenuOpen++;
     Draw_Lock();
     Draw_ClearFramebuffer();
     Draw_Unlock();
@@ -66,14 +69,17 @@ bool ConfirmOperation(const char *message)
 
         if (keys & KEY_A)
         {
+            g_blockMenuOpen--;
             return true;
         }
         else if (keys & KEY_B)
         {
+            g_blockMenuOpen--;
             return false;
         }
     } while (!menuShouldExit);
 
+    g_blockMenuOpen--;
     return false;
 }
 
@@ -196,6 +202,8 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
 
     ClearScreenQuickly();
     
+    extern u32 g_blockMenuOpen;
+    g_blockMenuOpen++;
     Draw_Lock();
     hidSetRepeatParameters(200, 100);
     Draw_ClearFramebuffer();
@@ -321,6 +329,8 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
                 selected = nbOptions - 1;
         }
     } while (!menuShouldExit);
+    
+    g_blockMenuOpen--;
 }
 
 static char *AskForFileName(PluginEntry *entries, u8 count)
@@ -350,6 +360,8 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
         entry->isDefault = true;
     }
 
+    extern u32 g_blockMenuOpen;
+    g_blockMenuOpen++;
     menuEnter();
 
     ClearScreenQuickly();
@@ -479,6 +491,7 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
         }
     } while (!menuShouldExit);
 
+    g_blockMenuOpen--;
     menuLeave();
 
     SavePluginSelectorSettings(entries, count);
@@ -794,6 +807,8 @@ bool TryToLoadPlugin(Handle process, bool isHomebrew)
             u32 keys = 0;
             u32 posY = 0;
 
+            extern u32 g_blockMenuOpen;
+            g_blockMenuOpen++;
             menuEnter();
             ClearScreenQuickly();
 
@@ -837,6 +852,7 @@ bool TryToLoadPlugin(Handle process, bool isHomebrew)
 
                         if (keys & KEY_A)
                         {
+                            g_blockMenuOpen--;
                             menuLeave();
                             goto nextProcess;
                         }
@@ -851,6 +867,7 @@ bool TryToLoadPlugin(Handle process, bool isHomebrew)
 
                 if (keys & KEY_B)
                 {
+                    g_blockMenuOpen--;
                     menuLeave();
                     goto exitFail;
                 }
