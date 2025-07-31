@@ -127,7 +127,7 @@ u32 getCurrentLuminance(bool top)
     return brightnessToLuminance(brightness, coeffs, ratio);
 }
 
-void setBrightnessAlt(u32 lumTop, u32 lumBot) 
+void setBrightnessAlt(u32 lumTop, u32 lumBot) // currently buggy
 {
     u32 regbaseTop = 0x10202200;
     u32 regbaseBot = 0x10202A00; 

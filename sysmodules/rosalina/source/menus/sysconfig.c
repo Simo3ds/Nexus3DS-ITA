@@ -549,8 +549,8 @@ void SysConfigMenu_ChangeScreenBrightness(void)
     u32 minLum = getMinLuminancePreset();
     u32 maxLum = getMaxLuminancePreset();
     u32 trueMax = 172;
-    u32 trueMin = 16;
-    luminanceTop = luminanceTop == 173 ? trueMax : luminanceTop;
+    u32 trueMin = 6;
+    luminanceTop = luminanceTop >= 173 ? trueMax : luminanceTop;
 
     do
     {
@@ -581,8 +581,9 @@ void SysConfigMenu_ChangeScreenBrightness(void)
         posY = Draw_DrawString(10, posY, COLOR_WHITE, "Press Y to toggle top and bottom backlight.\n\n");
         posY = Draw_DrawString(10, posY, COLOR_TITLE, "Press START to begin, B to exit.\n\n");
 
-        posY = Draw_DrawString(10, posY, COLOR_RED, "WARNING: Over-brighten at own risk!\n");
-        posY = Draw_DrawString(10, posY, COLOR_WHITE, "Changes revert in sleep mode.");
+        posY = Draw_DrawString(10, posY, COLOR_RED, "WARNING: \n");
+        posY = Draw_DrawString(10, posY, COLOR_WHITE, "  * Use over-brighten at your own risk!\n");
+        posY = Draw_DrawString(10, posY, COLOR_WHITE, "  * all changes revert after sleep mode.");
         Draw_FlushFramebuffer();
         Draw_Unlock();
 
@@ -643,7 +644,10 @@ void SysConfigMenu_ChangeScreenBrightness(void)
             }
 
             if ((lumTop < (s32)minLum || lumTop > (s32)maxLum) || (lumBot < (s32)minLum || lumBot > (s32)maxLum)) {
-                setBrightnessAlt(lumTop, lumBot);
+                // This won't work atm, we need to fix the setBrightnessAlt function bug
+                //setBrightnessAlt(lumTop, lumBot);
+                GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_TOP), lumTop);
+                GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_BOTTOM), lumBot);
             } else {
                 if (kHeld & KEY_X)
                     GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_TOP), lumTop);
