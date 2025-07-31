@@ -15,7 +15,7 @@ extern bool PluginConverter_UseCache;
 extern u32 PluginWatcher_WatchLevel;
 
 Menu pluginOptionsMenu = {
-    "Plugin options menu",
+    "Plugin settings menu",
     {
         { "", METHOD, .method = &PluginLoaderOptions__MenuCallback },
         { "", METHOD, .method = &PluginChecker__MenuCallback },

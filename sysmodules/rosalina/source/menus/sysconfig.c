@@ -68,6 +68,9 @@ void SysConfigMenu_ToggleLEDs(void)
         Draw_DrawString(10, 60, COLOR_RED, "WARNING:");
         Draw_DrawString(10, 70, COLOR_WHITE, "  * Entering sleep mode will reset the LED state!");
         Draw_DrawString(10, 80, COLOR_WHITE, "  * LEDs cannot be toggled when the battery is low!");
+        Draw_DrawString(10, 100, COLOR_TITLE, "TIP:");
+        Draw_DrawString(10, 110, COLOR_WHITE, "  * Press SELECT anywhere in the Rosalina menu\n");
+        Draw_DrawString(10, 120, COLOR_WHITE, "    to toggle LEDs!");
 
         Draw_FlushFramebuffer();
         Draw_Unlock();
@@ -110,6 +113,9 @@ void SysConfigMenu_ToggleWireless(void)
         {
             Draw_DrawString(10, 60, COLOR_WHITE, "Current status:");
             Draw_DrawString(100, 60, (wireless ? COLOR_GREEN : COLOR_RED), (wireless ? " ON " : " OFF"));
+            Draw_DrawString(10, 80, COLOR_TITLE, "TIP:");
+            Draw_DrawString(10, 90, COLOR_WHITE, "  * Press START anywhere in the Rosalina menu\n");
+            Draw_DrawString(10, 100, COLOR_WHITE, "    to toggle Wireless!");
         }
         else
         {

@@ -725,6 +725,26 @@ void menuShow(Menu *root)
                 selectedItem = menuAdvanceCursor(selectedItem, numItems, n);
             } while (menuItemIsHidden(&currentMenu->items[selectedItem])); // assume at least one item is visible
         }
+        else if(pressed & KEY_START)
+        {
+            if (isServiceUsable("nwm::EXT"))
+            {
+                u8 wireless = (*(vu8 *)((0x10140000 | (1u << 31)) + 0x180));
+                nwmExtInit();
+                NWMEXT_ControlWirelessEnabled(!wireless);
+                nwmExtExit();
+            }
+        }
+        else if(pressed & KEY_SELECT)
+        {
+            // Toggle LEDs
+            mcuHwcInit();
+            u8 result;
+            MCUHWC_ReadRegister(0x28, &result, 1);
+            result = ~result;
+            MCUHWC_WriteRegister(0x28, &result, 1);
+            mcuHwcExit();
+        }
 
         Draw_Lock();
         menuDraw(currentMenu, selectedItem);
