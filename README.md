@@ -5,15 +5,15 @@
 
 *Nintendo 3DS "Custom Firmware" Fork with Enhanced Features*
 
-![Boot menu screenshot](img/boot_menu_v1333.png)
-![Rosalina menu screenshot](img/rosalina_menu_v1333.png)
+![Boot menu screenshot](img/boot_menu_v100.png)
+![Rosalina menu screenshot](img/rosalina_menu_v100.png)
 
 ## Description
 
 **Nexus3DS** is an enhanced fork of Luma3DS that incorporates numerous community features and improvements. This project builds upon several Luma3DS forks, combining the best features while adding unique enhancements for an improved user experience.
 
 Special thanks to the creators of the base forks and the original Luma3DS developers!  
-https://github.com/2b-zipper/Nexus3DS#credits
+See the [Credits](#credits) section for more details.
 
 **Nexus3DS** patches and reimplements significant parts of the system software running on all models of the Nintendo 3DS family of consoles. It aims to greatly improve the user experience and support the 3DS far beyond its end-of-life. Features include:
 
