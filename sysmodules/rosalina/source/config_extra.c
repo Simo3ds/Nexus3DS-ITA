@@ -6,7 +6,7 @@
 #include "menus.h"
 #include "menus/config_extra.h"
 
-config_extra configExtra = { .suppressLeds = false, .cutSlotPower = false, .cutSleepWifi = false, .includeScreenshotTitleId = false };
+config_extra configExtra = { .suppressLeds = false, .cutSlotPower = false, .cutSleepWifi = false, .includeScreenshotTitleId = false, .toggleLcdCombo = false };
 bool configExtraSaved = false;
 
 static inline const char* ConfigExtra_GetCheckboxDisplay(bool value)
@@ -20,14 +20,16 @@ void ConfigExtra_DrawDetailedMenu(void)
         "Automatically suppress LEDs",
         "Cut power to TWL Flashcards", 
         "Cut 3DS Wifi in sleep mode",
-        "Include title ID in screenshots"
+        "Include title ID in screenshots",
+        "Toggle bottom LCD backlight (start+select)"
     };
     
     bool *configValues[] = {
         &configExtra.suppressLeds,
         &configExtra.cutSlotPower,
         &configExtra.cutSleepWifi,
-        &configExtra.includeScreenshotTitleId
+        &configExtra.includeScreenshotTitleId,
+        &configExtra.toggleLcdCombo
     };
     
     s32 selected = 0;
