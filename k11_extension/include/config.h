@@ -19,6 +19,7 @@ enum multiOptions
     DEFAULTEMU = 0,
     BRIGHTNESS,
     SPLASH,
+    SPLASHDURATION,
     PIN,
     NEWCPU,
     AUTOBOOTMODE,
