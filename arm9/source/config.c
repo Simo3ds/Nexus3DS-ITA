@@ -817,8 +817,8 @@ bool readConfig(void)
         configData.formatVersionMajor = CONFIG_VERSIONMAJOR;
         configData.formatVersionMinor = CONFIG_VERSIONMINOR;
         configData.config |= 1u << PATCHVERSTRING;
-        configData.multiConfig |= 1 << (2 * (u32)SPLASHDURATION); // Default splash duration to 3s
         configData.multiConfig |= 3 << (2 * (u32)NEWCPU); // Default NEWCPU to Clock+L2
+        configData.multiConfig |= 1 << (2 * (u32)SPLASHDURATION); // Default splash duration to 3s
         configData.splashDurationMsec = 3000;
         configData.volumeSliderOverride = -1;
         configData.hbldr3dsxTitleId = HBLDR_DEFAULT_3DSX_TID;
