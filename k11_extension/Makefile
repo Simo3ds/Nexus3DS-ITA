@@ -9,7 +9,6 @@ endif
 TOPDIR ?= $(CURDIR)
 include $(DEVKITARM)/base_rules
 
-# Include version configuration if not already included
 ifndef NEXUS_VERSION_MAJOR
 include $(TOPDIR)/../version.mk
 endif
