@@ -9,6 +9,10 @@ endif
 TOPDIR ?= $(CURDIR)
 include $(DEVKITARM)/base_rules
 
+ifndef NEXUS_VERSION_MAJOR
+include $(TOPDIR)/../version.mk
+endif
+
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output
 # BUILD is the directory where object files & intermediate files will be placed
@@ -26,7 +30,9 @@ INCLUDES	:=	include include/svc
 # options for code generation
 #---------------------------------------------------------------------------------
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
-DEFINES :=	-DARM11 -D__3DS__
+DEFINES :=	-DARM11 -D__3DS__ \
+		-DNEXUS_VERSION_MAJOR="$(NEXUS_VERSION_MAJOR)" -DNEXUS_VERSION_MINOR="$(NEXUS_VERSION_MINOR)" -DNEXUS_VERSION_BUILD="$(NEXUS_VERSION_BUILD)" \
+		-DLUMA_VERSION_MAJOR="$(LUMA_VERSION_MAJOR)" -DLUMA_VERSION_MINOR="$(LUMA_VERSION_MINOR)" -DLUMA_VERSION_BUILD="$(LUMA_VERSION_BUILD)"
 
 CFLAGS	:=	-g -std=gnu11 -Wall -Wextra -Werror -O2 -mword-relocations \
 			-fomit-frame-pointer -ffunction-sections -fdata-sections \

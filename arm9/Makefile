@@ -1,4 +1,17 @@
 #---------------------------------------------------------------------------------
+ifndef NEXUS_VERSION_MAJOR
+include $(TOPDIR)/../version.mk
+endif
+
+ifeq ($(strip $(NEXUS_VERSION_MAJOR)),)
+export REVISION			:=	$(shell git describe --tags --match v[0-9]* --abbrev=8 | sed 's/-[0-9]*-g/-/')
+export NEXUS_VERSION_MAJOR	:=	$(shell git describe --tags --match v[0-9]* | cut -c2- | cut -f1 -d- | cut -f1 -d.)
+export NEXUS_VERSION_MINOR	:=	$(shell git describe --tags --match v[0-9]* | cut -c2- | cut -f1 -d- | cut -f2 -d.)
+export NEXUS_VERSION_BUILD	:=	$(shell git describe --tags --match v[0-9]* | cut -c2- | cut-f1 -d- | cut -f3 -d.)
+else
+export REVISION			:=	v$(NEXUS_VERSION_MAJOR).$(NEXUS_VERSION_MINOR).$(NEXUS_VERSION_BUILD)
+endif
+#---------------------------------------------------------------------------------
 .SUFFIXES:
 #---------------------------------------------------------------------------------
 
@@ -9,26 +22,38 @@ endif
 TOPDIR ?= $(CURDIR)
 include $(DEVKITARM)/base_rules
 
+ifndef NEXUS_VERSION_MAJOR
+include $(TOPDIR)/../version.mk
+endif
+
+ifeq ($(strip $(NEXUS_VERSION_MAJOR)),)
 export REVISION			:=	$(shell git describe --tags --match v[0-9]* --abbrev=8 | sed 's/-[0-9]*-g/-/')
-export VERSION_MAJOR	:=	$(shell git describe --tags --match v[0-9]* | cut -c2- | cut -f1 -d- | cut -f1 -d.)
-export VERSION_MINOR	:=	$(shell git describe --tags --match v[0-9]* | cut -c2- | cut -f1 -d- | cut -f2 -d.)
-export VERSION_BUILD	:=	$(shell git describe --tags --match v[0-9]* | cut -c2- | cut -f1 -d- | cut -f3 -d.)
+export NEXUS_VERSION_MAJOR	:=	$(shell git describe --tags --match v[0-9]* | cut -c2- | cut -f1 -d- | cut -f1 -d.)
+export NEXUS_VERSION_MINOR	:=	$(shell git describe --tags --match v[0-9]* | cut -c2- | cut -f1 -d- | cut -f2 -d.)
+export NEXUS_VERSION_BUILD	:=	$(shell git describe --tags --match v[0-9]* | cut -c2- | cut -f1 -d- | cut -f3 -d.)
+endif
+
 export COMMIT			:=	$(shell git rev-parse --short=8 HEAD)
 export IS_RELEASE		:=	0
 
-ifeq ($(strip $(REVISION)),)
-	export REVISION			:=	v0.0.0-0
-	export VERSION_MAJOR	:=	0
-	export VERSION_MINOR	:=	0
-	export VERSION_BUILD	:=	0
+ifeq ($(strip $(NEXUS_VERSION_MAJOR)),)
+	export NEXUS_VERSION_MAJOR	:=	0
+	export NEXUS_VERSION_MINOR	:=	0
+	export NEXUS_VERSION_BUILD	:=	0
 endif
 
 ifeq ($(strip $(COMMIT)),)
 	export COMMIT			:=	0
 endif
 
-ifeq ($(strip $(VERSION_BUILD)),)
-	export VERSION_BUILD	:=	0
+ifeq ($(strip $(NEXUS_VERSION_BUILD)),)
+	export NEXUS_VERSION_BUILD	:=	0
+endif
+
+ifndef LUMA_VERSION_MAJOR
+	export LUMA_VERSION_MAJOR	:=	13
+	export LUMA_VERSION_MINOR	:=	0
+	export LUMA_VERSION_BUILD	:=	1
 endif
 
 ifeq ($(strip $(shell git describe --tags --match v[0-9]* | grep -)),)
@@ -168,8 +193,11 @@ $(OFILES_SRC)	: $(HFILES_BIN)
 
 memory.o strings.o:	CFLAGS +=	-O3
 patches.o config.o:	CFLAGS +=	-DCONFIG_TITLE="\"$(APP_TITLE) $(REVISION) configuration\""\
-								-DVERSION_MAJOR="$(VERSION_MAJOR)" -DVERSION_MINOR="$(VERSION_MINOR)"\
-								-DVERSION_BUILD="$(VERSION_BUILD)" -DISRELEASE="$(IS_RELEASE)" -DCOMMIT_HASH="0x$(COMMIT)"
+								-DISRELEASE="$(IS_RELEASE)" -DCOMMIT_HASH="0x$(COMMIT)"\
+								-DNEXUS_VERSION_MAJOR="$(NEXUS_VERSION_MAJOR)" -DNEXUS_VERSION_MINOR="$(NEXUS_VERSION_MINOR)"\
+								-DNEXUS_VERSION_BUILD="$(NEXUS_VERSION_BUILD)"\
+								-DLUMA_VERSION_MAJOR="$(LUMA_VERSION_MAJOR)" -DLUMA_VERSION_MINOR="$(LUMA_VERSION_MINOR)"\
+								-DLUMA_VERSION_BUILD="$(LUMA_VERSION_BUILD)"
 config.o ini.o:		CFLAGS +=	-DINI_HANDLER_LINENO=1 -DINI_STOP_ON_FIRST_ERROR=1
 #---------------------------------------------------------------------------------
 # you need a rule like this for each extension you use as binary data

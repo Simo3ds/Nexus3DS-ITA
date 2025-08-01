@@ -1,0 +1,17 @@
+# Nexus3DS Version Configuration
+# This file defines the version numbers for Nexus3DS and the base Luma3DS version
+
+NEXUS_VERSION_MAJOR := 1
+NEXUS_VERSION_MINOR := 0
+NEXUS_VERSION_BUILD := 0
+
+LUMA_VERSION_MAJOR := 13
+LUMA_VERSION_MINOR := 3
+LUMA_VERSION_BUILD := 3
+
+export NEXUS_VERSION_MAJOR
+export NEXUS_VERSION_MINOR
+export NEXUS_VERSION_BUILD
+export LUMA_VERSION_MAJOR
+export LUMA_VERSION_MINOR
+export LUMA_VERSION_BUILD

@@ -635,10 +635,10 @@ static size_t saveLumaIniConfigToStr(char *out)
         case 2: forceAudioOutputStr = "speakers"; break;
     }
 
-    if (VERSION_BUILD != 0) {
-        sprintf(lumaVerStr, "Nexus3DS v%d.%d.%d", (int)VERSION_MAJOR, (int)VERSION_MINOR, (int)VERSION_BUILD);
+    if (NEXUS_VERSION_BUILD != 0) {
+        sprintf(lumaVerStr, "Nexus3DS v%d.%d.%d", (int)NEXUS_VERSION_MAJOR, (int)NEXUS_VERSION_MINOR, (int)NEXUS_VERSION_BUILD);
     } else {
-        sprintf(lumaVerStr, "Nexus3DS v%d.%d", (int)VERSION_MAJOR, (int)VERSION_MINOR);
+        sprintf(lumaVerStr, "Nexus3DS v%d.%d", (int)NEXUS_VERSION_MAJOR, (int)NEXUS_VERSION_MINOR);
     }
 
     if (ISRELEASE) {
@@ -729,7 +729,7 @@ static void writeConfigMcu(void)
     u8 data[sizeof(CfgDataMcu)];
 
     // Set Luma version
-    configDataMcu.lumaVersion = MAKE_LUMA_VERSION_MCU(VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD);
+    configDataMcu.lumaVersion = MAKE_LUMA_VERSION_MCU(NEXUS_VERSION_MAJOR, NEXUS_VERSION_MINOR, NEXUS_VERSION_BUILD);
 
     // Set bootconfig from CfgData
     configDataMcu.bootCfg = configData.bootConfig;
@@ -751,7 +751,7 @@ static void writeConfigMcu(void)
 static bool readConfigMcu(void)
 {
     u8 data[sizeof(CfgDataMcu)];
-    u16 curVer = MAKE_LUMA_VERSION_MCU(VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD);
+    u16 curVer = MAKE_LUMA_VERSION_MCU(NEXUS_VERSION_MAJOR, NEXUS_VERSION_MINOR, NEXUS_VERSION_BUILD);
 
     // Select free reg id, then access the data regs
     I2C_writeReg(I2C_DEV_MCU, 0x60, 200 - sizeof(CfgDataMcu));
