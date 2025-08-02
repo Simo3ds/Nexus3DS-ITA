@@ -66,7 +66,6 @@ static const char *singleOptionIniNamesBoot[] = {
     "show_system_settings_string",
     "show_gba_boot_screen",
     "use_dev_unitinfo",
-    "enable_dsi_external_filter",
     "disable_arm11_exception_handlers",
     "enable_safe_firm_rosalina",
 };
@@ -692,8 +691,8 @@ static size_t saveLumaIniConfigToStr(char *out)
         (int)CONFIG(AUTOBOOTEMU), (int)CONFIG(LOADEXTFIRMSANDMODULES),
         (int)CONFIG(PATCHGAMES), (int)CONFIG(REDIRECTAPPTHREADS),
         (int)CONFIG(PATCHVERSTRING), (int)CONFIG(SHOWGBABOOT),
-        (int)CONFIG(PATCHUNITINFO), (int)CONFIG(ENABLEDSIEXTFILTER),
-        (int)CONFIG(DISABLEARM11EXCHANDLERS), (int)CONFIG(ENABLESAFEFIRMROSALINA),
+        (int)CONFIG(PATCHUNITINFO), (int)CONFIG(DISABLEARM11EXCHANDLERS),
+        (int)CONFIG(ENABLESAFEFIRMROSALINA),
 
         1 + (int)MULTICONFIG(DEFAULTEMU), 4 - (int)MULTICONFIG(BRIGHTNESS),
         splashPosStr, splashDurationMs,
@@ -880,7 +879,6 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                "( ) Show NAND or user string in System Settings",
                                                "( ) Show GBA boot screen in patched AGB_FIRM",
                                                "( ) Enable development UNITINFO",
-                                               "( ) Enable DSi external filters",
                                                "( ) Disable arm11 exception handlers",
                                                "( ) Enable Rosalina on SAFE_FIRM",
 
@@ -985,12 +983,6 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                  "Only select this if you know what you\n"
                                                  "are doing!",
 
-                                                 "Enables replacing the default\n"
-                                                 "convolution-based upscaling filter used\n"
-                                                 "for DS(i) software by the contents\n"
-                                                 "of the binary file\n"
-                                                 "/luma/twl_upscaling_filter.bin",
-
                                                  "Disables the fatal error exception\n"
                                                  "handlers for the Arm11 CPU.\n\n"
                                                  "Note: Disabling the exception handlers\n"
@@ -1047,19 +1039,18 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
         bool enabled;
         bool visible;
     } singleOptions[] = {
-        { .visible = nandType == FIRMWARE_EMUNAND },
-        { .visible = true },
-        { .visible = true },
-        { .visible = ISN3DS },
-        { .visible = true },
-        { .visible = true },
-        { .visible = true },
-        { .visible = false },
-        { .visible = false },
-        { .visible = ISN3DS },
+        { .visible = nandType == FIRMWARE_EMUNAND }, // Autoboot EmuNAND
+        { .visible = true }, // Enable external firms and modules
+        { .visible = true }, // Enable game patching
+        { .visible = ISN3DS }, // Redirect app thrreads to core2
+        { .visible = true }, // Show nand or user string in system settings
+        { .visible = true }, // show GBA boot screen
+        { .visible = true }, // Enable dev UNITINFO
+        { .visible = false }, // disable arm11 exception handlers
+        { .visible = ISN3DS }, // Enable Rosalina on SAFE_FIRM
         // Should always be visible
-        { .visible = true },
-        { .visible = true },
+        { .visible = true }, // Boot chainloader
+        { .visible = true }, // Save and exit
     };
 
     //Calculate the amount of the various kinds of options and pre-select the first single one
