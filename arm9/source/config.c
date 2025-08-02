@@ -747,7 +747,7 @@ static void writeConfigMcu(void)
     u8 data[sizeof(CfgDataMcu)];
 
     // Set Luma version
-    configDataMcu.lumaVersion = MAKE_LUMA_VERSION_MCU(NEXUS_VERSION_MAJOR, NEXUS_VERSION_MINOR, NEXUS_VERSION_BUILD);
+    configDataMcu.lumaVersion = MAKE_LUMA_VERSION_MCU(LUMA_VERSION_MAJOR, LUMA_VERSION_MINOR, LUMA_VERSION_BUILD);
 
     // Set bootconfig from CfgData
     configDataMcu.bootCfg = configData.bootConfig;
@@ -769,7 +769,7 @@ static void writeConfigMcu(void)
 static bool readConfigMcu(void)
 {
     u8 data[sizeof(CfgDataMcu)];
-    u16 curVer = MAKE_LUMA_VERSION_MCU(NEXUS_VERSION_MAJOR, NEXUS_VERSION_MINOR, NEXUS_VERSION_BUILD);
+    u16 curVer = MAKE_LUMA_VERSION_MCU(LUMA_VERSION_MAJOR, LUMA_VERSION_MINOR, LUMA_VERSION_BUILD);
 
     // Select free reg id, then access the data regs
     I2C_writeReg(I2C_DEV_MCU, 0x60, 200 - sizeof(CfgDataMcu));
