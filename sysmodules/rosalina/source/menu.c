@@ -382,6 +382,11 @@ void menuThreadMain(void)
 
     menuReadScreenTypes();
 
+    s64 out = 0;
+    svcGetSystemInfo(&out, 0x10000, 3);
+    u32 config = (u32)out;
+    bool instantReboot = ((config >> (u32)INSTANTREBOOTNOERRDISP) & 1) != 0;
+
     while(!preTerminationRequested)
     {
         svcSleepThread(50 * 1000 * 1000LL);
@@ -403,6 +408,13 @@ void menuThreadMain(void)
             PluginConverter__UpdateMenu();
             menuShow(&rosalinaMenu);
             menuLeave();
+        }
+
+        // instant reboot combo key
+        if(instantReboot & ((scanHeldKeys() & (KEY_A | KEY_B | KEY_X | KEY_Y | KEY_START)) == (KEY_A | KEY_B | KEY_X | KEY_Y | KEY_START)))
+        {
+            svcKernelSetState(7);
+            __builtin_unreachable();
         }
 
         // toggle screen combo

@@ -31,6 +31,7 @@
 #include "memory.h"
 #include "fmt.h"
 #include "ifile.h"
+#include "luma_config.h"
 
 extern Handle preTerminationEvent;
 
@@ -238,18 +239,21 @@ static int ERRF_FormatError(char *out, const ERRF_FatalErrInfo *info, bool isLog
 }
 
 
-static void ERRF_DisplayError(ERRF_FatalErrInfo *info)
+static void ERRF_DisplayError(ERRF_FatalErrInfo *info, bool continueAfterErrdisp)
 {
     Draw_Lock();
 
-    u32 posY = Draw_DrawString(10, 10, COLOR_RED, "An error occurred (ErrDisp)");
+    u32 posY = Draw_DrawString(10, 10, COLOR_RED, "An error occurred (ErrDisp) - Nexus3DS");
     char buf[0x400];
 
     ERRF_FormatError(buf, info, false);
     posY = posY < 30 ? 30 : posY;
 
     posY = Draw_DrawString(10, posY, COLOR_WHITE, buf);
-    posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "Press any button to reboot.");
+    if(continueAfterErrdisp)
+        posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_TITLE, "Press any button to continue.\nThere is a high chance that it crashed.\nTo reboot, press A + B + X + Y + Start.");
+    else
+        posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "Press any button to reboot.");
 
     Draw_FlushFramebuffer();
     Draw_Unlock();
@@ -319,18 +323,25 @@ void ERRF_HandleCommands(void)
                 Draw_ClearFramebuffer();
                 Draw_FlushFramebuffer();
 
-                ERRF_DisplayError(&info);
+                s64 out = 0;
+                svcGetSystemInfo(&out, 0x10000, 3);
+                u32 config = (u32)out;
+                // spotted issue: if you delete the config file, it will think it's enabled because it fails
+                bool continueAfterErrdisp = ((config >> (u32)INSTANTREBOOTNOERRDISP) & 1) != 0;
 
-                /*
-                If we ever wanted to return:
-                Draw_Unlock();
-                menuLeave();
+                ERRF_DisplayError(&info, continueAfterErrdisp);
 
-                but we don't
-                */
                 waitInput();
-                svcKernelSetState(7);
-                __builtin_unreachable();
+                if(continueAfterErrdisp)
+                {
+                    Draw_Unlock();
+                    menuLeave();
+                }
+                else
+                {
+                    svcKernelSetState(7);
+                    __builtin_unreachable();
+                }
             }
 
             cmdbuf[0] = IPC_MakeHeader(1, 1, 0);
