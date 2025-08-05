@@ -49,6 +49,7 @@
 //#define ROSALINA_MENU_SELF_SCREENSHOT 1 // uncomment this to enable the feature
 
 u32 menuCombo = 0;
+bool instantReboot = false;
 bool isHidInitialized = false;
 bool isQtmInitialized = false;
 u32 mcuFwVersion = 0;
@@ -381,11 +382,6 @@ void menuThreadMain(void)
     isHidInitialized = true;
 
     menuReadScreenTypes();
-
-    s64 out = 0;
-    svcGetSystemInfo(&out, 0x10000, 3);
-    u32 config = (u32)out;
-    bool instantReboot = ((config >> (u32)INSTANTREBOOTNOERRDISP) & 1) != 0;
 
     while(!preTerminationRequested)
     {

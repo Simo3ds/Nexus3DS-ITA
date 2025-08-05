@@ -324,10 +324,11 @@ void ERRF_HandleCommands(void)
                 Draw_FlushFramebuffer();
 
                 s64 out = 0;
-                svcGetSystemInfo(&out, 0x10000, 3);
-                u32 config = (u32)out;
-                // spotted issue: if you delete the config file, it will think it's enabled because it fails
-                bool continueAfterErrdisp = ((config >> (u32)INSTANTREBOOTNOERRDISP) & 1) != 0;
+                bool continueAfterErrdisp = false;
+                if(R_SUCCEEDED(svcGetSystemInfo(&out, 0x10000, 3))){
+                    u32 config = (u32)out;
+                    continueAfterErrdisp = ((config >> (u32)INSTANTREBOOTNOERRDISP) & 1) != 0;
+                }
 
                 ERRF_DisplayError(&info, continueAfterErrdisp);
 
