@@ -909,7 +909,10 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                  "This has no effect if the splash\n"
                                                  "screen is not enabled.\n\n"
                                                  "Advanced: Edit splash_duration_ms in\n"
-                                                 "nexusconfig.ini for custom values.",
+                                                 "nexusconfig.ini for custom values.\n"
+                                                 "Custom values (e.g. 2000, 4000, 10000)\n"
+                                                 "work properly even if they don't match\n"
+                                                 "the standard 1/3/5/7 second options.",
 
                                                  "Activate a PIN lock.\n\n"
                                                  "The PIN will be asked each time\n"
