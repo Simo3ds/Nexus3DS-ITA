@@ -49,6 +49,7 @@
 //#define ROSALINA_MENU_SELF_SCREENSHOT 1 // uncomment this to enable the feature
 
 u32 menuCombo = 0;
+bool instantReboot = false;
 bool isHidInitialized = false;
 bool isQtmInitialized = false;
 u32 mcuFwVersion = 0;
@@ -403,6 +404,36 @@ void menuThreadMain(void)
             PluginConverter__UpdateMenu();
             menuShow(&rosalinaMenu);
             menuLeave();
+        }
+
+        // instant reboot combo key
+        if(instantReboot & ((scanHeldKeys() & (KEY_A | KEY_B | KEY_X | KEY_Y | KEY_START)) == (KEY_A | KEY_B | KEY_X | KEY_Y | KEY_START)))
+        {
+            svcKernelSetState(7);
+            __builtin_unreachable();
+        }
+
+        // toggle screen combo
+        if(configExtra.toggleLcdCombo && ((scanHeldKeys() & (KEY_SELECT | KEY_START)) == (KEY_SELECT | KEY_START)))
+        {
+            u8 result, toggleLcdStatus;
+            mcuHwcInit();
+            MCUHWC_ReadRegister(0x0F, &result, 1); // https://www.3dbrew.org/wiki/I2C_Registers#Device_3
+            mcuHwcExit();
+	        //Check config file to determine which backlight to toggle
+	        toggleLcdStatus = (result >> 5) & 1; // right shift result to bit 5 ("Bottom screen backlight on") and perform bitwise AND with 1
+
+            gspLcdInit();
+            if(toggleLcdStatus)
+	        {
+                GSPLCD_PowerOffBacklight(BIT(GSP_SCREEN_BOTTOM));
+            }
+	        else
+	        {
+                GSPLCD_PowerOnBacklight(BIT(GSP_SCREEN_BOTTOM));
+            }
+            gspLcdExit();
+            while (!(waitInput() & (KEY_SELECT | KEY_START)));
         }
 
         if (saveSettingsRequest) {

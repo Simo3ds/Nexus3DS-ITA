@@ -66,9 +66,9 @@ static const char *singleOptionIniNamesBoot[] = {
     "show_system_settings_string",
     "show_gba_boot_screen",
     "use_dev_unitinfo",
-    "enable_dsi_external_filter",
     "disable_arm11_exception_handlers",
     "enable_safe_firm_rosalina",
+    "instant_reboot_no_errdisp",
 };
 
 static const char *keyNames[] = {
@@ -692,8 +692,8 @@ static size_t saveLumaIniConfigToStr(char *out)
         (int)CONFIG(AUTOBOOTEMU), (int)CONFIG(LOADEXTFIRMSANDMODULES),
         (int)CONFIG(PATCHGAMES), (int)CONFIG(REDIRECTAPPTHREADS),
         (int)CONFIG(PATCHVERSTRING), (int)CONFIG(SHOWGBABOOT),
-        (int)CONFIG(PATCHUNITINFO), (int)CONFIG(ENABLEDSIEXTFILTER),
-        (int)CONFIG(DISABLEARM11EXCHANDLERS), (int)CONFIG(ENABLESAFEFIRMROSALINA),
+        (int)CONFIG(PATCHUNITINFO), (int)CONFIG(DISABLEARM11EXCHANDLERS),
+        (int)CONFIG(ENABLESAFEFIRMROSALINA), (int)CONFIG(INSTANTREBOOTNOERRDISP),
 
         1 + (int)MULTICONFIG(DEFAULTEMU), 4 - (int)MULTICONFIG(BRIGHTNESS),
         splashPosStr, splashDurationMs,
@@ -747,7 +747,7 @@ static void writeConfigMcu(void)
     u8 data[sizeof(CfgDataMcu)];
 
     // Set Luma version
-    configDataMcu.lumaVersion = MAKE_LUMA_VERSION_MCU(NEXUS_VERSION_MAJOR, NEXUS_VERSION_MINOR, NEXUS_VERSION_BUILD);
+    configDataMcu.lumaVersion = MAKE_LUMA_VERSION_MCU(LUMA_VERSION_MAJOR, LUMA_VERSION_MINOR, LUMA_VERSION_BUILD);
 
     // Set bootconfig from CfgData
     configDataMcu.bootCfg = configData.bootConfig;
@@ -769,7 +769,7 @@ static void writeConfigMcu(void)
 static bool readConfigMcu(void)
 {
     u8 data[sizeof(CfgDataMcu)];
-    u16 curVer = MAKE_LUMA_VERSION_MCU(NEXUS_VERSION_MAJOR, NEXUS_VERSION_MINOR, NEXUS_VERSION_BUILD);
+    u16 curVer = MAKE_LUMA_VERSION_MCU(LUMA_VERSION_MAJOR, LUMA_VERSION_MINOR, LUMA_VERSION_BUILD);
 
     // Select free reg id, then access the data regs
     I2C_writeReg(I2C_DEV_MCU, 0x60, 200 - sizeof(CfgDataMcu));
@@ -880,9 +880,9 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                "( ) Show NAND or user string in System Settings",
                                                "( ) Show GBA boot screen in patched AGB_FIRM",
                                                "( ) Enable development UNITINFO",
-                                               "( ) Enable DSi external filters",
                                                "( ) Disable arm11 exception handlers",
                                                "( ) Enable Rosalina on SAFE_FIRM",
+                                               "( ) Enable instant reboot + disable Errdisp",
 
                                                // Should always be the last 2 entries
                                                "\nBoot chainloader",
@@ -909,7 +909,10 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                  "This has no effect if the splash\n"
                                                  "screen is not enabled.\n\n"
                                                  "Advanced: Edit splash_duration_ms in\n"
-                                                 "nexusconfig.ini for custom values.",
+                                                 "nexusconfig.ini for custom values.\n"
+                                                 "Custom values (e.g. 2000, 4000, 10000)\n"
+                                                 "work properly even if they don't match\n"
+                                                 "the standard 1/3/5/7 second options.",
 
                                                  "Activate a PIN lock.\n\n"
                                                  "The PIN will be asked each time\n"
@@ -985,12 +988,6 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                  "Only select this if you know what you\n"
                                                  "are doing!",
 
-                                                 "Enables replacing the default\n"
-                                                 "convolution-based upscaling filter used\n"
-                                                 "for DS(i) software by the contents\n"
-                                                 "of the binary file\n"
-                                                 "/luma/twl_upscaling_filter.bin",
-
                                                  "Disables the fatal error exception\n"
                                                  "handlers for the Arm11 CPU.\n\n"
                                                  "Note: Disabling the exception handlers\n"
@@ -1006,6 +1003,14 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                  "Also suppresses QTM error 0xF96183FE,\n"
                                                  "allowing to use 8.1-11.3 N3DS on\n"
                                                  "New 2DS XL consoles.\n\n"
+                                                 "Only select this if you know what you\n"
+                                                 "are doing!",
+
+                                                 "Disable rebooting after an Errdisp\n"
+                                                 "error occurs. Also enable instant\n"
+                                                 "reboot combo (A + B + X + Y + Start).\n"
+                                                 "Using instant reboot may corrupt your\n"
+                                                 "SD card. Use with caution.\n\n"
                                                  "Only select this if you know what you\n"
                                                  "are doing!",
 
@@ -1047,19 +1052,19 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
         bool enabled;
         bool visible;
     } singleOptions[] = {
-        { .visible = nandType == FIRMWARE_EMUNAND },
-        { .visible = true },
-        { .visible = true },
-        { .visible = ISN3DS },
-        { .visible = true },
-        { .visible = true },
-        { .visible = true },
-        { .visible = false },
-        { .visible = false },
-        { .visible = ISN3DS },
+        { .visible = nandType == FIRMWARE_EMUNAND }, // Autoboot EmuNAND
+        { .visible = true }, // Enable external firms and modules
+        { .visible = true }, // Enable game patching
+        { .visible = ISN3DS }, // Redirect app thrreads to core2
+        { .visible = true }, // Show nand or user string in system settings
+        { .visible = true }, // show GBA boot screen
+        { .visible = true }, // Enable dev UNITINFO
+        { .visible = false }, // disable arm11 exception handlers
+        { .visible = ISN3DS }, // Enable Rosalina on SAFE_FIRM
+        { .visible = false }, // Enable instant reboot + disable Errdisp
         // Should always be visible
-        { .visible = true },
-        { .visible = true },
+        { .visible = true }, // Boot chainloader
+        { .visible = true }, // Save and exit
     };
 
     //Calculate the amount of the various kinds of options and pre-select the first single one
