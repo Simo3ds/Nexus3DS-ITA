@@ -69,8 +69,8 @@ The build produces a single file: `boot.firm`. Copy it to the root of your SD ca
 * **[@PabloMK7](https://github.com/PabloMK7)**: maintainer of the plugin loader feature merged for the v13.0 release. Joined in 2023
 
 **Nexus3DS:**
-* **[@2b-zipper](https://github.com/2b-zipper)**: fork maintainer, UI/UX redesign (menu unification, color schemes), configuration management, screenshot system enhancements.
-* **[@cooolgamer](https://github.com/cooolgamer)**: fork maintainer, system utilities (instant reboot, error display control), Rosalina enhancements, hardware controls (LED/WiFi/LCD toggle).
+* **[@2b-zipper](https://github.com/2b-zipper)**
+* **[@cooolgamer](https://github.com/cooolgamer)**
 
 *See also: [People who made this fork possible](#credits)*
 
