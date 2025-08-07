@@ -3,6 +3,7 @@ typedef struct {
 	bool cutSlotPower;
 	bool cutSleepWifi;
 	bool includeScreenshotTitleId;
+	bool screenshotDateFolders;
 	bool toggleLcdCombo;
 } config_extra;
 
