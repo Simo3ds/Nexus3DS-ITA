@@ -30,7 +30,6 @@
 #include "service_manager.h"
 #include "errdisp.h"
 #include "utils.h"
-#include "luma_config.h"
 #include "sleep.h"
 #include "MyThread.h"
 #include "menus/miscellaneous.h"
@@ -94,9 +93,6 @@ void initSystem(void)
 
     svcGetSystemInfo(&out, 0x10000, 0x103);
     lastNtpTzOffset = (s16)out;
-
-    svcGetSystemInfo(&out, 0x10000, 3);
-    instantReboot = (((u32)out >> (u32)INSTANTREBOOTNOERRDISP) & 1) != 0;
 
     for(res = 0xD88007FA; res == (Result)0xD88007FA; svcSleepThread(500 * 1000LL))
     {

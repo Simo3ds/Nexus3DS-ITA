@@ -68,7 +68,6 @@ static const char *singleOptionIniNamesBoot[] = {
     "use_dev_unitinfo",
     "disable_arm11_exception_handlers",
     "enable_safe_firm_rosalina",
-    "instant_reboot_no_errdisp",
 };
 
 static const char *keyNames[] = {
@@ -693,7 +692,7 @@ static size_t saveLumaIniConfigToStr(char *out)
         (int)CONFIG(PATCHGAMES), (int)CONFIG(REDIRECTAPPTHREADS),
         (int)CONFIG(PATCHVERSTRING), (int)CONFIG(SHOWGBABOOT),
         (int)CONFIG(PATCHUNITINFO), (int)CONFIG(DISABLEARM11EXCHANDLERS),
-        (int)CONFIG(ENABLESAFEFIRMROSALINA), (int)CONFIG(INSTANTREBOOTNOERRDISP),
+        (int)CONFIG(ENABLESAFEFIRMROSALINA),
 
         1 + (int)MULTICONFIG(DEFAULTEMU), 4 - (int)MULTICONFIG(BRIGHTNESS),
         splashPosStr, splashDurationMs,
@@ -882,7 +881,6 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                "( ) Enable development UNITINFO",
                                                "( ) Disable arm11 exception handlers",
                                                "( ) Enable Rosalina on SAFE_FIRM",
-                                               "( ) Enable instant reboot + disable Errdisp",
 
                                                // Should always be the last 2 entries
                                                "\nBoot chainloader",
@@ -1006,14 +1004,6 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                  "Only select this if you know what you\n"
                                                  "are doing!",
 
-                                                 "Disable rebooting after an Errdisp\n"
-                                                 "error occurs. Also enable instant\n"
-                                                 "reboot combo (A + B + X + Y + Start).\n"
-                                                 "Using instant reboot may corrupt your\n"
-                                                 "SD card. Use with caution.\n\n"
-                                                 "Only select this if you know what you\n"
-                                                 "are doing!",
-
                                                 // Should always be the last 2 entries
                                                 "Boot to the Nexus3DS chainloader menu.",
 
@@ -1061,7 +1051,6 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
         { .visible = true }, // Enable dev UNITINFO
         { .visible = false }, // disable arm11 exception handlers
         { .visible = ISN3DS }, // Enable Rosalina on SAFE_FIRM
-        { .visible = false }, // Enable instant reboot + disable Errdisp
         // Should always be visible
         { .visible = true }, // Boot chainloader
         { .visible = true }, // Save and exit
