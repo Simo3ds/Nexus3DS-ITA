@@ -6,7 +6,7 @@
 #include "menus.h"
 #include "menus/config_extra.h"
 
-config_extra configExtra = { .suppressLeds = false, .cutSlotPower = false, .cutSleepWifi = false, .includeScreenshotTitleId = true, .screenshotDateFolders = true, .toggleLcdCombo = false };
+config_extra configExtra = { .suppressLeds = false, .cutSlotPower = false, .cutSleepWifi = false, .includeScreenshotTitleId = true, .screenshotDateFolders = true, .screenshotCombined = false, .toggleLcdCombo = false };
 bool configExtraSaved = false;
 
 static int scrollOffset = 0;
@@ -77,6 +77,7 @@ void ConfigExtra_DrawDetailedMenu(void)
         "Cut 3DS Wifi in sleep mode",
         "Include title ID in screenshot filename",
         "Save screenshots in date folders",
+        "Combine top/bottom screenshots",
         "Toggle bottom LCD backlight (start+select)"
     };
     
@@ -86,6 +87,7 @@ void ConfigExtra_DrawDetailedMenu(void)
         &configExtra.cutSleepWifi,
         &configExtra.includeScreenshotTitleId,
         &configExtra.screenshotDateFolders,
+        &configExtra.screenshotCombined,
         &configExtra.toggleLcdCombo
     };
     

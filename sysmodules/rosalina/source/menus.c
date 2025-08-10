@@ -409,6 +409,60 @@ end:
     return res;
 }
 
+static Result RosalinaMenu_WriteCombinedScreenshot(IFile *file, u32 topWidth, u32 bottomWidth, bool is3d)
+{
+    (void)is3d;
+    u64 total;
+    Result res = 0;
+    
+    u32 topScaleFactorY = topWidth > 400 ? 2 : 1;
+    u32 topHeightScaled = 240 * topScaleFactorY;
+    u32 bottomHeightScaled = 240;
+    u32 combinedHeight = topHeightScaled + bottomHeightScaled;
+    
+    u32 combinedWidth = topWidth;
+    u32 combinedLineSize = 3 * combinedWidth;
+    u32 totalImageSize = combinedLineSize * combinedHeight;
+    
+    TRY(Draw_AllocateFramebufferCacheForScreenshot(totalImageSize + 0x40));
+    
+    u8 *framebufferCache = (u8 *)Draw_GetFramebufferCache();
+    u8 *buf = framebufferCache;
+    
+    Draw_CreateCombinedBitmapHeader(buf, combinedWidth, combinedHeight);
+    buf += 0x40;
+    
+    s64 t0 = svcGetSystemTick();
+
+    // Convert and center bottom screen
+    u32 bottomLineSize = 3 * bottomWidth;
+    Draw_ConvertFrameBufferLines(buf, bottomWidth, 0, 240, 1, false, true);
+
+    u32 offset = (combinedWidth - bottomWidth) / 2;
+    for (int line = bottomHeightScaled - 1; line >= 0; line--) {
+        u8 *srcLine = buf + line * bottomLineSize;
+        u8 *dstLine = buf + line * combinedLineSize + offset * 3;
+        memmove(dstLine, srcLine, bottomLineSize);
+        memset(buf + line * combinedLineSize, 0, offset * 3);
+        memset(dstLine + bottomLineSize, 0, (combinedWidth - bottomWidth - offset) * 3);
+    }
+
+    // Convert top screen
+    u8 *topBuf = buf + bottomHeightScaled * combinedLineSize;
+    Draw_ConvertFrameBufferLines(topBuf, topWidth, 0, 240, topScaleFactorY, true, true);
+    
+    s64 t1 = svcGetSystemTick();
+    timeSpentConvertingScreenshot += t1 - t0;
+    
+    TRY(IFile_Write(file, &total, framebufferCache, 0x40 + totalImageSize, 0));
+    
+    timeSpentWritingScreenshot += svcGetSystemTick() - t1;
+    
+end:
+    Draw_FreeFramebufferCache();
+    return res;
+}
+
 void RosalinaMenu_TakeScreenshot(void)
 {
     IFile file = {0};
@@ -497,15 +551,22 @@ void RosalinaMenu_TakeScreenshot(void)
         strcpy(folderPath, "/luma/screenshots");
     }
 
-    sprintf(filename, "%s/%s%s_top.bmp", folderPath, dateTimeStr, titleIdStr);
-    TRY(IFile_Open(&file, archiveId, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, filename), FS_OPEN_CREATE | FS_OPEN_WRITE));
-    TRY(RosalinaMenu_WriteScreenshot(&file, topWidth, true, true));
-    TRY(IFile_Close(&file));
+    if (configExtra.screenshotCombined) {
+        sprintf(filename, "%s/%s%s_combined.bmp", folderPath, dateTimeStr, titleIdStr);
+        TRY(IFile_Open(&file, archiveId, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, filename), FS_OPEN_CREATE | FS_OPEN_WRITE));
+        TRY(RosalinaMenu_WriteCombinedScreenshot(&file, topWidth, bottomWidth, is3d));
+        TRY(IFile_Close(&file));
+    } else {
+        sprintf(filename, "%s/%s%s_top.bmp", folderPath, dateTimeStr, titleIdStr);
+        TRY(IFile_Open(&file, archiveId, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, filename), FS_OPEN_CREATE | FS_OPEN_WRITE));
+        TRY(RosalinaMenu_WriteScreenshot(&file, topWidth, true, true));
+        TRY(IFile_Close(&file));
 
-    sprintf(filename, "%s/%s%s_bot.bmp", folderPath, dateTimeStr, titleIdStr);
-    TRY(IFile_Open(&file, archiveId, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, filename), FS_OPEN_CREATE | FS_OPEN_WRITE));
-    TRY(RosalinaMenu_WriteScreenshot(&file, bottomWidth, false, true));
-    TRY(IFile_Close(&file));
+        sprintf(filename, "%s/%s%s_bot.bmp", folderPath, dateTimeStr, titleIdStr);
+        TRY(IFile_Open(&file, archiveId, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, filename), FS_OPEN_CREATE | FS_OPEN_WRITE));
+        TRY(RosalinaMenu_WriteScreenshot(&file, bottomWidth, false, true));
+        TRY(IFile_Close(&file));
+    }
 
     if (is3d && (Draw_GetCurrentFramebufferAddress(true, true) != Draw_GetCurrentFramebufferAddress(true, false)))
     {

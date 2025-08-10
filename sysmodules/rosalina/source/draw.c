@@ -285,6 +285,26 @@ void Draw_CreateBitmapHeader(u8 *dst, u32 width, u32 heigth)
     Draw_WriteUnaligned(dst + 0x22, 3 * width * heigth, 4);
 }
 
+void Draw_CreateCombinedBitmapHeader(u8 *dst, u32 combinedWidth, u32 combinedHeight)
+{
+    static const u8 bmpHeaderTemplate[54] = {
+        // BITMAPFILEHEADER
+        0x42, 0x4D, 0xCC, 0xCC, 0xCC, 0xCC, 0x00, 0x00, 0x00, 0x00, 0x40 /* data offset */, 0x00, 0x00, 0x00,
+
+        // BITMAPINFOHEADER
+        0x28, 0x00, 0x00, 0x00, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0x01, 0x00, 0x18, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0xCC, 0xCC, 0xCC, 0xCC, 0x12, 0x0B, 0x00, 0x00, 0x12, 0x0B, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    };
+
+    memcpy(dst, bmpHeaderTemplate, 54);
+    memset(dst + 54, 0, 64 - 54);
+    Draw_WriteUnaligned(dst + 2, 64 + 3 * combinedWidth * combinedHeight, 4);
+    Draw_WriteUnaligned(dst + 0x12, combinedWidth, 4);
+    Draw_WriteUnaligned(dst + 0x16, combinedHeight, 4);
+    Draw_WriteUnaligned(dst + 0x22, 3 * combinedWidth * combinedHeight, 4);
+}
+
 static inline void Draw_ConvertPixelToBGR8(u8 *dst, const u8 *src, GSPGPU_FramebufferFormat srcFormat)
 {
     u8 red, green, blue;
