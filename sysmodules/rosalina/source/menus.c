@@ -552,7 +552,7 @@ void RosalinaMenu_TakeScreenshot(void)
     }
 
     if (configExtra.screenshotCombined) {
-        sprintf(filename, "%s/%s%s_combined.bmp", folderPath, dateTimeStr, titleIdStr);
+        sprintf(filename, "%s/%s%s_cmb.bmp", folderPath, dateTimeStr, titleIdStr);
         TRY(IFile_Open(&file, archiveId, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, filename), FS_OPEN_CREATE | FS_OPEN_WRITE));
         TRY(RosalinaMenu_WriteCombinedScreenshot(&file, topWidth, bottomWidth, is3d));
         TRY(IFile_Close(&file));
