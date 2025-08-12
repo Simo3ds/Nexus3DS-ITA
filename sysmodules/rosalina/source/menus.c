@@ -244,9 +244,9 @@ void RosalinaMenu_ShowSystemInfo(void)
         u64 titleId = 0;
         Get_TitleID(&titleId);
         if (titleId != 0)
-            posY = Draw_DrawFormattedString(10, posY, COLOR_WHITE, "TitleID: %016llX\n", titleId);
+            posY = Draw_DrawFormattedString(10, posY, COLOR_WHITE, "Title ID:           %016llX\n", titleId);
         else
-            posY = Draw_DrawString(10, posY, COLOR_GRAY, "TitleID: Not Found\n");
+            posY = Draw_DrawString(10, posY, COLOR_WHITE, "Title ID:           Not Found\n");
 
         Draw_FlushFramebuffer();
         Draw_Unlock();
