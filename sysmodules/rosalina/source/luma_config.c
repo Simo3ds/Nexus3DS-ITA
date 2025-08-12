@@ -185,8 +185,9 @@ static size_t LumaConfig_SaveLumaIniConfigToStr(char *out, const CfgData *cfg)
         autobootModeStr,
 
         cfg->hbldr3dsxTitleId, rosalinaMenuComboStr, (int)(cfg->pluginLoaderFlags & 1),
-        (int)((cfg->pluginLoaderFlags & (1 << 1)) >> 1), (int)((cfg->pluginLoaderFlags & 1 << 2) >> 2), (int)((cfg->pluginLoaderFlags & 1 << 3) >> 3),
+        (int)((cfg->pluginLoaderFlags & (1 << 1)) >> 1), (int)((cfg->pluginLoaderFlags & (1 << 2)) >> 2),
         (int)cfg->pluginWatcherLevel,
+        (int)((cfg->pluginLoaderFlags & (1 << 3)) >> 3),
         (int)cfg->ntpTzOffetMinutes,
 
         (int)cfg->topScreenFilter.cct, (int)cfg->bottomScreenFilter.cct,
