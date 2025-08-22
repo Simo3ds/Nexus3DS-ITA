@@ -60,6 +60,7 @@ Menu rosalinaMenu = {
         { "System configuration...", MENU, .menu = &sysconfigMenu },
         { "Miscellaneous options...", MENU, .menu = &miscellaneousMenu },
         { "Save settings", METHOD, .method = &RosalinaMenu_SaveSettings },
+        { "Return to HOME Menu", METHOD, .method = &RosalinaMenu_ReturnToHomeMenu },
         { "Power off / reboot", METHOD, .method = &RosalinaMenu_PowerOffOrReboot },
         { "System info", METHOD, .method = &RosalinaMenu_ShowSystemInfo },
         { "Credits", METHOD, .method = &RosalinaMenu_ShowCredits },
@@ -166,6 +167,38 @@ void RosalinaMenu_SaveSettings(void)
         Draw_Unlock();
     }
     while (!(waitInput() & KEY_B) && !menuShouldExit);
+}
+
+void RosalinaMenu_ReturnToHomeMenu(void)
+{
+    Draw_Lock();
+    Draw_ClearFramebuffer();
+    Draw_FlushFramebuffer();
+    Draw_Unlock();
+
+    do
+    {
+        Draw_Lock();
+        Draw_DrawMenuFrame("Return to HOME Menu");
+        Draw_DrawString(10, 40, COLOR_WHITE, "Simulate pressing the HOME button.");
+        Draw_DrawString(10, 50, COLOR_WHITE, "Useful if your HOME button is broken.");
+        Draw_DrawString(10, 70, COLOR_WHITE, "Press A to proceed");
+        Draw_DrawString(10, 80, COLOR_WHITE, "Press B to go back.");
+        Draw_FlushFramebuffer();
+        Draw_Unlock();
+
+        u32 pressed = waitInputWithTimeout(1000);
+
+        if (pressed & KEY_A)
+        {
+            // Simulate HOME button press
+            srvPublishToSubscriber(0x204, 0);
+            return;
+        }
+        else if (pressed & KEY_B)
+            return;
+    }
+    while (!menuShouldExit);
 }
 
 void RosalinaMenu_PowerOffOrReboot(void)
