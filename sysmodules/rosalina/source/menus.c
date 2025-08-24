@@ -182,7 +182,7 @@ void RosalinaMenu_ReturnToHomeMenu(void)
         Draw_DrawMenuFrame("Return to HOME Menu");
         Draw_DrawString(10, 40, COLOR_WHITE, "Simulate pressing the HOME button.");
         Draw_DrawString(10, 50, COLOR_WHITE, "Useful if your HOME button is broken.");
-        Draw_DrawString(10, 70, COLOR_WHITE, "Press A to proceed");
+        Draw_DrawString(10, 70, COLOR_WHITE, "Press A to proceed.");
         Draw_DrawString(10, 80, COLOR_WHITE, "Press B to go back.");
         Draw_FlushFramebuffer();
         Draw_Unlock();
