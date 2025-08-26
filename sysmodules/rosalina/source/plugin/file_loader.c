@@ -282,6 +282,10 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
                     // No operations are available for this file
                     break;
                 }
+
+                Draw_Lock();
+                Draw_ClearFramebuffer();
+                Draw_Unlock();
             }
             else if (selected == 1)
             {
@@ -299,6 +303,10 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
                     // Remove from default plugin option
                     options[2].enabled = true;
                 }
+                
+                Draw_Lock();
+                Draw_ClearFramebuffer();
+                Draw_Unlock();
             }
             else if (selected == 2)
             {
@@ -312,6 +320,10 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
                     // Remove from default plugin option
                     options[2].enabled = false;
                 }
+                
+                Draw_Lock();
+                Draw_ClearFramebuffer();
+                Draw_Unlock();
             }
         }
         else if (keys & KEY_B)
