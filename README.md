@@ -19,7 +19,8 @@
 * Set the number of Play Coins  
   ↳ [Original: Gruetzig](https://github.com/Gruetzig/Luma3DS/commit/1e329b55dade61ba74a0bb1cc6e59d2504d0bde1)
 * Plugin selector  
-  ↳ [Original: Tekito-256](https://github.com/Tekito-256/Luma3DS)
+  ↳ [Original: Tekito-256](https://github.com/Tekito-256/Luma3DS)  
+  ↳ *Note: After setting a default plugin, hold Select while launching a game to open the plugin selector*
 * Dangerous plugin detection  
   ↳ [Original: Tekito-256](https://github.com/Tekito-256/Luma3DS)
 * Support for v0.5.x 3GX plugin loading  
