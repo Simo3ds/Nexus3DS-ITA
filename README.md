@@ -11,13 +11,48 @@
 
 **Nexus3DS** is an enhanced fork of Luma3DS that incorporates numerous community features and improvements. This project builds upon several Luma3DS forks, combining the best features while adding unique enhancements for an improved user experience.
 
-**Key Features:**
-* First-class support for homebrew applications
-* **Rosalina** overlay menu with screenshots, cheat codes, input redirection, and more
-* Game modding features (3GX plugins, LayeredFS, locale emulation)
-* Support for custom system modules and patches
-* Fully-fledged GDB stub for debugging
-* Chainloading other firmware files
+## Enhanced Features
+
+**Core Enhancements:**
+* Changed the configuration file name from `config.ini` to `nexusconfig.ini` to prevent conflicts with official Luma3DS
+* Modified Configuration menu and Rosalina menu colors and layout
+* Set the number of Play Coins  
+  ↳ [Original: Gruetzig](https://github.com/Gruetzig/Luma3DS/commit/1e329b55dade61ba74a0bb1cc6e59d2504d0bde1)
+* Plugin selector  
+  ↳ [Original: Tekito-256](https://github.com/Tekito-256/Luma3DS)  
+  ↳ *Note: After setting a default plugin, hold Select while launching a game to open the plugin selector*
+* Dangerous plugin detection  
+  ↳ [Original: Tekito-256](https://github.com/Tekito-256/Luma3DS)
+* Support for v0.5.x 3GX plugin loading  
+  ↳ [Original: Tekito-256](https://github.com/Tekito-256/Luma3DS)
+* Force restart option  
+  ↳ [Original: cooolgamer](https://github.com/cooolgamer)
+* Time display in Rosalina menu  
+  ↳ [Original: JBMagination2/hide0123](https://github.com/JBMagination2/Luma3DS/commit/766173d65eeb52baac90e9e68b456ad93ebaab7b)
+* Logo.bin loading feature  
+  ↳ [Original: Pixel-Pop](https://github.com/Pixel-Pop/Luma3DS/commit/d225d9fa507dcccce3a6c86d0a38f7998f39b7a2)
+* Title ID display in System info
+* Detailed screen brightness adjustment  
+  ↳ [Original: DullPointer](https://github.com/DullPointer/Luma3DS/commit/83e8d471a377bc6960fae00d6694f5fe86dcca42)
+* Volume display in Rosalina menu  
+  ↳ [Original: DullPointer](https://github.com/DullPointer/Luma3DS_archive/commit/dc636d82492d1e87eb51785fa7f2a98617e7ece9)
+* N3DS clock + L2 status display in Rosalina menu  
+  ↳ [Original: DullPointer](https://github.com/DullPointer/Luma3DS/commit/2dbfa8b5c9b719b7f3056691f54332f42da6de8d)
+* Return to HOME Menu option in Rosalina menu (useful if your HOME button is broken)
+* Merged "Enable DSi external filters" option into "Enable loading external FIRMs and modules" option in configuration menu
+* Restored "Enable dev UNITINFO" and "Enable Rosalina on SAFE_FIRM" options in configuration menu
+
+**Extra Configuration Menu Options:**
+* Automatically suppress LEDs  
+  ↳ [Original: DullPointer](https://github.com/DullPointer/Luma3DS/commit/174ed486ab59bd249488c9035682fa7d058d1e80)
+* Cut power to TWL Flashcards  
+  ↳ [Original: DullPointer](https://github.com/DullPointer/Luma3DS/commit/174ed486ab59bd249488c9035682fa7d058d1e80)
+* Cut 3DS Wifi in sleep mode  
+  ↳ [Original: DullPointer](https://github.com/DullPointer/Luma3DS/commit/174ed486ab59bd249488c9035682fa7d058d1e80)
+* Include title ID in screenshot filename
+* Save screenshots in date folders
+* Combine top/bottom screenshots (saved with _cmb suffix)
+* Toggle bottom LCD backlight with Start+Select
 
 For detailed technical information, please refer to the [official Luma3DS documentation](https://github.com/LumaTeam/Luma3DS/wiki) and [README](https://github.com/LumaTeam/Luma3DS/blob/master/README.md).
 
@@ -100,7 +135,7 @@ For a complete list of contributors and acknowledgments, please see the [officia
 - **[@Tekito-256](https://github.com/Tekito-256)** - Plugin Selector ([Source Repository](https://github.com/Tekito-256/Luma3DS))
 - **[@Gruetzig](https://github.com/Gruetzig)** - Playcoin maxing ([Source Repository](https://github.com/Gruetzig/Luma3DS))
 - **[@cooolgamer](https://github.com/cooolgamer)** - Power options ([Source Repository](https://github.com/cooolgamorg/CustomLuma3DS))
-- **[@JBMagination2](https://github.com/JBMagination2)** - Rosalina menu time ([Source Repository](https://github.com/JBMagination2/Luma3DS))
+- **[@JBMagination2](https://github.com/JBMagination2)** - Rosalina menu time (by [@hide0123](https://github.com/hide0123)) ([Source Repository](https://github.com/JBMagination2/Luma3DS))
 - **[@Pixel-Pop](https://github.com/Pixel-Pop)** - Logo.bin loader ([Source Repository](https://github.com/Pixel-Pop/Luma3DS))
 
 ---
