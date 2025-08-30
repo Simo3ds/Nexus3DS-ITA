@@ -2,6 +2,7 @@ ifneq ($(strip $(shell firmtool -v 2>&1 | grep usage)),)
 $(error "Please install firmtool v1.1 or greater")
 endif
 
+
 include version.mk
 
 # Disable kext and firmlaunch patches, all custom sysmodules except Loader, enable PASLR.
