@@ -49,6 +49,7 @@
 //#define ROSALINA_MENU_SELF_SCREENSHOT 1 // uncomment this to enable the feature
 
 u32 menuCombo = 0;
+bool instantReboot = false;
 bool isHidInitialized = false;
 bool isQtmInitialized = false;
 u32 mcuFwVersion = 0;
@@ -403,6 +404,13 @@ void menuThreadMain(void)
             PluginConverter__UpdateMenu();
             menuShow(&rosalinaMenu);
             menuLeave();
+        }
+
+        // instant reboot combo key
+        if(instantReboot & ((scanHeldKeys() & (KEY_A | KEY_B | KEY_X | KEY_Y | KEY_START)) == (KEY_A | KEY_B | KEY_X | KEY_Y | KEY_START)))
+        {
+            svcKernelSetState(7);
+            __builtin_unreachable();
         }
 
         // toggle screen combo
