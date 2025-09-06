@@ -232,7 +232,8 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
             
             if (isSelected) {
                 Draw_DrawString(15, 40 + (i + 2) * SPACING_Y, COLOR_ORANGE, ">>");
-                Draw_DrawString(35, 40 + (i + 2) * SPACING_Y, COLOR_CYAN, options[i].name);
+                u32 selectedColor = options[i].enabled ? COLOR_CYAN : COLOR_LIGHT_BLUE;
+                Draw_DrawString(35, 40 + (i + 2) * SPACING_Y, selectedColor, options[i].name);
             } else {
                 Draw_DrawString(15, 40 + (i + 2) * SPACING_Y, COLOR_GRAY, " *");
                 Draw_DrawString(35, 40 + (i + 2) * SPACING_Y, color, options[i].name);
@@ -402,7 +403,8 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
             if (i == holding)
             {
                 sprintf(buf, "%s%s", (const char *)name, (isDefault ? " [Default]" : ""));
-                Draw_DrawString(33, 40 + (i + 3) * SPACING_Y, COLOR_WHITE, buf);
+                Draw_DrawString(13, 40 + (i + 3) * SPACING_Y, COLOR_GRAY, "->");
+                Draw_DrawString(33, 40 + (i + 3) * SPACING_Y, COLOR_LIGHT_BLUE, buf);
             }
             else
             {
