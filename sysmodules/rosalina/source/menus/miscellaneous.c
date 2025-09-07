@@ -526,8 +526,7 @@ void MiscellaneousMenu_EditPlayCoins(void)
                  
                 
         Draw_DrawString(20, 120, COLOR_GRAY, "Press B to go back.");
-        Draw_DrawString(20, 140, COLOR_RED,
-                "Changes WILL not show until you restart the HOME \nmenu. \n To restart the HOME menu: \n 1. Open a software. \n 2. Suspend the software. \n 3. You should see changes now!");
+        Draw_DrawString(20, 140, COLOR_RED, "Changes WILL not show until you restart the HOME \nmenu. \n To restart the HOME menu: \n 1. Open a software. \n 2. Suspend the software. \n 3. You should see changes now!");
         Draw_FlushFramebuffer();
         Draw_Unlock();
     }
