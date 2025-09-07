@@ -304,7 +304,7 @@ void MiscellaneousMenu_UpdateTimeDateNtp(void)
         absOffset = absOffset < 0 ? -absOffset : absOffset;
         posY = Draw_DrawFormattedString(20, 40, COLOR_WHITE, "Current UTC offset:  %c%02d%02d", utcOffset < 12 ? '-' : '+', absOffset, utcOffsetMinute);
         posY = Draw_DrawFormattedString(20, posY + SPACING_Y, COLOR_WHITE, "Use DPAD Left/Right to change hour offset.\nUse DPAD Up/Down to change minute offset.\nPress A when done.") + SPACING_Y;
-        Draw_DrawString(20, posY + SPACING_Y, COLOR_GRAY, "Press B to go back.");
+        Draw_DrawString(20, posY + SPACING_Y * 3, COLOR_GRAY, "Press B to go back.");
 
         Draw_FlushFramebuffer();
         Draw_Unlock();
@@ -341,16 +341,13 @@ void MiscellaneousMenu_UpdateTimeDateNtp(void)
 
         absOffset = utcOffset;
         absOffset = absOffset < 0 ? -absOffset : absOffset;
-        u32 y = 40;
-        Draw_DrawFormattedString(20, y, COLOR_WHITE, "Current UTC offset:  %c%02d", utcOffset < 0 ? '-' : '+', absOffset);
-        y += SPACING_Y;
+        posY = Draw_DrawFormattedString(20, 40, COLOR_WHITE, "Current UTC offset:  %c%02d%02d", utcOffset < 0 ? '-' : '+', absOffset, utcOffsetMinute);
         if (cantStart)
-            Draw_DrawFormattedString(20, y, COLOR_RED, "Can't sync time/date before the system has finished loading.");
+            posY = Draw_DrawString(20, posY + SPACING_Y * 5, COLOR_RED, "Can't sync time/date before the system has finished loading.");
         else if (R_FAILED(res))
-            Draw_DrawFormattedString(20, y, COLOR_RED, "Operation failed (%08lx).", (u32)res);
+            posY = Draw_DrawFormattedString(20, posY + SPACING_Y * 5, COLOR_RED, "Operation failed (%08lx).", (u32)res);
         else
-            Draw_DrawString(20, y, COLOR_GREEN, "Time/date updated successfully.");
-        Draw_DrawString(20, y + SPACING_Y * 2, COLOR_GRAY, "Press B to go back.");
+            posY = Draw_DrawString(20, posY + SPACING_Y * 5, COLOR_GREEN, "Time/date updated successfully.");;
         Draw_FlushFramebuffer();
         Draw_Unlock();
     } while (!(waitInput() & KEY_B) && !menuShouldExit);
@@ -528,9 +525,9 @@ void MiscellaneousMenu_EditPlayCoins(void)
      
                  
                 
-        Draw_DrawString(20, 160, COLOR_GRAY, "Press B to go back.");
-           Draw_DrawString(20, 170, COLOR_RED,
-                "Changes WILL not show until you restart the HOME \n menu. \n To restart the HOME menu: \n 1. Open a software. \n 2. Suspend the software. \n 3. You should see changes now!");
+        Draw_DrawString(20, 120, COLOR_GRAY, "Press B to go back.");
+        Draw_DrawString(20, 140, COLOR_RED,
+                "Changes WILL not show until you restart the HOME \nmenu. \n To restart the HOME menu: \n 1. Open a software. \n 2. Suspend the software. \n 3. You should see changes now!");
         Draw_FlushFramebuffer();
         Draw_Unlock();
     }
