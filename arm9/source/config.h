@@ -81,3 +81,4 @@ extern CfgData configData;
 bool readConfig(void);
 void writeConfig(bool isConfigOptions);
 void configMenu(bool oldPinStatus, u32 oldPinMode);
+u32 getSplashDurationMs(void);

@@ -98,6 +98,7 @@ static size_t LumaConfig_SaveLumaIniConfigToStr(char *out, const CfgData *cfg)
     char rosalinaMenuComboStr[128];
 
     const char *splashPosStr;
+    const char *splashDurationPresetStr;
     const char *n3dsCpuStr;
     const char *autobootModeStr;
     const char *forceAudioOutputStr;
@@ -116,6 +117,13 @@ static size_t LumaConfig_SaveLumaIniConfigToStr(char *out, const CfgData *cfg)
         default: case 0: splashPosStr = "off"; break;
         case 1: splashPosStr = "before payloads"; break;
         case 2: splashPosStr = "after payloads"; break;
+    }
+
+    switch (MULTICONFIG(SPLASHDURATION)) {
+        default: case 0: splashDurationPresetStr = "1s"; break;
+        case 1: splashDurationPresetStr = "3s"; break;
+        case 2: splashDurationPresetStr = "5s"; break;
+        case 3: splashDurationPresetStr = "custom"; break;
     }
 
     switch (MULTICONFIG(NEWCPU)) {
@@ -180,7 +188,7 @@ static size_t LumaConfig_SaveLumaIniConfigToStr(char *out, const CfgData *cfg)
         (int)CONFIG(ENABLESAFEFIRMROSALINA), (int)CONFIG(INSTANTREBOOTNOERRDISP),
 
         1 + (int)MULTICONFIG(DEFAULTEMU), 4 - (int)MULTICONFIG(BRIGHTNESS),
-        splashPosStr, (unsigned int)cfg->splashDurationMsec,
+        splashPosStr, splashDurationPresetStr, (unsigned int)cfg->splashDurationMsec,
         pinNumDigits, n3dsCpuStr,
         autobootModeStr,
 
@@ -212,7 +220,7 @@ void LumaConfig_RequestSaveSettings(void) {
 
 Result LumaConfig_SaveSettings(void)
 {
-    char inibuf[0x2000];
+    char inibuf[0x2300];
 
     Result res;
 

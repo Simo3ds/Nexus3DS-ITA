@@ -392,19 +392,26 @@ static int configIniHandler(void* user, const char* section, const char* name, c
             } else {
                 CHECK_PARSE_OPTION(-1);
             }
+        } else if (strcmp(name, "splash_duration_preset") == 0) {
+            if (strcasecmp(value, "1s") == 0) {
+                cfg->multiConfig |= 0 << (2 * (u32)SPLASHDURATION);
+                return 1;
+            } else if (strcasecmp(value, "3s") == 0) {
+                cfg->multiConfig |= 1 << (2 * (u32)SPLASHDURATION);
+                return 1;
+            } else if (strcasecmp(value, "5s") == 0) {
+                cfg->multiConfig |= 2 << (2 * (u32)SPLASHDURATION);
+                return 1;
+            } else if (strcasecmp(value, "custom") == 0) {
+                cfg->multiConfig |= 3 << (2 * (u32)SPLASHDURATION);
+                return 1;
+            } else {
+                CHECK_PARSE_OPTION(-1);
+            }
         } else if (strcmp(name, "splash_duration_ms") == 0) {
-            // Also handle through multiConfig for menu display
             s64 opt;
             CHECK_PARSE_OPTION(parseDecIntOption(&opt, value, 0, 0xFFFFFFFFu));
             cfg->splashDurationMsec = (u32)opt;
-            
-            // Convert ms to menu option (0=1s, 1=3s, 2=5s, 3=7s)
-            u32 encodedOpt = 0;
-            if (opt >= 7000) encodedOpt = 3;
-            else if (opt >= 5000) encodedOpt = 2;
-            else if (opt >= 3000) encodedOpt = 1;
-            else encodedOpt = 0;
-            cfg->multiConfig |= encodedOpt << (2 * (u32)SPLASHDURATION);
             return 1;
         }
         else if (strcmp(name, "pin_lock_num_digits") == 0) {
@@ -614,24 +621,22 @@ static size_t saveLumaIniConfigToStr(char *out)
     char rosalinaMenuComboStr[128];
 
     const char *splashPosStr;
+    const char *splashDurationPresetStr;
     const char *n3dsCpuStr;
     const char *autobootModeStr;
     const char *forceAudioOutputStr;
-
-    // Convert splash duration multiConfig to ms
-    u32 splashDurationMs = cfg->splashDurationMsec;
-    switch (MULTICONFIG(SPLASHDURATION)) {
-        case 0: splashDurationMs = 1000; break;
-        case 1: splashDurationMs = 3000; break;
-        case 2: splashDurationMs = 5000; break;
-        case 3: splashDurationMs = 7000; break;
-        default: break; // keep original value
-    }
 
     switch (MULTICONFIG(SPLASH)) {
         default: case 0: splashPosStr = "off"; break;
         case 1: splashPosStr = "before payloads"; break;
         case 2: splashPosStr = "after payloads"; break;
+    }
+
+    switch (MULTICONFIG(SPLASHDURATION)) {
+        default: case 0: splashDurationPresetStr = "1s"; break;
+        case 1: splashDurationPresetStr = "3s"; break;
+        case 2: splashDurationPresetStr = "5s"; break;
+        case 3: splashDurationPresetStr = "custom"; break;
     }
 
     switch (MULTICONFIG(NEWCPU)) {
@@ -696,7 +701,7 @@ static size_t saveLumaIniConfigToStr(char *out)
         (int)CONFIG(ENABLESAFEFIRMROSALINA), (int)CONFIG(INSTANTREBOOTNOERRDISP),
 
         1 + (int)MULTICONFIG(DEFAULTEMU), 4 - (int)MULTICONFIG(BRIGHTNESS),
-        splashPosStr, splashDurationMs,
+        splashPosStr, splashDurationPresetStr, (unsigned int)cfg->splashDurationMsec,
         pinNumDigits, n3dsCpuStr,
         autobootModeStr,
 
@@ -722,7 +727,7 @@ static size_t saveLumaIniConfigToStr(char *out)
     return n < 0 ? 0 : (size_t)n;
 }
 
-static char tmpIniBuffer[0x3000];
+static char tmpIniBuffer[0x2300];
 
 static bool readLumaIniConfig(void)
 {
@@ -819,7 +824,7 @@ bool readConfig(void)
         configData.config |= 1u << PATCHVERSTRING;
         configData.multiConfig |= 3 << (2 * (u32)NEWCPU); // Default NEWCPU to Clock+L2
         configData.multiConfig |= 1 << (2 * (u32)SPLASHDURATION); // Default splash duration to 3s
-        configData.splashDurationMsec = 3000;
+        configData.splashDurationMsec = 7000;
         configData.volumeSliderOverride = -1;
         configData.hbldr3dsxTitleId = HBLDR_DEFAULT_3DSX_TID;
         configData.rosalinaMenuCombo = 1u << 9 | 1u << 7 | 1u << 2; // L+Start+Select
@@ -837,6 +842,17 @@ bool readConfig(void)
     oldConfig = configData;
 
     return ret;
+}
+
+u32 getSplashDurationMs(void)
+{
+    switch (MULTICONFIG(SPLASHDURATION)) {
+        case 0: return 1000;
+        case 1: return 3000;
+        case 2: return 5000;
+        case 3: return configData.splashDurationMsec;
+        default: return 3000;
+    }
 }
 
 void writeConfig(bool isConfigOptions)
@@ -867,7 +883,7 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
     static const char *multiOptionsText[]  = { "Default EmuNAND: 1( ) 2( ) 3( ) 4( )",
                                                "Screen brightness: 4( ) 3( ) 2( ) 1( )",
                                                "Splash: Off( ) Before( ) After( ) payloads",
-                                               "Splash duration: 1( ) 3( ) 5( ) 7( ) seconds",
+                                               "Splash duration: 1s( ) 3s( ) 5s( ) custom( )",
                                                "PIN lock: Off( ) 4( ) 6( ) 8( ) digits",
                                                "New 3DS CPU: Off( ) Clock( ) L2( ) Clock+L2( )",
                                                "Hbmenu autoboot: Off( ) 3DS( ) DSi( )",
@@ -889,6 +905,16 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                "Save and exit"
                                              };
 
+    // Dynamic description for splash duration
+    static char splashDurationDescription[256];
+    sprintf(splashDurationDescription, 
+            "Select splash screen duration.\n\n"
+            "Choose preset: 1s, 3s, 5s or custom.\n"
+            "Custom reads from splash_duration_ms\n"
+            "setting in nexusconfig.ini.\n\n"
+            "Current custom value: %lu ms", 
+            configData.splashDurationMsec);
+
     static const char *optionsDescription[]  = { "Select the default EmuNAND.\n\n"
                                                  "It will be booted when no directional\n"
                                                  "pad buttons are pressed (Up/Right/Down\n"
@@ -904,15 +930,7 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                  "\t* 'After payloads' displays it\n"
                                                  "afterwards.",
 
-                                                 "Select how long the splash screen\n"
-                                                 "displays.\n\n"
-                                                 "This has no effect if the splash\n"
-                                                 "screen is not enabled.\n\n"
-                                                 "Advanced: Edit splash_duration_ms in\n"
-                                                 "nexusconfig.ini for custom values.\n"
-                                                 "Custom values (e.g. 2000, 4000, 10000)\n"
-                                                 "work properly even if they don't match\n"
-                                                 "the standard 1/3/5/7 second options.",
+                                                 splashDurationDescription,
 
                                                  "Activate a PIN lock.\n\n"
                                                  "The PIN will be asked each time\n"
@@ -1264,14 +1282,6 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
     configData.multiConfig = 0;
     for(u32 i = 0; i < multiOptionsAmount; i++)
         configData.multiConfig |= multiOptions[i].enabled << (i * 2);
-
-    // Update splash duration based on multiConfig setting
-    switch (MULTICONFIG(SPLASHDURATION)) {
-        case 0: configData.splashDurationMsec = 1000; break;
-        case 1: configData.splashDurationMsec = 3000; break;
-        case 2: configData.splashDurationMsec = 5000; break;
-        case 3: configData.splashDurationMsec = 7000; break;
-    }
 
     configData.config = 0;
     for(u32 i = 0; i < singleOptionsAmount; i++)
