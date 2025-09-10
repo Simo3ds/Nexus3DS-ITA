@@ -66,7 +66,7 @@ night_light_settings s_nightLight = {
     .light_brightnessLevel = 3,
     .light_ledSuppression = false,
     .light_startHour = 8,
-    .light_startMinute = 10,
+    .light_startMinute = 30,
     .night_brightnessLevel = 1,
     .night_ledSuppression = true,
     .night_startHour = 19,
@@ -123,7 +123,7 @@ bool Redshift_ReadNightLightSettings(void)
     IFile file;
     Result res = 0;
     res = IFile_Open(&file, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""),
-            fsMakePath(PATH_ASCII, "/luma/configBootshift.bin"), FS_OPEN_READ);
+            fsMakePath(PATH_ASCII, "/luma/configDaynight.bin"), FS_OPEN_READ);
         
     if(R_SUCCEEDED(res))
     {
@@ -147,7 +147,7 @@ static void WriteNightLightSettings(void)
     IFile file;
     Result res = 0;
     res = IFile_Open(&file, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""),
-            fsMakePath(PATH_ASCII, "/luma/configBootshift.bin"), FS_OPEN_CREATE | FS_OPEN_WRITE);
+            fsMakePath(PATH_ASCII, "/luma/configDaynight.bin"), FS_OPEN_CREATE | FS_OPEN_WRITE);
         
     if(R_SUCCEEDED(res))
     {
@@ -157,11 +157,11 @@ static void WriteNightLightSettings(void)
     }
 }
 
-void ApplyLightMode(void)
+static void ApplyMode(bool ledSuppression, bool changeBrightness, u8 brightnessLevel, bool isLightMode)
 {
-    if(s_nightLight.light_ledSuppression) Redshift_SuppressLeds();
+    if(ledSuppression) Redshift_SuppressLeds();
 
-    if(s_nightLight.light_changeBrightness)
+    if(changeBrightness)
     {
         backlight_controls s_backlight = {
             .abl_enabled = 0,
@@ -170,41 +170,36 @@ void ApplyLightMode(void)
 
         cfguInit();
         CFG_GetConfigInfoBlk8(sizeof(backlight_controls), 0x50001, &s_backlight);            
-        if(s_backlight.brightness_level != s_nightLight.light_brightnessLevel)
+        if(s_backlight.brightness_level != brightnessLevel)
         {
-            s_backlight.brightness_level = s_nightLight.light_brightnessLevel;
+            s_backlight.brightness_level = brightnessLevel;
             CFG_SetConfigInfoBlk8(sizeof(backlight_controls), 0x50001, &s_backlight);
         }
         cfguExit();
     }
 
-    lightModeActive = true;
-    nightModeActive = false;
+    lightModeActive = isLightMode;
+    nightModeActive = !isLightMode;
+}
+
+void ApplyLightMode(void)
+{
+    ApplyMode(
+        s_nightLight.light_ledSuppression,
+        s_nightLight.light_changeBrightness,
+        s_nightLight.light_brightnessLevel,
+        true
+    );
 }
 
 void ApplyNightMode(void)
 {
-    if(s_nightLight.night_ledSuppression) Redshift_SuppressLeds();
-
-    if(s_nightLight.light_changeBrightness)
-    {
-        backlight_controls s_backlight = {
-            .abl_enabled = 0,
-            .brightness_level = 0
-        };
-
-        cfguInit();
-        CFG_GetConfigInfoBlk8(sizeof(backlight_controls), 0x50001, &s_backlight);        
-        if(s_backlight.brightness_level != s_nightLight.night_brightnessLevel)
-        {
-            s_backlight.brightness_level = s_nightLight.night_brightnessLevel;
-            CFG_SetConfigInfoBlk8(sizeof(backlight_controls), 0x50001, &s_backlight);
-        }
-        cfguExit();
-    }
-
-    lightModeActive = false;
-    nightModeActive = true;
+    ApplyMode(
+        s_nightLight.night_ledSuppression,
+        s_nightLight.night_changeBrightness,
+        s_nightLight.night_brightnessLevel,
+        false
+    );
 }
 
 void Redshift_UpdateNightLightStatuses(void)
@@ -229,7 +224,7 @@ void Redshift_ConfigureNightLightSettings(void)
     Draw_Unlock();
 
     int sel = 0;
-    u8 minBri = 1, maxBri = 5, hourMax = 23, minuteMax = 50;
+    u8 minBri = 0, maxBri = 5, hourMax = 23, minuteMax = 50;
     char fmtbuf[0x40];
 
     do
@@ -240,11 +235,11 @@ void Redshift_ConfigureNightLightSettings(void)
         {
             if(pressed & KEY_DOWN)
             {
-                if(++sel > 10) sel = 0;
+                if(++sel > 8) sel = 0;
             }
             else if(pressed & KEY_UP)
             {
-                if(--sel < 0) sel = 10;
+                if(--sel < 0) sel = 8;
             }
             else if (pressed & KEY_RIGHT)
             {
@@ -252,39 +247,37 @@ void Redshift_ConfigureNightLightSettings(void)
                     case 0:
                         s_nightLight.light_brightnessLevel += 1;
                         s_nightLight.light_brightnessLevel = s_nightLight.light_brightnessLevel > maxBri ? minBri : s_nightLight.light_brightnessLevel;
+                        if(s_nightLight.light_brightnessLevel == 0) s_nightLight.light_changeBrightness = false;
+                        else s_nightLight.light_changeBrightness = true;
                     break;
                     case 1:
-                        s_nightLight.light_changeBrightness = !s_nightLight.light_changeBrightness;
-                    break;
-                    case 2:
                         s_nightLight.light_ledSuppression = !s_nightLight.light_ledSuppression;
                     break;
-                    case 3:
+                    case 2:
                         s_nightLight.light_startHour += 1;
                         s_nightLight.light_startHour = s_nightLight.light_startHour > hourMax ? 0 : s_nightLight.light_startHour;
                     break;
-                    case 4:
+                    case 3:
                         s_nightLight.light_startMinute += 10;
                         s_nightLight.light_startMinute = s_nightLight.light_startMinute > minuteMax ? 0 : s_nightLight.light_startMinute;
                     break;
-                    case 5:
+                    case 4:
                         s_nightLight.use_nightMode = !s_nightLight.use_nightMode;
                     break;
-                    case 6:
+                    case 5:
                         s_nightLight.night_brightnessLevel += 1;
                         s_nightLight.night_brightnessLevel = s_nightLight.night_brightnessLevel > maxBri ? minBri : s_nightLight.night_brightnessLevel;
+                        if(s_nightLight.night_brightnessLevel == 0) s_nightLight.night_changeBrightness = false;
+                        else s_nightLight.night_changeBrightness = true;
                     break;
-                    case 7:
-                        s_nightLight.night_changeBrightness = !s_nightLight.night_changeBrightness;
-                    break;
-                    case 8:
+                    case 6:
                         s_nightLight.night_ledSuppression = !s_nightLight.night_ledSuppression;
                     break;
-                    case 9:
+                    case 7:
                         s_nightLight.night_startHour += 1;
                         s_nightLight.night_startHour = s_nightLight.night_startHour > hourMax ? 0 : s_nightLight.night_startHour;
                     break;
-                    case 10:
+                    case 8:
                         s_nightLight.night_startMinute += 10;
                         s_nightLight.night_startMinute = s_nightLight.night_startMinute > minuteMax ? 0 : s_nightLight.night_startMinute;
                     break;
@@ -296,39 +289,37 @@ void Redshift_ConfigureNightLightSettings(void)
                     case 0:
                         s_nightLight.light_brightnessLevel -= 1;
                         s_nightLight.light_brightnessLevel = s_nightLight.light_brightnessLevel > maxBri ? maxBri : s_nightLight.light_brightnessLevel;
+                        if(s_nightLight.light_brightnessLevel == 0) s_nightLight.light_changeBrightness = false;
+                        else s_nightLight.light_changeBrightness = true;
                     break;
                     case 1:
-                        s_nightLight.light_changeBrightness = !s_nightLight.light_changeBrightness;
-                    break;
-                    case 2:
                         s_nightLight.light_ledSuppression = !s_nightLight.light_ledSuppression;
                     break;
-                    case 3:
+                    case 2:
                         s_nightLight.light_startHour -= 1;
                         s_nightLight.light_startHour = s_nightLight.light_startHour > hourMax ? hourMax : s_nightLight.light_startHour;
                     break;
-                    case 4:
+                    case 3:
                         s_nightLight.light_startMinute -= 10;
                         s_nightLight.light_startMinute = s_nightLight.light_startMinute > minuteMax ? minuteMax : s_nightLight.light_startMinute;
                     break;
-                    case 5:
+                    case 4:
                         s_nightLight.use_nightMode = !s_nightLight.use_nightMode;
                     break;
-                    case 6:
+                    case 5:
                         s_nightLight.night_brightnessLevel -= 1;
                         s_nightLight.night_brightnessLevel = s_nightLight.night_brightnessLevel > maxBri ? maxBri : s_nightLight.night_brightnessLevel;
+                        if(s_nightLight.night_brightnessLevel == 0) s_nightLight.night_changeBrightness = false;
+                        else s_nightLight.night_changeBrightness = true;
                     break;
-                    case 7:
-                        s_nightLight.night_changeBrightness = !s_nightLight.night_changeBrightness;
-                    break;
-                    case 8:
+                    case 6:
                         s_nightLight.night_ledSuppression = !s_nightLight.night_ledSuppression;
                     break;
-                    case 9:
+                    case 7:
                         s_nightLight.night_startHour -= 1;
                         s_nightLight.night_startHour = s_nightLight.night_startHour > hourMax ? hourMax : s_nightLight.night_startHour;
                     break;
-                    case 10:
+                    case 8:
                         s_nightLight.night_startMinute -= 10;
                         s_nightLight.night_startMinute = s_nightLight.night_startMinute > minuteMax ? minuteMax : s_nightLight.night_startMinute;
                     break;
@@ -350,40 +341,42 @@ void Redshift_ConfigureNightLightSettings(void)
 
         Draw_Lock();
         Draw_ClearFramebuffer();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Night/Light - by Nutez, discovery Sono");
-        u32 posY = 30;
+        Draw_DrawMenuFrame("Night/Light - by Nutez, Sono");
+        u32 posY = 40;
 
-        sprintf(fmtbuf, "%c Light Mode brightness: %i", (sel == 0 ? '>' : ' '), s_nightLight.light_brightnessLevel);
+        if(s_nightLight.light_changeBrightness){
+            sprintf(fmtbuf, "%c Light Mode brightness: %i", (sel == 0 ? '>' : ' '), s_nightLight.light_brightnessLevel);
+        } else {
+            sprintf(fmtbuf, "%c Light Mode brightness: [don't change]", (sel == 0 ? '>' : ' '));
+        }
         posY = Draw_DrawString(10, posY, COLOR_WHITE, fmtbuf) + SPACING_Y;
 
-        sprintf(fmtbuf, "%c Light Mode set brightness: %s", (sel == 1 ? '>' : ' '), s_nightLight.light_changeBrightness ? "[true]" : "[false]");
+        sprintf(fmtbuf, "%c Light Mode suppress LEDs: %s", (sel == 1 ? '>' : ' '), s_nightLight.light_ledSuppression ? "[true]" : "[false]");
         posY = Draw_DrawString(10, posY, COLOR_WHITE, fmtbuf) + SPACING_Y;
 
-        sprintf(fmtbuf, "%c Light Mode suppress LEDs: %s", (sel == 2 ? '>' : ' '), s_nightLight.light_ledSuppression ? "[true]" : "[false]");
+        sprintf(fmtbuf, "%c Light Mode start hour: %i", (sel == 2 ? '>' : ' '), s_nightLight.light_startHour);
         posY = Draw_DrawString(10, posY, COLOR_WHITE, fmtbuf) + SPACING_Y;
 
-        sprintf(fmtbuf, "%c Light Mode start hour: %i", (sel == 3 ? '>' : ' '), s_nightLight.light_startHour);
-        posY = Draw_DrawString(10, posY, COLOR_WHITE, fmtbuf) + SPACING_Y;
-
-        sprintf(fmtbuf, "%c Light Mode start minute: %i", (sel == 4 ? '>' : ' '), s_nightLight.light_startMinute);
+        sprintf(fmtbuf, "%c Light Mode start minute: %i", (sel == 3 ? '>' : ' '), s_nightLight.light_startMinute);
         posY = Draw_DrawString(10, posY, COLOR_WHITE, fmtbuf) + (SPACING_Y);
 
-        sprintf(fmtbuf, "%c Enable Night Mode: %s", (sel == 5 ? '>' : ' '), s_nightLight.use_nightMode ? "[true]" : "[false]");
-        posY = Draw_DrawString(10, posY, COLOR_RED, fmtbuf) + SPACING_Y;
+        sprintf(fmtbuf, "%c Enable Night Mode: %s", (sel == 4 ? '>' : ' '), s_nightLight.use_nightMode ? "[true]" : "[false]");
+        posY = Draw_DrawString(10, posY, COLOR_ORANGE, fmtbuf) + SPACING_Y;
 
-        sprintf(fmtbuf, "%c Night Mode brightness: %i", (sel == 6 ? '>' : ' '), s_nightLight.night_brightnessLevel);
+        if(s_nightLight.night_changeBrightness){
+            sprintf(fmtbuf, "%c Night Mode brightness: %i", (sel == 5 ? '>' : ' '), s_nightLight.night_brightnessLevel);
+        } else {
+            sprintf(fmtbuf, "%c Night Mode brightness: [don't change]", (sel == 5 ? '>' : ' '));
+        }
         posY = Draw_DrawString(10, posY, COLOR_WHITE, fmtbuf) + SPACING_Y;
 
-        sprintf(fmtbuf, "%c Night Mode set brightness: %s", (sel == 7 ? '>' : ' '), s_nightLight.night_changeBrightness ? "[true]" : "[false]");
+        sprintf(fmtbuf, "%c Night Mode suppress LEDs: %s", (sel == 6 ? '>' : ' '), s_nightLight.night_ledSuppression ? "[true]" : "[false]");
         posY = Draw_DrawString(10, posY, COLOR_WHITE, fmtbuf) + SPACING_Y;
 
-        sprintf(fmtbuf, "%c Night Mode suppress LEDs: %s", (sel == 8 ? '>' : ' '), s_nightLight.night_ledSuppression ? "[true]" : "[false]");
+        sprintf(fmtbuf, "%c Night Mode start hour: %i", (sel == 7 ? '>' : ' '), s_nightLight.night_startHour);
         posY = Draw_DrawString(10, posY, COLOR_WHITE, fmtbuf) + SPACING_Y;
 
-        sprintf(fmtbuf, "%c Night Mode start hour: %i", (sel == 9 ? '>' : ' '), s_nightLight.night_startHour);
-        posY = Draw_DrawString(10, posY, COLOR_WHITE, fmtbuf) + SPACING_Y;
-
-        sprintf(fmtbuf, "%c Night Mode start minute: %i", (sel == 10 ? '>' : ' '), s_nightLight.night_startMinute);
+        sprintf(fmtbuf, "%c Night Mode start minute: %i", (sel == 8 ? '>' : ' '), s_nightLight.night_startMinute);
         posY = Draw_DrawString(10, posY, COLOR_WHITE, fmtbuf) + (SPACING_Y*2);
 
         posY = Draw_DrawString(10, posY, COLOR_GREEN, "Controls:") + SPACING_Y;
