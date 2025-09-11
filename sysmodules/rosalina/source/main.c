@@ -304,6 +304,7 @@ int main(void)
 {
     Sleep__Init();
     PluginLoader__Init();
+    ConfigExtra_ReadConfigExtra();
     if (configExtra.cutSlotPower)
     {
         cutPowerToCardSlotWhenTWLCard();

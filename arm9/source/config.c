@@ -770,7 +770,7 @@ static size_t saveLumaIniConfigToStr(char *out)
     return n < 0 ? 0 : (size_t)n;
 }
 
-static char tmpIniBuffer[0x2300];
+static char tmpIniBuffer[0x2400];
 
 static bool readLumaIniConfig(void)
 {
@@ -878,9 +878,9 @@ bool readConfig(void)
         configData.autobootTwlTitleId = AUTOBOOT_DEFAULT_TWL_TID;
 
         configData.extraConfigFlags = 0;
-        configData.extraConfigFlags |= 1 << 3;
-        configData.extraConfigFlags |= 1 << 4;
-        configData.extraConfigFlags |= 1 << 5;
+        configData.extraConfigFlags |= 1 << 3; // include_screenshot_title_id
+        configData.extraConfigFlags |= 1 << 4; // screenshot_date_folders  
+        configData.extraConfigFlags |= 1 << 5; // screenshot_combined
         ret = false;
     }
     else

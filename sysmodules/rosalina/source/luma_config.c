@@ -232,7 +232,7 @@ void LumaConfig_RequestSaveSettings(void) {
 
 Result LumaConfig_SaveSettings(void)
 {
-    char inibuf[0x2300];
+    char inibuf[0x2400];
 
     Result res;
 
