@@ -33,12 +33,14 @@
 #include "ifile.h"
 #include "menus/miscellaneous.h"
 #include "menus/sysconfig.h"
+#include "menus/config_extra.h"
 #include "plugin/plgloader.h"
 
 extern bool PluginChecker_isEnabled;
 extern bool PluginWatcher_isEnabled;
 extern bool PluginConverter_UseCache;
 extern u32  PluginWatcher_WatchLevel;
+extern config_extra configExtra;
 
 typedef struct CfgData {
     u16 formatVersionMajor, formatVersionMinor;
@@ -58,6 +60,8 @@ typedef struct CfgData {
 
     u64 autobootTwlTitleId;
     u8 autobootCtrAppmemtype;
+
+    u32 extraConfigFlags;
 } CfgData;
 
 bool saveSettingsRequest = false;
@@ -198,6 +202,14 @@ static size_t LumaConfig_SaveLumaIniConfigToStr(char *out, const CfgData *cfg)
         (int)((cfg->pluginLoaderFlags & (1 << 3)) >> 3),
         (int)cfg->ntpTzOffetMinutes,
 
+        (int)((cfg->extraConfigFlags >> 0) & 1),
+        (int)((cfg->extraConfigFlags >> 1) & 1),
+        (int)((cfg->extraConfigFlags >> 2) & 1),
+        (int)((cfg->extraConfigFlags >> 3) & 1),
+        (int)((cfg->extraConfigFlags >> 4) & 1),
+        (int)((cfg->extraConfigFlags >> 5) & 1),
+        (int)((cfg->extraConfigFlags >> 6) & 1),
+
         (int)cfg->topScreenFilter.cct, (int)cfg->bottomScreenFilter.cct,
         (int)cfg->topScreenFilter.colorCurveCorrection, (int)cfg->bottomScreenFilter.colorCurveCorrection,
         topScreenFilterGammaStr, bottomScreenFilterGammaStr,
@@ -274,6 +286,15 @@ Result LumaConfig_SaveSettings(void)
     configData.bottomScreenFilter = bottomScreenFilter;
     configData.autobootTwlTitleId = autobootTwlTitleId;
     configData.autobootCtrAppmemtype = autobootCtrAppmemtype;
+
+    configData.extraConfigFlags = 0;
+    if (configExtra.suppressLeds) configData.extraConfigFlags |= 1 << 0;
+    if (configExtra.cutSlotPower) configData.extraConfigFlags |= 1 << 1;
+    if (configExtra.cutSleepWifi) configData.extraConfigFlags |= 1 << 2;
+    if (configExtra.includeScreenshotTitleId) configData.extraConfigFlags |= 1 << 3;
+    if (configExtra.screenshotDateFolders) configData.extraConfigFlags |= 1 << 4;
+    if (configExtra.screenshotCombined) configData.extraConfigFlags |= 1 << 5;
+    if (configExtra.toggleLcdCombo) configData.extraConfigFlags |= 1 << 6;
 
     size_t n = LumaConfig_SaveLumaIniConfigToStr(inibuf, &configData);
     FS_ArchiveID archiveId = isSdMode ? ARCHIVE_SDMC : ARCHIVE_NAND_RW;

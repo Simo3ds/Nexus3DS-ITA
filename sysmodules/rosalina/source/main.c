@@ -304,7 +304,6 @@ int main(void)
 {
     Sleep__Init();
     PluginLoader__Init();
-    ConfigExtra_ReadConfigExtra();
     if (configExtra.cutSlotPower)
     {
         cutPowerToCardSlotWhenTWLCard();
@@ -317,7 +316,7 @@ int main(void)
     Cheat_SeedRng(svcGetSystemTick());
     ScreenFiltersMenu_LoadConfig();
     SysConfigMenu_LoadConfig();
-    ConfigExtra_Init();
+    ConfigExtra_ReadConfigExtra();
 
     MyThread *menuThread = menuCreateThread();
     MyThread *taskRunnerThread = taskRunnerCreateThread();

@@ -88,6 +88,8 @@ typedef struct CfgData {
 
     u64 autobootTwlTitleId;
     u8 autobootCtrAppmemtype;
+
+    u32 extraConfigFlags;
 } CfgData;
 
 typedef struct

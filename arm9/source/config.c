@@ -504,6 +504,41 @@ static int configIniHandler(void* user, const char* section, const char* name, c
             CHECK_PARSE_OPTION(parseDecIntOption(&opt, value, -779, 899));
             cfg->ntpTzOffetMinutes = (s16)opt;
             return 1;
+        } else if (strcmp(name, "suppress_leds") == 0) {
+            bool opt;
+            CHECK_PARSE_OPTION(parseBoolOption(&opt, value));
+            cfg->extraConfigFlags = opt ? cfg->extraConfigFlags | (1 << 0) : cfg->extraConfigFlags & ~(1 << 0);
+            return 1;
+        } else if (strcmp(name, "cut_slot_power") == 0) {
+            bool opt;
+            CHECK_PARSE_OPTION(parseBoolOption(&opt, value));
+            cfg->extraConfigFlags = opt ? cfg->extraConfigFlags | (1 << 1) : cfg->extraConfigFlags & ~(1 << 1);
+            return 1;
+        } else if (strcmp(name, "cut_sleep_wifi") == 0) {
+            bool opt;
+            CHECK_PARSE_OPTION(parseBoolOption(&opt, value));
+            cfg->extraConfigFlags = opt ? cfg->extraConfigFlags | (1 << 2) : cfg->extraConfigFlags & ~(1 << 2);
+            return 1;
+        } else if (strcmp(name, "include_screenshot_title_id") == 0) {
+            bool opt;
+            CHECK_PARSE_OPTION(parseBoolOption(&opt, value));
+            cfg->extraConfigFlags = opt ? cfg->extraConfigFlags | (1 << 3) : cfg->extraConfigFlags & ~(1 << 3);
+            return 1;
+        } else if (strcmp(name, "screenshot_date_folders") == 0) {
+            bool opt;
+            CHECK_PARSE_OPTION(parseBoolOption(&opt, value));
+            cfg->extraConfigFlags = opt ? cfg->extraConfigFlags | (1 << 4) : cfg->extraConfigFlags & ~(1 << 4);
+            return 1;
+        } else if (strcmp(name, "screenshot_combined") == 0) {
+            bool opt;
+            CHECK_PARSE_OPTION(parseBoolOption(&opt, value));
+            cfg->extraConfigFlags = opt ? cfg->extraConfigFlags | (1 << 5) : cfg->extraConfigFlags & ~(1 << 5);
+            return 1;
+        } else if (strcmp(name, "toggle_lcd_combo") == 0) {
+            bool opt;
+            CHECK_PARSE_OPTION(parseBoolOption(&opt, value));
+            cfg->extraConfigFlags = opt ? cfg->extraConfigFlags | (1 << 6) : cfg->extraConfigFlags & ~(1 << 6);
+            return 1;
         } else {
             CHECK_PARSE_OPTION(-1);
         }
@@ -711,6 +746,14 @@ static size_t saveLumaIniConfigToStr(char *out)
         (int)((cfg->pluginLoaderFlags & (1 << 3)) >> 3),
         (int)cfg->ntpTzOffetMinutes,
 
+        (int)((cfg->extraConfigFlags >> 0) & 1),
+        (int)((cfg->extraConfigFlags >> 1) & 1),
+        (int)((cfg->extraConfigFlags >> 2) & 1),
+        (int)((cfg->extraConfigFlags >> 3) & 1),
+        (int)((cfg->extraConfigFlags >> 4) & 1),
+        (int)((cfg->extraConfigFlags >> 5) & 1),
+        (int)((cfg->extraConfigFlags >> 6) & 1),
+
         (int)cfg->topScreenFilter.cct, (int)cfg->bottomScreenFilter.cct,
         (int)cfg->topScreenFilter.colorCurveCorrection, (int)cfg->bottomScreenFilter.colorCurveCorrection,
         topScreenFilterGammaStr, bottomScreenFilterGammaStr,
@@ -833,6 +876,11 @@ bool readConfig(void)
         configData.topScreenFilter.contrastEnc = 1 * FLOAT_CONV_MULT; // 1.0f
         configData.bottomScreenFilter = configData.topScreenFilter;
         configData.autobootTwlTitleId = AUTOBOOT_DEFAULT_TWL_TID;
+
+        configData.extraConfigFlags = 0;
+        configData.extraConfigFlags |= 1 << 3;
+        configData.extraConfigFlags |= 1 << 4;
+        configData.extraConfigFlags |= 1 << 5;
         ret = false;
     }
     else
