@@ -7,8 +7,7 @@
 #include "menus/config_extra.h"
 #include "luma_config.h"
 
-config_extra configExtra = { .suppressLeds = false, .cutSlotPower = false, .cutSleepWifi = false, .includeScreenshotTitleId = true, .screenshotDateFolders = true, .screenshotCombined = true, .toggleLcdCombo = false };
-bool configExtraSaved = false;
+config_extra configExtra;
 
 static int scrollOffset = 0;
 static u32 lastSelectedHash = 0;
@@ -127,7 +126,6 @@ void ConfigExtra_DrawDetailedMenu(void)
         {
             *configValues[selected] = !(*configValues[selected]);
             LumaConfig_RequestSaveSettings();
-            configExtraSaved = true;
         }
         else if(pressed & KEY_DOWN)
             selected++;
