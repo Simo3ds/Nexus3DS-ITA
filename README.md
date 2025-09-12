@@ -4,8 +4,8 @@
 
 *Nintendo 3DS "Custom Firmware" Fork with Enhanced Features*
 
-![Boot menu screenshot](img/boot_menu_v100.png)
-![Rosalina menu screenshot](img/rosalina_menu_v100.png)
+![Boot menu screenshot](img/boot_menu_v010.png)
+![Rosalina menu screenshot](img/rosalina_menu_v010.png)
 
 ## Description
 
