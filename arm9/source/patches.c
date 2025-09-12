@@ -155,6 +155,8 @@ u32 installK11Extension(u8 *pos, u32 size, bool needToInitSd, u32 baseK11VA, u32
 
             u64 autobootTwlTitleId;
             u8 autobootCtrAppmemtype;
+            
+            u32 extraConfigFlags;
 
             u16 launchedPath[80+1];
         } info;
@@ -227,7 +229,7 @@ u32 installK11Extension(u8 *pos, u32 size, bool needToInitSd, u32 baseK11VA, u32
     info->config = configData.config;
     info->multiConfig = configData.multiConfig;
     info->bootConfig = configData.bootConfig;
-    info->splashDurationMsec = configData.splashDurationMsec;
+    info->splashDurationMsec = getSplashDurationMs();
     info->volumeSliderOverride = configData.volumeSliderOverride;
     info->hbldr3dsxTitleId = configData.hbldr3dsxTitleId;
     info->rosalinaMenuCombo = configData.rosalinaMenuCombo;
@@ -238,6 +240,7 @@ u32 installK11Extension(u8 *pos, u32 size, bool needToInitSd, u32 baseK11VA, u32
     info->bottomScreenFilter = configData.bottomScreenFilter;
     info->autobootTwlTitleId = configData.autobootTwlTitleId;
     info->autobootCtrAppmemtype = configData.autobootCtrAppmemtype;
+    info->extraConfigFlags = configData.extraConfigFlags;
     info->versionMajor = LUMA_VERSION_MAJOR;
     info->versionMinor = LUMA_VERSION_MINOR;
     info->versionBuild = LUMA_VERSION_BUILD;
