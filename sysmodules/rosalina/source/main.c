@@ -190,8 +190,8 @@ static void handleShellNotification(u32 notificationId)
             mcuHwcExit();
         }
 
-        if(nightLightSettingsRead)
-        { 
+        if(nightLightSettingsRead && nightLightEnabled)
+        {
             Redshift_ApplyNightLightSettings();
         }
 

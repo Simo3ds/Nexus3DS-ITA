@@ -28,6 +28,7 @@
 #define NEUTRAL_TEMP  6500
 
 extern bool nightLightSettingsRead;
+extern bool nightLightEnabled;
 extern bool nightLightOverride;
 
 typedef struct {
@@ -36,6 +37,7 @@ typedef struct {
 } backlight_controls;
 
 typedef struct {
+   bool enabled;
    u8 light_brightnessLevel;
    bool light_ledSuppression;
    u8 light_startHour;
