@@ -41,6 +41,7 @@
 * Return to HOME Menu option in Rosalina menu (useful if your HOME button is broken)
 * Merged "Enable DSi external filters" option into "Enable loading external FIRMs and modules" option in configuration menu
 * Restored "Enable dev UNITINFO" and "Enable Rosalina on SAFE_FIRM" options in configuration menu
+* Re-added splash duration setting option in configuration menu (custom values also supported)
 
 **Extra Configuration Menu Options:**
 * Automatically suppress LEDs  
