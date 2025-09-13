@@ -229,7 +229,7 @@ u32 installK11Extension(u8 *pos, u32 size, bool needToInitSd, u32 baseK11VA, u32
     info->config = configData.config;
     info->multiConfig = configData.multiConfig;
     info->bootConfig = configData.bootConfig;
-    info->splashDurationMsec = getSplashDurationMs();
+    info->splashDurationMsec = configData.splashDurationMsec;
     info->volumeSliderOverride = configData.volumeSliderOverride;
     info->hbldr3dsxTitleId = configData.hbldr3dsxTitleId;
     info->rosalinaMenuCombo = configData.rosalinaMenuCombo;
