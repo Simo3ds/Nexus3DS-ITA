@@ -135,6 +135,9 @@ Result GetSystemInfoHook(s64 *out, s32 type, s32 param)
                 case 0x182:
                     *out = cfwInfo.pluginWatcherLevel;
                     break;
+                case 0x183:
+                    *out = cfwInfo.extraConfigFlags;
+                    break;
                 case 0x200: // isRelease
                     *out = cfwInfo.flags & 1;
                     break;

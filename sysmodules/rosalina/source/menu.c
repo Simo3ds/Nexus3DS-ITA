@@ -583,12 +583,9 @@ static void menuDraw(Menu *menu, u32 selected)
     }
 
     {
-        char volBuf[32];
-        int n2;
         float coe = Volume_ExtractVolume(dspVolumeSlider[0], dspVolumeSlider[1], volumeSlider[0]);
         u32 volInt = (u32)((coe * 100.0F) + (1 / 256.0F));
-        n2 = sprintf(volBuf, " Volume: %lu%%", volInt);
-        Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n2, 10, COLOR_LIGHT_BLUE, volBuf);
+        Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 10 - SPACING_X * 12, 10, COLOR_LIGHT_BLUE, "Volume: %3lu%%", volInt);
     }
 
     if (miniSocEnabled) {

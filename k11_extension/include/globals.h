@@ -164,6 +164,8 @@ typedef struct CfwInfo
     u64 autobootTwlTitleId;
     u8 autobootCtrAppmemtype;
 
+    u32 extraConfigFlags;
+
     u16 launchedPath[80+1];
 } CfwInfo;
 

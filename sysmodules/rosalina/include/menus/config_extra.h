@@ -12,5 +12,3 @@ extern config_extra configExtra;
 
 void ConfigExtra_DrawDetailedMenu();
 void ConfigExtra_ReadConfigExtra();
-void ConfigExtra_WriteConfigExtra();
-void ConfigExtra_Init();

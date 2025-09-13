@@ -4,8 +4,8 @@
 
 *Nintendo 3DS "Custom Firmware" Fork with Enhanced Features*
 
-![Boot menu screenshot](img/boot_menu_v100.png)
-![Rosalina menu screenshot](img/rosalina_menu_v100.png)
+![Boot menu screenshot](img/boot_menu_v010.png)
+![Rosalina menu screenshot](img/rosalina_menu_v010.png)
 
 ## Description
 
@@ -41,6 +41,7 @@
 * Return to HOME Menu option in Rosalina menu (useful if your HOME button is broken)
 * Merged "Enable DSi external filters" option into "Enable loading external FIRMs and modules" option in configuration menu
 * Restored "Enable dev UNITINFO" and "Enable Rosalina on SAFE_FIRM" options in configuration menu
+* Re-added splash duration setting option in configuration menu (custom values also supported)
 
 **Extra Configuration Menu Options:**
 * Automatically suppress LEDs  
@@ -106,6 +107,7 @@ The build produces a single file: `boot.firm`. Copy it to the root of your SD ca
 **Nexus3DS:**
 * **[@2b-zipper](https://github.com/2b-zipper)**
 * **[@cooolgamer](https://github.com/cooolgamer)**
+* **[@Alexyo21](https://github.com/Alexyo21)**
 
 *See also: [People who made this fork possible](#credits)*
 

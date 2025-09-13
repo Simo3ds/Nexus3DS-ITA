@@ -5,9 +5,9 @@
 #include "menu.h"
 #include "menus.h"
 #include "menus/config_extra.h"
+#include "luma_config.h"
 
-config_extra configExtra = { .suppressLeds = false, .cutSlotPower = false, .cutSleepWifi = false, .includeScreenshotTitleId = true, .screenshotDateFolders = true, .screenshotCombined = true, .toggleLcdCombo = false };
-bool configExtraSaved = false;
+config_extra configExtra;
 
 static int scrollOffset = 0;
 static u32 lastSelectedHash = 0;
@@ -125,8 +125,7 @@ void ConfigExtra_DrawDetailedMenu(void)
         else if(pressed & KEY_A)
         {
             *configValues[selected] = !(*configValues[selected]);
-            ConfigExtra_WriteConfigExtra();
-            configExtraSaved = true;
+            LumaConfig_RequestSaveSettings();
         }
         else if(pressed & KEY_DOWN)
             selected++;
@@ -141,48 +140,26 @@ void ConfigExtra_DrawDetailedMenu(void)
     } while(!menuShouldExit);
 }
 
-void ConfigExtra_Init(void)
-{
-    ConfigExtra_ReadConfigExtra();
-}
-
 void ConfigExtra_ReadConfigExtra(void)
 {
-    IFile file;
-    Result res = 0;
-
-    res = IFile_Open(&file, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""),
-            fsMakePath(PATH_ASCII, "/luma/configExtra.bin"), FS_OPEN_READ);
-
-    if(R_SUCCEEDED(res))
-    {
-        u64 total;
-        res = IFile_Read(&file, &total, &configExtra, sizeof(configExtra));
-        IFile_Close(&file);
-        if(R_SUCCEEDED(res)) 
-        {
-            configExtraSaved = true;
-        }
-    }
-}
-
-void ConfigExtra_WriteConfigExtra(void)
-{
-    IFile file;
-    Result res = 0;
-
-    res = IFile_Open(&file, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""),
-            fsMakePath(PATH_ASCII, "/luma/configExtra.bin"), FS_OPEN_CREATE | FS_OPEN_WRITE);
-
-    if(R_SUCCEEDED(res))
-    {
-        u64 total;
-        res = IFile_Write(&file, &total, &configExtra, sizeof(configExtra), 0);
-        IFile_Close(&file);
-
-        if(R_SUCCEEDED(res)) 
-        {
-            configExtraSaved = true;
-        }
+    s64 extraConfigFlags = 0;
+    Result res = svcGetSystemInfo(&extraConfigFlags, 0x10000, 0x183);
+    
+    if (R_SUCCEEDED(res)) {
+        configExtra.suppressLeds = (extraConfigFlags >> 0) & 1;
+        configExtra.cutSlotPower = (extraConfigFlags >> 1) & 1;
+        configExtra.cutSleepWifi = (extraConfigFlags >> 2) & 1;
+        configExtra.includeScreenshotTitleId = (extraConfigFlags >> 3) & 1;
+        configExtra.screenshotDateFolders = (extraConfigFlags >> 4) & 1;
+        configExtra.screenshotCombined = (extraConfigFlags >> 5) & 1;
+        configExtra.toggleLcdCombo = (extraConfigFlags >> 6) & 1;
+    } else {
+        configExtra.suppressLeds = false;
+        configExtra.cutSlotPower = false;
+        configExtra.cutSleepWifi = false;
+        configExtra.includeScreenshotTitleId = true;
+        configExtra.screenshotDateFolders = true;
+        configExtra.screenshotCombined = true;
+        configExtra.toggleLcdCombo = false;
     }
 }
