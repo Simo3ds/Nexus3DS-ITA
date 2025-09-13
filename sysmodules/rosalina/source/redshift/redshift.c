@@ -211,8 +211,8 @@ void Redshift_UpdateNightLightStatuses(void)
     lightModeActive ? "[Light" : "[Night", 
     (!s_nightLight.use_nightMode || nightLightOverride) ? " Single Mode]" : " Switch Mode]");
 
-    sprintf(nightLightMainMenuBuf, "Screen filters%s", (nightLightSettingsRead) ? statusBuf : "...");
-    sprintf(nightLightSubMenuBuf, "Night/Light Config%s", (nightLightSettingsRead) ? statusBuf : "");
+    sprintf(nightLightMainMenuBuf, "Screen filters%s", (nightLightSettingsRead && nightLightEnabled) ? statusBuf : "...");
+    sprintf(nightLightSubMenuBuf, "Night/Light Config%s", (nightLightSettingsRead && nightLightEnabled) ? statusBuf : ": [Disabled]");
 
     rosalinaMenu.items[1].title = nightLightMainMenuBuf;
     screenFiltersMenu.items[13].title = nightLightSubMenuBuf;
@@ -237,11 +237,11 @@ void Redshift_ConfigureNightLightSettings(void)
         {
             if(pressed & KEY_DOWN)
             {
-                if(++sel > 8) sel = 0;
+                if(++sel > 9) sel = 0;
             }
             else if(pressed & KEY_UP)
             {
-                if(--sel < 0) sel = 8;
+                if(--sel < 0) sel = 9;
             }
             else if (pressed & KEY_RIGHT)
             {
@@ -249,6 +249,7 @@ void Redshift_ConfigureNightLightSettings(void)
                     case 0:
                         s_nightLight.enabled = !s_nightLight.enabled;
                         nightLightEnabled = s_nightLight.enabled;
+                        Redshift_UpdateNightLightStatuses();
                     break;
                     case 1:
                         s_nightLight.light_brightnessLevel += 1;
@@ -269,6 +270,7 @@ void Redshift_ConfigureNightLightSettings(void)
                     break;
                     case 5:
                         s_nightLight.use_nightMode = !s_nightLight.use_nightMode;
+                        Redshift_UpdateNightLightStatuses();
                     break;
                     case 6:
                         s_nightLight.night_brightnessLevel += 1;
@@ -295,6 +297,7 @@ void Redshift_ConfigureNightLightSettings(void)
                     case 0:
                         s_nightLight.enabled = !s_nightLight.enabled;
                         nightLightEnabled = s_nightLight.enabled;
+                        Redshift_UpdateNightLightStatuses();
                     break;
                     case 1:
                         s_nightLight.light_brightnessLevel -= 1;
@@ -315,6 +318,7 @@ void Redshift_ConfigureNightLightSettings(void)
                     break;
                     case 5:
                         s_nightLight.use_nightMode = !s_nightLight.use_nightMode;
+                        Redshift_UpdateNightLightStatuses();
                     break;
                     case 6:
                         s_nightLight.night_brightnessLevel -= 1;
@@ -340,6 +344,8 @@ void Redshift_ConfigureNightLightSettings(void)
         {
             WriteNightLightSettings();
             nightLightSettingsRead = true;
+            Redshift_UpdateNightLightStatuses();
+            break;
         }
         else if (pressed & KEY_X) {
             nightLightOverride = !nightLightOverride;
@@ -393,9 +399,10 @@ void Redshift_ConfigureNightLightSettings(void)
         posY = Draw_DrawString(10, posY, COLOR_WHITE, fmtbuf) + (SPACING_Y*2);
 
         posY = Draw_DrawString(10, posY, COLOR_GREEN, "Controls:") + SPACING_Y;
-        posY = Draw_DrawString(10, posY, COLOR_WHITE, " D-Pad to edit settings.") + SPACING_Y;
+        posY = Draw_DrawString(10, posY, COLOR_WHITE, " D-Pad to edit settings") + SPACING_Y;
         posY = Draw_DrawString(10, posY, COLOR_WHITE, " Press START to save. Press B to exit.") + SPACING_Y;
-        posY = Draw_DrawString(10, posY, COLOR_WHITE, " X to stop time check until reboot.") + SPACING_Y;
+        posY = Draw_DrawString(10, posY, COLOR_WHITE, " Press X to stop time check until reboot.") + SPACING_Y;
+        posY = Draw_DrawString(10, posY, COLOR_TITLE, "Note: Changes applies after sleep/reboot.") + SPACING_Y;
         if (nightLightOverride) posY = Draw_DrawString(10, posY, COLOR_RED, " [Time check overridden]") + SPACING_Y;
 
         Draw_FlushFramebuffer();
