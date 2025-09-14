@@ -16,36 +16,17 @@
 **Core Enhancements:**
 * Changed the configuration file name from `config.ini` to `nexusconfig.ini` to prevent conflicts with official Luma3DS
 * Modified Configuration menu and Rosalina menu colors and layout
-* Set the number of Play Coins  
-  *Original by [Gruetzig](https://github.com/Gruetzig/Luma3DS/commit/1e329b55dade61ba74a0bb1cc6e59d2504d0bde1)*
-
-* Plugin selector  
-  *Original by [Tekito-256](https://github.com/Tekito-256/Luma3DS)*  
+* Set the number of Play Coins - *Original by [Gruetzig](https://github.com/Gruetzig/Luma3DS/commit/1e329b55dade61ba74a0bb1cc6e59d2504d0bde1)*
+* Plugin selector - *Original by [Tekito-256](https://github.com/Tekito-256/Luma3DS)*  
   > **Note:** To access the plugin selector after setting a default plugin, hold the **Select** button while launching a game
-
-* Dangerous plugin detection  
-  *Original by [Tekito-256](https://github.com/Tekito-256/Luma3DS)*
-
-* Support for v0.5.x 3GX plugin loading  
-  *Original by [Tekito-256](https://github.com/Tekito-256/Luma3DS)*
-
-* Force restart option  
-  *Original by [cooolgamer](https://github.com/cooolgamer)*
-
-* Time display in Rosalina menu  
-  *Original by [JBMagination2/hide0123](https://github.com/JBMagination2/Luma3DS/commit/766173d65eeb52baac90e9e68b456ad93ebaab7b)*
-
-* Logo.bin loading feature  
-  *Original by [Pixel-Pop](https://github.com/Pixel-Pop/Luma3DS/commit/d225d9fa507dcccce3a6c86d0a38f7998f39b7a2)*
-
-* Detailed screen brightness adjustment  
-  *Original by [DullPointer](https://github.com/DullPointer/Luma3DS/commit/83e8d471a377bc6960fae00d6694f5fe86dcca42)*
-
-* Volume display in Rosalina menu  
-  *Original by [DullPointer](https://github.com/DullPointer/Luma3DS_archive/commit/dc636d82492d1e87eb51785fa7f2a98617e7ece9)*
-
-* N3DS clock + L2 status display in Rosalina menu  
-  *Original by [DullPointer](https://github.com/DullPointer/Luma3DS/commit/2dbfa8b5c9b719b7f3056691f54332f42da6de8d)*
+* Dangerous plugin detection - *Original by [Tekito-256](https://github.com/Tekito-256/Luma3DS)*
+* Support for v0.5.x 3GX plugin loading - *Original by [Tekito-256](https://github.com/Tekito-256/Luma3DS)*
+* Force restart option - *Original by [cooolgamer](https://github.com/cooolgamer)*
+* Time display in Rosalina menu - *Original by [JBMagination2/hide0123](https://github.com/JBMagination2/Luma3DS/commit/766173d65eeb52baac90e9e68b456ad93ebaab7b)*
+* Logo.bin loading feature - *Original by [Pixel-Pop](https://github.com/Pixel-Pop/Luma3DS/commit/d225d9fa507dcccce3a6c86d0a38f7998f39b7a2)*
+* Detailed screen brightness adjustment - *Original by [DullPointer](https://github.com/DullPointer/Luma3DS/commit/83e8d471a377bc6960fae00d6694f5fe86dcca42)*
+* Volume display in Rosalina menu - *Original by [DullPointer](https://github.com/DullPointer/Luma3DS_archive/commit/dc636d82492d1e87eb51785fa7f2a98617e7ece9)*
+* N3DS clock + L2 status display in Rosalina menu - *Original by [DullPointer](https://github.com/DullPointer/Luma3DS/commit/2dbfa8b5c9b719b7f3056691f54332f42da6de8d)*
 
 * Title ID display in System info
 
@@ -56,14 +37,9 @@
 * Added no errdisp + instant reboot option
 
 **Extra Configuration Menu Options:**
-* Automatically suppress LEDs  
-  *Original by [DullPointer](https://github.com/DullPointer/Luma3DS/commit/174ed486ab59bd249488c9035682fa7d058d1e80)*
-
-* Cut power to TWL Flashcards  
-  *Original by [DullPointer](https://github.com/DullPointer/Luma3DS/commit/174ed486ab59bd249488c9035682fa7d058d1e80)*
-
-* Cut 3DS Wifi in sleep mode  
-  *Original by [DullPointer](https://github.com/DullPointer/Luma3DS/commit/174ed486ab59bd249488c9035682fa7d058d1e80)*
+* Automatically suppress LEDs - *Original by [DullPointer](https://github.com/DullPointer/Luma3DS/commit/174ed486ab59bd249488c9035682fa7d058d1e80)*
+* Cut power to TWL Flashcards - *Original by [DullPointer](https://github.com/DullPointer/Luma3DS/commit/174ed486ab59bd249488c9035682fa7d058d1e80)*
+* Cut 3DS Wifi in sleep mode - *Original by [DullPointer](https://github.com/DullPointer/Luma3DS/commit/174ed486ab59bd249488c9035682fa7d058d1e80)*
 
 * Include title ID in screenshot filename
 * Save screenshots in date folders
