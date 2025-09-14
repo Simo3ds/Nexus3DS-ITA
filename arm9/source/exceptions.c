@@ -33,6 +33,7 @@
 #include "fmt.h"
 #include "buttons.h"
 #include "arm9_exception_handlers.h"
+#include "i2c.h"
 
 // See https://github.com/LumaTeam/luma3ds_exception_dump_parser
 
@@ -76,6 +77,13 @@ void detectAndProcessExceptionDumps(void)
         "Translation - Section", "Translation - Page", "Access bit - Section", "Access bit - Page",
         "Domain - Section", "Domain - Page", "Permission - Section", "Permission - Page",
         "Precise External Abort", "Imprecise External Abort", "Debug event"
+    },
+                      *exceptionMessages[] = {
+        "But it was me, exception handler!", "Oops, your system crashed!", "Your 3DS ran into a problem and needs to reboot",
+        "Nope, your 3DS cannot handle that.", "Task failed successfully", "Maybe you should take a break.",
+        "Oof", "Did you try to turn it off and back on?", ":(", "Maybe don't do that again", "Skill issue",
+        "Congrats! You won a crash!", "Welcome to Arch Linux!", "Game Over.", "Nah I'd crash", "But it refused.",
+        "No fun allowed.", "This crash is sponsored by Raid Shadow Legends", "Sata andagi", "You gotta believe!"
     };
 
     static const u32 faultStatusValues[] = {
@@ -85,7 +93,9 @@ void detectAndProcessExceptionDumps(void)
 
     initScreens();
 
-    drawString(true, 10, 10, COLOR_RED, "An exception occurred");
+    u8 seed = I2C_readReg(I2C_DEV_MCU, 0x3D); // RTC tick counter for randomness
+
+    drawFormattedString(true, 10, 10, COLOR_TITLE, "%s", exceptionMessages[seed % (sizeof(exceptionMessages) / sizeof(exceptionMessages[0]))]); // Random message
     u32 posY;
     if(dumpHeader->processor == 11) posY = drawFormattedString(true, 10, 30, COLOR_WHITE, "Processor:       Arm11 (core %u)", dumpHeader->core);
     else posY = drawString(true, 10, 30, COLOR_WHITE, "Processor:       Arm9");
