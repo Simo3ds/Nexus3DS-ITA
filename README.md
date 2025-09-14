@@ -42,6 +42,9 @@
 * Merged "Enable DSi external filters" option into "Enable loading external FIRMs and modules" option in configuration menu
 * Restored "Enable dev UNITINFO" and "Enable Rosalina on SAFE_FIRM" options in configuration menu
 * Re-added splash duration setting option in configuration menu (custom values also supported)
+* Day/Night mode allowing to change the brightness, toggle LEDs, etc. At a desired time  
+  ↳ Original: [cooolgamer](https://github.com/cooolgamorg/Starlight3DS/commit/d0eb60bc21f464e7269dc7b93416e89423232de9) based on [DullPointer](https://github.com/DullPointer/Luma3DS_archive/commit/54cdedce2a55b8deae730d0af077ee2907f0444b)
+* Random little messages in the arm11/9 exception handler :)
 
 **Extra Configuration Menu Options:**
 * Automatically suppress LEDs  
