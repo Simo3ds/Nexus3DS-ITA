@@ -37,6 +37,7 @@
 #include "menus/n3ds.h"
 #include "menus/cheats.h"
 #include "menus/config_extra.h"
+#include "redshift/redshift.h"
 #include "menus/plugin_options.h"
 #include "menus/sysconfig.h"
 #include "minisoc.h"
@@ -402,6 +403,8 @@ void menuThreadMain(void)
             PluginChecker__UpdateMenu();
             PluginWatcher__UpdateMenu();
             PluginConverter__UpdateMenu();
+            nightLightSettingsRead = Redshift_ReadNightLightSettings();
+            Redshift_UpdateNightLightStatuses();
             menuShow(&rosalinaMenu);
             menuLeave();
         }

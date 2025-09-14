@@ -122,6 +122,7 @@ The build produces a single file: `boot.firm`. Copy it to the root of your SD ca
 **Nexus3DS:**
 * **[@2b-zipper](https://github.com/2b-zipper)**
 * **[@cooolgamer](https://github.com/cooolgamer)**
+* **[@Alexyo21](https://github.com/Alexyo21)**
 
 *See also: [People who made this fork possible](#credits)*
 

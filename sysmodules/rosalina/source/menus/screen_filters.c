@@ -31,6 +31,7 @@
 #include "menus/screen_filters.h"
 #include "menus/screen_filters_srgb_tables.h"
 #include "draw.h"
+#include "redshift/redshift.h"
 #include "redshift/colorramp.h"
 
 typedef union {
@@ -197,6 +198,7 @@ Menu screenFiltersMenu = {
         { "[IPS recommended] Enhance top screen colors", METHOD, .method = &ScreenFiltersMenu_SetTopScreenSrgbColorCurve },
         { "[IPS recommended] Enhance bottom screen colors", METHOD, .method = &ScreenFiltersMenu_SetTopScreenSrgbColorCurve },
         { "Advanced configuration...", METHOD, .method = &ScreenFiltersMenu_AdvancedConfiguration },
+        { "Night/Light Config", METHOD, .method = &Redshift_ConfigureNightLightSettings},
         {},
     }
 };
