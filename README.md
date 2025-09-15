@@ -22,7 +22,7 @@
   > **Note:** To access the plugin selector after setting a default plugin, hold the **Select** button while launching a game
 * Dangerous plugin detection - *Original by [Tekito-256](https://github.com/Tekito-256/Luma3DS)*
 * Support for v0.5.x 3GX plugin loading - *Original by [Tekito-256](https://github.com/Tekito-256/Luma3DS)*
-* Force restart option - *Original by [cooolgamer](https://github.com/cooolgamer)*
+* Force reboot option - *Original by [cooolgamer](https://github.com/cooolgamer)*
 * Time display in Rosalina menu - *Original by [JBMagination2/hide0123](https://github.com/JBMagination2/Luma3DS/commit/766173d65eeb52baac90e9e68b456ad93ebaab7b)*
 * Logo.bin loading feature - *Original by [Pixel-Pop](https://github.com/Pixel-Pop/Luma3DS/commit/d225d9fa507dcccce3a6c86d0a38f7998f39b7a2)*
 * Detailed screen brightness adjustment - *Original by [DullPointer](https://github.com/DullPointer/Luma3DS/commit/83e8d471a377bc6960fae00d6694f5fe86dcca42)*
