@@ -1,5 +1,6 @@
 # Nexus3DS
 
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/2b-zipper/Nexus3DS/total)
 ![License](https://img.shields.io/badge/License-GPLv3-blue.svg)
 
 *Nintendo 3DS "Custom Firmware" Fork with Enhanced Features*
