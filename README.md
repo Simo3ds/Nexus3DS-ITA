@@ -23,7 +23,7 @@
 * Dangerous plugin detection - *Original by [Tekito-256](https://github.com/Tekito-256/Luma3DS)*
 * Support for v0.5.x 3GX plugin loading - *Original by [Tekito-256](https://github.com/Tekito-256/Luma3DS)*
 * Force reboot option - *Original by [cooolgamer](https://github.com/cooolgamer)*
-* Time display in Rosalina menu - *Original by [JBMagination2/hide0123](https://github.com/JBMagination2/Luma3DS/commit/766173d65eeb52baac90e9e68b456ad93ebaab7b)*
+* Time display in Rosalina menu - *Original by [suprdratts/hide0123](https://github.com/suprdratts/Luma3DS/commit/766173d65eeb52baac90e9e68b456ad93ebaab7b)*
 * Logo.bin loading feature - *Original by [Pixel-Pop](https://github.com/Pixel-Pop/Luma3DS/commit/d225d9fa507dcccce3a6c86d0a38f7998f39b7a2)*
 * Detailed screen brightness adjustment - *Original by [DullPointer](https://github.com/DullPointer/Luma3DS/commit/83e8d471a377bc6960fae00d6694f5fe86dcca42)*
 * Volume display in Rosalina menu - *Original by [DullPointer](https://github.com/DullPointer/Luma3DS_archive/commit/dc636d82492d1e87eb51785fa7f2a98617e7ece9)*
@@ -132,7 +132,7 @@ For a complete list of contributors and acknowledgments, please see the [officia
 - **[@Tekito-256](https://github.com/Tekito-256)** - Plugin Selector ([Source Repository](https://github.com/Tekito-256/Luma3DS))
 - **[@Gruetzig](https://github.com/Gruetzig)** - Playcoin maxing ([Source Repository](https://github.com/Gruetzig/Luma3DS))
 - **[@cooolgamer](https://github.com/cooolgamer)** - Power options ([Source Repository](https://github.com/cooolgamorg/CustomLuma3DS))
-- **[@JBMagination2](https://github.com/JBMagination2)** - Rosalina menu time (by [@hide0123](https://github.com/hide0123)) ([Source Repository](https://github.com/JBMagination2/Luma3DS))
+- **[@suprdratts](https://github.com/suprdratts)** - Rosalina menu time (by [@hide0123](https://github.com/hide0123)) ([Source Repository](https://github.com/suprdratts/Luma3DS))
 - **[@Pixel-Pop](https://github.com/Pixel-Pop)** - Logo.bin loader ([Source Repository](https://github.com/Pixel-Pop/Luma3DS))
 
 ---
