@@ -586,6 +586,9 @@ static inline bool patchLayeredFs(u64 progId, u8 *code, u32 size, u32 textSize, 
                                                "ext:",
                                                "rom:" };
 
+    const char *updateRomFsMount;
+
+    // game specific
     bool isMarioKart7 = (u32)progId == 0x00030600 || //JPN MK7
                         (u32)progId == 0x00030700 || //EUR MK7
                         (u32)progId == 0x00030800 || //USA MK7
@@ -593,11 +596,17 @@ static inline bool patchLayeredFs(u64 progId, u8 *code, u32 size, u32 textSize, 
                         (u32)progId == 0x0008B400;   //TWN MK7
                         // Exclude CHN as it never got updates
 
-    const char *updateRomFsMount;
+    bool isTLoDW2 = (u32)progId == 0x0016FA00 || //JPN TLoDW2
+                    (u32)progId == 0x00186300 || //EUR TLoDW2
+                    (u32)progId == 0x00186600;   //USA TLoDW2
 
     if (isMarioKart7)
     {
         updateRomFsMount = "pat1"; // Isolated to prevent false-positives
+    }
+    else if (isTLoDW2)
+    {
+        updateRomFsMount = "rom2:"; // isolated because the previous character is not null
     }
 
     else
