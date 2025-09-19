@@ -47,6 +47,9 @@
 #include "volume.h"
 #include "pmdbgext.h"
 
+// Temperature conversion macros
+#define CELSIUS_TO_FAHRENHEIT(c) ((c) * 9 / 5 + 32)
+
 //#define ROSALINA_MENU_SELF_SCREENSHOT 1 // uncomment this to enable the feature
 
 u32 menuCombo = 0;
@@ -610,11 +613,21 @@ static void menuDraw(Menu *menu, u32 selected)
         u32 percentageFrac = (u32)(batteryPercentage * 10.0f) % 10u;
 
         char buf[32];
-        int n = sprintf(
-            buf, "   %02hhu\xF8""C  %lu.%02luV  %lu.%lu%%", batteryTemperature, // CP437
-            voltageInt, voltageFrac,
-            percentageInt, percentageFrac
-        );
+        int n;
+        if (configExtra.temperatureUnit) {
+            u8 tempFahrenheit = CELSIUS_TO_FAHRENHEIT(batteryTemperature);
+            n = sprintf(
+                buf, "   %02hhu\xF8""F  %lu.%02luV  %lu.%lu%%", tempFahrenheit, // CP437
+                voltageInt, voltageFrac,
+                percentageInt, percentageFrac
+            );
+        } else {
+            n = sprintf(
+                buf, "   %02hhu\xF8""C  %lu.%02luV  %lu.%lu%%", batteryTemperature, // CP437
+                voltageInt, voltageFrac,
+                percentageInt, percentageFrac
+            );
+        }
         Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * n, SCREEN_BOT_HEIGHT - 30, COLOR_CYAN, buf);
     }
 

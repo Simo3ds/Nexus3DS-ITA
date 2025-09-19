@@ -71,6 +71,7 @@
 * Save screenshots in date folders
 * Combine top/bottom screenshots (saved with _cmb suffix)
 * Toggle bottom LCD backlight with Start+Select
+* Use Fahrenheit for temperature display (defaults to Celsius)
 
 For detailed technical information, please refer to the [official Luma3DS documentation](https://github.com/LumaTeam/Luma3DS/wiki) and [README](https://github.com/LumaTeam/Luma3DS/blob/master/README.md).
 
