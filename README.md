@@ -9,24 +9,14 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/2b-zipper/Nexus3DS/releases">
-    <img src="https://img.shields.io/github/downloads/2b-zipper/Nexus3DS/total?style=for-the-badge&logo=github&logoColor=white&color=0066cc" alt="GitHub Downloads">
-  </a>
-  <a href="LICENSE">
-    <img src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge&logo=gnu&logoColor=white" alt="License">
-  </a>
-  <a href="https://github.com/2b-zipper/Nexus3DS/releases">
-    <img src="https://img.shields.io/github/v/release/2b-zipper/Nexus3DS?include_prereleases&style=for-the-badge&logo=tag&logoColor=white&color=orange" alt="Latest Release">
-  </a>
+  <a href="https://github.com/2b-zipper/Nexus3DS/releases"><img src="https://img.shields.io/github/downloads/2b-zipper/Nexus3DS/total?style=for-the-badge&logo=github&logoColor=white&color=0066cc" alt="GitHub Downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge&logo=gnu&logoColor=white" alt="License"></a>
+  <a href="https://github.com/2b-zipper/Nexus3DS/releases/latest"><img src="https://img.shields.io/github/v/release/2b-zipper/Nexus3DS?include_prereleases&style=for-the-badge&logo=tag&logoColor=white&color=orange" alt="Latest Release"></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/LumaTeam/Luma3DS">
-    <img src="https://img.shields.io/badge/Based%20on-Luma3DS-ff6b6b?style=flat-square" alt="Based on Luma3DS">
-  </a>
-  <a href="https://github.com/SciresM/boot9strap">
-    <img src="https://img.shields.io/badge/Requires-boot9strap-4ecdc4?style=flat-square" alt="Requires boot9strap">
-  </a>
+  <a href="https://github.com/LumaTeam/Luma3DS"><img src="https://img.shields.io/badge/Based%20on-Luma3DS-ff6b6b?style=flat-square" alt="Based on Luma3DS"></a>
+  <a href="https://github.com/SciresM/boot9strap"><img src="https://img.shields.io/badge/Requires-boot9strap-4ecdc4?style=flat-square" alt="Requires boot9strap"></a>
 </p>
 
 </div>
