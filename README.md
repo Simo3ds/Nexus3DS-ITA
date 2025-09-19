@@ -15,8 +15,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/LumaTeam/Luma3DS"><img src="https://img.shields.io/badge/Based%20on-Luma3DS-ff6b6b?style=flat-square" alt="Based on Luma3DS"></a>
-  <a href="https://github.com/SciresM/boot9strap"><img src="https://img.shields.io/badge/Requires-boot9strap-4ecdc4?style=flat-square" alt="Requires boot9strap"></a>
+  <a href="https://github.com/LumaTeam/Luma3DS"><img src="https://img.shields.io/badge/Based%20on-Luma3DS-4ecdc4?style=flat-square" alt="Based on Luma3DS"></a>
+  <a href="https://github.com/SciresM/boot9strap"><img src="https://img.shields.io/badge/Requires-boot9strap-ff6b6b?style=flat-square" alt="Requires boot9strap"></a>
 </p>
 
 </div>
