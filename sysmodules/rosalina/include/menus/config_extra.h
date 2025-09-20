@@ -6,6 +6,7 @@ typedef struct {
 	bool screenshotDateFolders;
 	bool screenshotCombined;
 	bool toggleLcdCombo;
+	bool temperatureUnit;
 } config_extra;
 
 extern config_extra configExtra;

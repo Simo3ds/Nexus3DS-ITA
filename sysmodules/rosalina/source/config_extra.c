@@ -78,7 +78,8 @@ void ConfigExtra_DrawDetailedMenu(void)
         "Include title ID in screenshot filename",
         "Save screenshots in date folders",
         "Combine top/bottom screenshots",
-        "Toggle bot LCD (start+select)(N/A on o2DS)"
+        "Toggle bot LCD (start+select)(N/A on o2DS)",
+        "Use Fahrenheit for temperature display"
     };
     
     bool *configValues[] = {
@@ -88,7 +89,8 @@ void ConfigExtra_DrawDetailedMenu(void)
         &configExtra.includeScreenshotTitleId,
         &configExtra.screenshotDateFolders,
         &configExtra.screenshotCombined,
-        &configExtra.toggleLcdCombo
+        &configExtra.toggleLcdCombo,
+        &configExtra.temperatureUnit
     };
     
     s32 selected = 0;
@@ -153,6 +155,7 @@ void ConfigExtra_ReadConfigExtra(void)
         configExtra.screenshotDateFolders = (extraConfigFlags >> 4) & 1;
         configExtra.screenshotCombined = (extraConfigFlags >> 5) & 1;
         configExtra.toggleLcdCombo = (extraConfigFlags >> 6) & 1;
+        configExtra.temperatureUnit = (extraConfigFlags >> 7) & 1;
     } else {
         configExtra.suppressLeds = false;
         configExtra.cutSlotPower = false;
@@ -161,5 +164,6 @@ void ConfigExtra_ReadConfigExtra(void)
         configExtra.screenshotDateFolders = true;
         configExtra.screenshotCombined = true;
         configExtra.toggleLcdCombo = false;
+        configExtra.temperatureUnit = false;
     }
 }

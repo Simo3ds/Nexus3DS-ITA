@@ -209,6 +209,7 @@ static size_t LumaConfig_SaveLumaIniConfigToStr(char *out, const CfgData *cfg)
         (int)((cfg->extraConfigFlags >> 4) & 1),
         (int)((cfg->extraConfigFlags >> 5) & 1),
         (int)((cfg->extraConfigFlags >> 6) & 1),
+        (int)((cfg->extraConfigFlags >> 7) & 1),
 
         (int)cfg->topScreenFilter.cct, (int)cfg->bottomScreenFilter.cct,
         (int)cfg->topScreenFilter.colorCurveCorrection, (int)cfg->bottomScreenFilter.colorCurveCorrection,
@@ -295,6 +296,7 @@ Result LumaConfig_SaveSettings(void)
     if (configExtra.screenshotDateFolders) configData.extraConfigFlags |= 1 << 4;
     if (configExtra.screenshotCombined) configData.extraConfigFlags |= 1 << 5;
     if (configExtra.toggleLcdCombo) configData.extraConfigFlags |= 1 << 6;
+    if (configExtra.temperatureUnit) configData.extraConfigFlags |= 1 << 7;
 
     size_t n = LumaConfig_SaveLumaIniConfigToStr(inibuf, &configData);
     FS_ArchiveID archiveId = isSdMode ? ARCHIVE_SDMC : ARCHIVE_NAND_RW;

@@ -1,12 +1,35 @@
+<div align="center">
+
+<img src="img/logo_1.png" alt="Nexus3DS Logo" width="150">
+
 # Nexus3DS
 
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/2b-zipper/Nexus3DS/total)
-![License](https://img.shields.io/badge/License-GPLv3-blue.svg)
+<p align="center">
+  <em>Nintendo 3DS "Custom Firmware" Fork with Enhanced Features</em>
+</p>
 
-*Nintendo 3DS "Custom Firmware" Fork with Enhanced Features*
+<p align="center">
+  <a href="https://github.com/2b-zipper/Nexus3DS/releases"><img src="https://img.shields.io/github/downloads/2b-zipper/Nexus3DS/total?style=for-the-badge&logo=github&logoColor=white&color=0066cc" alt="GitHub Downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge&logo=gnu&logoColor=white" alt="License"></a>
+  <a href="https://github.com/2b-zipper/Nexus3DS/releases/latest"><img src="https://img.shields.io/github/v/release/2b-zipper/Nexus3DS?include_prereleases&style=for-the-badge&logo=tag&logoColor=white&color=orange" alt="Latest Release"></a>
+</p>
 
-![Boot menu screenshot](img/boot_menu_v010.png)
-![Rosalina menu screenshot](img/rosalina_menu_v010.png)
+<p align="center">
+  <a href="https://github.com/LumaTeam/Luma3DS"><img src="https://img.shields.io/badge/Based%20on-Luma3DS-4ecdc4?style=flat-square" alt="Based on Luma3DS"></a>
+  <a href="https://github.com/SciresM/boot9strap"><img src="https://img.shields.io/badge/Requires-boot9strap-ff6b6b?style=flat-square" alt="Requires boot9strap"></a>
+</p>
+
+</div>
+
+<div align="center">
+
+## Screenshots
+
+| Configuration Menu | Rosalina Menu |
+|:------------------:|:-------------:|
+| ![Configuration menu screenshot](img/boot_menu_v010.png) | ![Rosalina menu screenshot](img/rosalina_menu_v010.png) |
+
+</div>
 
 ## Description
 
@@ -48,6 +71,7 @@
 * Save screenshots in date folders
 * Combine top/bottom screenshots (saved with _cmb suffix)
 * Toggle bottom LCD backlight with Start+Select
+* Use Fahrenheit for temperature display (defaults to Celsius)
 
 For detailed technical information, please refer to the [official Luma3DS documentation](https://github.com/LumaTeam/Luma3DS/wiki) and [README](https://github.com/LumaTeam/Luma3DS/blob/master/README.md).
 

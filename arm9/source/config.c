@@ -539,6 +539,11 @@ static int configIniHandler(void* user, const char* section, const char* name, c
             CHECK_PARSE_OPTION(parseBoolOption(&opt, value));
             cfg->extraConfigFlags = opt ? cfg->extraConfigFlags | (1 << 6) : cfg->extraConfigFlags & ~(1 << 6);
             return 1;
+        } else if (strcmp(name, "temperature_unit_fahrenheit") == 0) {
+            bool opt;
+            CHECK_PARSE_OPTION(parseBoolOption(&opt, value));
+            cfg->extraConfigFlags = opt ? cfg->extraConfigFlags | (1 << 7) : cfg->extraConfigFlags & ~(1 << 7);
+            return 1;
         } else {
             CHECK_PARSE_OPTION(-1);
         }
@@ -753,6 +758,7 @@ static size_t saveLumaIniConfigToStr(char *out)
         (int)((cfg->extraConfigFlags >> 4) & 1),
         (int)((cfg->extraConfigFlags >> 5) & 1),
         (int)((cfg->extraConfigFlags >> 6) & 1),
+        (int)((cfg->extraConfigFlags >> 7) & 1),
 
         (int)cfg->topScreenFilter.cct, (int)cfg->bottomScreenFilter.cct,
         (int)cfg->topScreenFilter.colorCurveCorrection, (int)cfg->bottomScreenFilter.colorCurveCorrection,
