@@ -937,7 +937,7 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
     static const char *multiOptionsText[]  = { "Default EmuNAND: 1( ) 2( ) 3( ) 4( )",
                                                "Screen brightness: 4( ) 3( ) 2( ) 1( )",
                                                "Splash: Off( ) Before( ) After( ) payloads",
-                                               "Splash duration: 1s( ) 3s( ) 5s( ) custom( )",
+                                               "Splash duration: 1s( ) 3s( ) 5s( ) Custom( )",
                                                "PIN lock: Off( ) 4( ) 6( ) 8( ) digits",
                                                "New 3DS CPU: Off( ) Clock( ) L2( ) Clock+L2( )",
                                                "Hbmenu autoboot: Off( ) 3DS( ) DSi( )",
