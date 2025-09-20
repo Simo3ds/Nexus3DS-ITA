@@ -420,23 +420,29 @@ void menuThreadMain(void)
         if(configExtra.toggleLcdCombo && ((scanHeldKeys() & (KEY_SELECT | KEY_START)) == (KEY_SELECT | KEY_START)))
         {
             u8 result, toggleLcdStatus;
+            char sysInfo[10] = { 0 };
             mcuHwcInit();
             MCUHWC_ReadRegister(0x0F, &result, 1); // https://www.3dbrew.org/wiki/I2C_Registers#Device_3
+            MCUHWC_ReadRegister(0x7F, &sysInfo, 10); // System info, contains model in byte 10
             mcuHwcExit();
-	        //Check config file to determine which backlight to toggle
-	        toggleLcdStatus = (result >> 5) & 1; // right shift result to bit 5 ("Bottom screen backlight on") and perform bitwise AND with 1
 
-            gspLcdInit();
-            if(toggleLcdStatus)
-	        {
-                GSPLCD_PowerOffBacklight(BIT(GSP_SCREEN_BOTTOM));
+            if (sysInfo[9] != 3) // Check the model, o2ds (3) don't have a top screen
+            {
+                toggleLcdStatus = (result >> 5) & 1; // right shift result to bit 5 ("Bottom screen backlight on") and perform bitwise AND with 1
+
+                gspLcdInit();
+                if(toggleLcdStatus)
+                {
+                    GSPLCD_PowerOffBacklight(BIT(GSP_SCREEN_BOTTOM));
+                }
+                else
+                {
+                    GSPLCD_PowerOnBacklight(BIT(GSP_SCREEN_BOTTOM));
+                }
+                gspLcdExit();
+                while (!(waitInput() & (KEY_SELECT | KEY_START)));   
             }
-	        else
-	        {
-                GSPLCD_PowerOnBacklight(BIT(GSP_SCREEN_BOTTOM));
-            }
-            gspLcdExit();
-            while (!(waitInput() & (KEY_SELECT | KEY_START)));
+
         }
 
         if (saveSettingsRequest) {

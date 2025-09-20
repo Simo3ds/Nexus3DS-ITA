@@ -78,7 +78,7 @@ void ConfigExtra_DrawDetailedMenu(void)
         "Include title ID in screenshot filename",
         "Save screenshots in date folders",
         "Combine top/bottom screenshots",
-        "Toggle bottom LCD backlight (start+select)"
+        "Toggle bot LCD (start+select)(N/A on o2DS)"
     };
     
     bool *configValues[] = {

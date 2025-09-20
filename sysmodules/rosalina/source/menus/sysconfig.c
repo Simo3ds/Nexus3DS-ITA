@@ -34,6 +34,7 @@
 #include "utils.h"
 #include "ifile.h"
 #include "luminance.h"
+#include "menu.h"
 
 Menu sysconfigMenu = {
     "System configuration menu",
@@ -544,11 +545,7 @@ void SysConfigMenu_ChangeScreenBrightness(void)
     Draw_FlushFramebuffer();
     Draw_Unlock();
 
-    u8 sysModel;
-    cfguInit();
-    CFGU_GetSystemModel(&sysModel);
-    cfguExit();
-    bool hasTopScreen = (sysModel != 3); // 3 = o2DS
+    bool hasTopScreen = (mcuInfoTable[9] != 3); // Check the model, o2ds (3) don't have a top screen
 
     u32 luminanceTop = getCurrentLuminance(true);
     u32 luminanceBot = getCurrentLuminance(false);
@@ -567,28 +564,34 @@ void SysConfigMenu_ChangeScreenBrightness(void)
             10,
             posY,
             (luminanceTop > maxLum || luminanceBot > maxLum) ? COLOR_RED : COLOR_WHITE,
-            "Top: %lu, Bot: %lu\n",
+            "Top: %lu, Bot: %lu (min: %lu max: %lu)\n\n",
             luminanceTop,
-            luminanceBot
+            luminanceBot,
+            minLum,
+            maxLum
         );
+/*
         posY = Draw_DrawFormattedString(
             10,
             posY,
             COLOR_WHITE,
-            "(min: %lu max: %lu raw: %lu)\n\n",
+            "(min: %lu max: %lu)\n\n",
             minLum,
-            maxLum,
-            trueMax
+            maxLum
         );
+*/
         posY = Draw_DrawString(10, posY, COLOR_GREEN, "Controls: \n");
         posY = Draw_DrawString(10, posY, COLOR_WHITE, "Up/Down for +-1, Right/Left for +-10.\n");
         posY = Draw_DrawString(10, posY, COLOR_WHITE, "Hold X/A for Top/Bottom screen only. \n");
-        posY = Draw_DrawString(10, posY, COLOR_WHITE, "Hold L or R to use raw max. limit. \n");
-        posY = Draw_DrawString(10, posY, COLOR_WHITE, "Press Y to toggle top and bottom backlight.\n\n");
+//        posY = Draw_DrawString(10, posY, COLOR_WHITE, "Hold L or R to use raw max. limit. \n");
+        if(hasTopScreen)
+        {
+            posY = Draw_DrawString(10, posY, COLOR_WHITE, "Press Y to toggle top/bottom backlight.\n\n");
+        }
         posY = Draw_DrawString(10, posY, COLOR_TITLE, "Press START to begin, B to exit.\n\n");
 
         posY = Draw_DrawString(10, posY, COLOR_RED, "WARNING: \n");
-        posY = Draw_DrawString(10, posY, COLOR_WHITE, "  * Use over-brighten at your own risk!\n");
+//        posY = Draw_DrawString(10, posY, COLOR_WHITE, "  * Use over-brighten at your own risk!\n");
         posY = Draw_DrawString(10, posY, COLOR_WHITE, "  * all changes revert after sleep mode.");
         Draw_FlushFramebuffer();
         Draw_Unlock();
@@ -621,7 +624,8 @@ void SysConfigMenu_ChangeScreenBrightness(void)
         u32 pressed = waitInputWithTimeout(1000);
         if (pressed & DIRECTIONAL_KEYS) {
             s32 increment = 0;
-            s32 currentMax = (kHeld & (KEY_L | KEY_R)) ? (s32)trueMax : (s32)maxLum;
+//            s32 currentMax = (kHeld & (KEY_L | KEY_R)) ? (s32)trueMax : (s32)maxLum;
+            s32 currentMax = (s32)maxLum;
 
             if (pressed & KEY_UP)
                 increment = 1;
@@ -650,10 +654,8 @@ void SysConfigMenu_ChangeScreenBrightness(void)
             }
 
             if ((lumTop < (s32)minLum || lumTop > (s32)maxLum) || (lumBot < (s32)minLum || lumBot > (s32)maxLum)) {
-                // This won't work atm, we need to fix the setBrightnessAlt function bug
-                //setBrightnessAlt(lumTop, lumBot);
-                GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_TOP), lumTop);
-                GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_BOTTOM), lumBot);
+                // [TODO] fix the setBrightnessAlt function bug
+                // setBrightnessAlt(lumTop, lumBot);
             } else {
                 if (kHeld & KEY_X)
                     GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_TOP), lumTop);
@@ -682,8 +684,6 @@ void SysConfigMenu_ChangeScreenBrightness(void)
             } else if (topStatus == 0) {
                 GSPLCD_PowerOnBacklight(BIT(GSP_SCREEN_TOP));
             }
-        } else if (pressed & KEY_Y) {
-            GSPLCD_PowerOffBacklight(GSPLCD_SCREEN_BOTTOM);
         }
 
         if (pressed & KEY_B)
