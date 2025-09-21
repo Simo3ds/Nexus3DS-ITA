@@ -841,7 +841,7 @@ static bool readConfigMcu(void)
         memset(&configDataMcu, 0, sizeof(CfgDataMcu));
         configData.bootConfig = 0;
         // Perform upgrade process (ignoring failures)
-        doLumaUpgradeProcess();
+        askForUpgradeProcess();
         writeConfigMcu();
 
         return false;
@@ -850,7 +850,7 @@ static bool readConfigMcu(void)
     if (configDataMcu.lumaVersion < curVer)
     {
         // Perform upgrade process (ignoring failures)
-        doLumaUpgradeProcess();
+        askForUpgradeProcess();
         writeConfigMcu();
     }
 
@@ -896,6 +896,28 @@ bool readConfig(void)
     oldConfig = configData;
 
     return ret;
+}
+
+void askForUpgradeProcess(void)
+{
+    initScreens();
+
+    drawString(true, 10, 10, COLOR_ORANGE, "Nexus3DS backup confirmation");
+    drawString(true, 10, 10 + SPACING_Y * 2, COLOR_WHITE, "Do you want to install Nexus3DS to CTRNAND?\nThis enables you to boot without an sd card.");
+    drawString(true, 10, 10 + SPACING_Y * 5, COLOR_WHITE, "Doing so will also backup essential files.");
+    drawString(true, 10, 10 + SPACING_Y * 7, COLOR_ORANGE, "Press A to confirm, X to cancel.\nIf you're unsure, press A.");
+
+    while (true) {
+        u32 pressed = waitInput(false);
+
+        if (pressed & (BUTTON_A | BUTTON_X)) {
+            if (pressed & BUTTON_A)
+                doLumaUpgradeProcess() ? drawString(true, 10, 10 + SPACING_Y * 10, COLOR_GREEN, "Backup complete!") :
+                                         drawString(true, 10, 10 + SPACING_Y * 10, COLOR_RED, "Backup failed! Is your SD card corrupted?");
+            break;
+        }
+    }
+    wait(2000ULL);
 }
 
 u32 getSplashDurationMs(void)
