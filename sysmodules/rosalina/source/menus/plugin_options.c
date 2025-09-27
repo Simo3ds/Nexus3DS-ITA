@@ -14,60 +14,6 @@ extern bool PluginWatcher_isRunning;
 extern bool PluginConverter_UseCache;
 extern u32 PluginWatcher_WatchLevel;
 
-static int scrollOffset = 0;
-static u32 lastSelectedHash = 0;
-static int scrollDir = 1;
-static int scrollWait = 0;
-static const int scrollSpeed = 2;
-static const int scrollWaitFrames = 40;
-static const int scrollInitialWaitFrames = 15;
-
-static void PluginOptions_DrawScrollableText(u32 xPos, u32 yPos, const char *text, bool selected)
-{
-    if (!selected) {
-        Draw_DrawString(xPos, yPos, COLOR_WHITE, text);
-        return;
-    }
-    
-    u32 currentHash = yPos ^ ((u32)text);
-
-    if (lastSelectedHash != currentHash) {
-        scrollOffset = 0;
-        lastSelectedHash = currentHash;
-        scrollDir = 1;
-        scrollWait = scrollInitialWaitFrames;
-    }
-    
-    int textLen = strlen(text);
-    int maxTextChars = 32;
-    
-    if (textLen > maxTextChars) {
-        int maxOffset = (textLen - maxTextChars) * 8;
-        
-        if (scrollWait > 0) {
-            scrollWait--;
-        } else {
-            scrollOffset += scrollSpeed * scrollDir;
-            if (scrollDir == 1 && scrollOffset >= maxOffset) {
-                scrollOffset = maxOffset;
-                scrollWait = scrollWaitFrames;
-                scrollDir = -1;
-            } else if (scrollDir == -1 && scrollOffset <= 0) {
-                scrollOffset = 0;
-                scrollWait = scrollWaitFrames;
-                scrollDir = 1;
-            }
-        }
-        
-        char buf[33];
-        int startChar = scrollOffset / 8;
-        strncpy(buf, text + startChar, maxTextChars);
-        buf[maxTextChars] = '\0';
-        Draw_DrawString(xPos, yPos, COLOR_CYAN, buf);
-    } else {
-        Draw_DrawString(xPos, yPos, COLOR_CYAN, text);
-    }
-}
 
 Menu pluginOptionsMenu = {
     "Plugin settings menu",
@@ -185,17 +131,7 @@ void PluginWatcher_SetWatchLevel(void)
             u32 yPos = 40 + i * SPACING_Y;
             const char *checkbox = (*watchLv & (1 << i)) ? "(x)" : "( )";
             
-            if (i == selected) {
-                Draw_DrawString(15, yPos, COLOR_ORANGE, ">>");
-                Draw_DrawString(250, yPos, COLOR_ORANGE, "<<        ");
-                Draw_DrawString(35, yPos, COLOR_CYAN, checkbox);
-                PluginOptions_DrawScrollableText(59, yPos, watchOptions[i], true);
-            } else {
-                Draw_DrawString(15, yPos, COLOR_GRAY, " *");
-                Draw_DrawString(250, yPos, COLOR_WHITE, "  ");
-                Draw_DrawString(35, yPos, COLOR_WHITE, checkbox);
-                Draw_DrawString(59, yPos, COLOR_WHITE, watchOptions[i]);
-            }
+            Draw_DrawMenuCursor(yPos, i == selected, watchOptions[i], checkbox);
         }
 
         Draw_FlushFramebuffer();

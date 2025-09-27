@@ -721,7 +721,7 @@ void RosalinaMenu_ProcessList(void)
             ProcessListMenu_FormatInfoLine(buf, &infos[page * PROCESSES_PER_MENU_PAGE + i]);
 
             bool isSelected = (page * PROCESSES_PER_MENU_PAGE + i == selected);
-            Draw_DrawMenuCursor(40 + i * SPACING_Y, isSelected, buf);
+            Draw_DrawMenuCursor(40 + i * SPACING_Y, isSelected, buf, NULL);
         }
 
         Draw_FlushFramebuffer();

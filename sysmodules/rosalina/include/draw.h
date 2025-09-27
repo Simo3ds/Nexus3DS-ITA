@@ -99,7 +99,7 @@ u32 Draw_DrawString(u32 posX, u32 posY, u32 color, const char *string);
 
 void ClearScreenQuickly(void);
 void Draw_DrawMenuFrame(const char *title);
-void Draw_DrawMenuCursor(u32 yPos, bool selected, const char *text);
+void Draw_DrawMenuCursor(u32 yPos, bool selected, const char *text, const char *checkbox);
 
 __attribute__((format(printf,4,5)))
 u32 Draw_DrawFormattedString(u32 posX, u32 posY, u32 color, const char *fmt, ...);

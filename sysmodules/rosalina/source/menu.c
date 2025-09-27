@@ -587,7 +587,7 @@ static void menuDraw(Menu *menu, u32 selected)
             continue;
 
         u32 yPos = 40 + dispY;
-        Draw_DrawMenuCursor(yPos, (i == selected), menu->items[i].title);
+        Draw_DrawMenuCursor(yPos, (i == selected), menu->items[i].title, NULL);
         dispY += SPACING_Y;
     }
 

@@ -434,7 +434,7 @@ void Draw_DrawMenuFrame(const char *title)
     Draw_DrawString(20, 16, COLOR_ORANGE, title);
 }
 
-void Draw_DrawMenuCursor(u32 yPos, bool selected, const char *text)
+void Draw_DrawMenuCursor(u32 yPos, bool selected, const char *text, const char *checkbox)
 {
     static int scrollOffset = 0;
     static u32 lastSelectedHash = 0;
@@ -445,6 +445,9 @@ void Draw_DrawMenuCursor(u32 yPos, bool selected, const char *text)
     const int scrollInitialWaitFrames = 15;
 
     u32 currentHash = yPos ^ ((u32)text);
+    bool hasCheckbox = (checkbox != NULL);
+    int textStartX = hasCheckbox ? 59 : 35;
+    int maxChars = hasCheckbox ? 32 : 36;
     
     if (selected) {
         if (lastSelectedHash != currentHash) {
@@ -453,9 +456,16 @@ void Draw_DrawMenuCursor(u32 yPos, bool selected, const char *text)
             scrollDir = 1;
             scrollWait = scrollInitialWaitFrames;
         }
+        
+        Draw_DrawString(15, yPos, COLOR_ORANGE, ">>");
+        
+        if (hasCheckbox) {
+            Draw_DrawString(35, yPos, COLOR_CYAN, checkbox);
+        }
+        
         int titleLen = strlen(text);
-        if (titleLen > 36) {
-            int maxOffset = (titleLen - 36) * 8;
+        if (titleLen > maxChars) {
+            int maxOffset = (titleLen - maxChars) * 8;
             if (scrollWait > 0) {
                 scrollWait--;
             } else {
@@ -470,19 +480,22 @@ void Draw_DrawMenuCursor(u32 yPos, bool selected, const char *text)
                     scrollDir = 1;
                 }
             }
-            Draw_DrawString(15, yPos, COLOR_ORANGE, ">>");
             char buf[37];
-            strncpy(buf, text + (scrollOffset/8), 36);
-            buf[36] = '\0';
-            Draw_DrawString(35, yPos, COLOR_CYAN, buf);
+            strncpy(buf, text + (scrollOffset/8), maxChars);
+            buf[maxChars] = '\0';
+            Draw_DrawString(textStartX, yPos, COLOR_CYAN, buf);
         } else {
-            Draw_DrawString(15, yPos, COLOR_ORANGE, ">>");
-            Draw_DrawString(35, yPos, COLOR_CYAN, text);
+            Draw_DrawString(textStartX, yPos, COLOR_CYAN, text);
         }
         Draw_DrawString(250, yPos, COLOR_ORANGE, "<<        ");
     } else {
         Draw_DrawString(15, yPos, COLOR_GRAY, " *");
         Draw_DrawString(250, yPos, COLOR_WHITE, "  ");
-        Draw_DrawString(35, yPos, COLOR_WHITE, text);
+        
+        if (hasCheckbox) {
+            Draw_DrawString(35, yPos, COLOR_WHITE, checkbox);
+        }
+        
+        Draw_DrawString(textStartX, yPos, COLOR_WHITE, text);
     }
 }
