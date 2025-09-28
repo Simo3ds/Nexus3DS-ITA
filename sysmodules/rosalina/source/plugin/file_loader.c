@@ -969,6 +969,7 @@ nextProcess:
     }
 
     pluginHeader->version = header->version;
+    pluginHeader->waitForReplyTimeout = 10000000000ULL;
     // Code size must be page aligned
     exeHdr = &header->executable;
     pluginHeader->exeSize = (sizeof(PluginHeader) + exeHdr->codeSize + exeHdr->rodataSize + exeHdr->dataSize + exeHdr->bssSize + 0x1000) & ~0xFFF;
