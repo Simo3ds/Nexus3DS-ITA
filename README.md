@@ -12,6 +12,7 @@
   <a href="https://github.com/2b-zipper/Nexus3DS/releases"><img src="https://img.shields.io/github/downloads/2b-zipper/Nexus3DS/total?style=for-the-badge&logo=github&logoColor=white&color=0066cc" alt="GitHub Downloads"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge&logo=gnu&logoColor=white" alt="License"></a>
   <a href="https://github.com/2b-zipper/Nexus3DS/releases/latest"><img src="https://img.shields.io/github/v/release/2b-zipper/Nexus3DS?include_prereleases&style=for-the-badge&logo=tag&logoColor=white&color=orange" alt="Latest Release"></a>
+  <a href="https://discord.gg/StUs5bsw2S"><img src="https://img.shields.io/badge/Discord-Join%20Us-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
 </p>
 
 <p align="center">
