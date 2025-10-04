@@ -58,7 +58,7 @@
   * Toggle visibility of "Return to HOME Menu" option (useful if your HOME button is broken)
   * Enable/disable HOME button combo simulation
   * Configure key combo to simulate HOME button press  
-  > **Note:** HOME button simulation only works inside applications, not on HOME Menu
+  > **Note:** HOME button key combo only works inside applications, not on HOME Menu
 * Merged "Enable DSi external filters" option into "Enable loading external FIRMs and modules" option in configuration menu
 * Restored "Enable dev UNITINFO" and "Enable Rosalina on SAFE_FIRM" options in configuration menu
 * Re-added splash duration setting option in configuration menu (custom values also supported)
