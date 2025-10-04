@@ -647,18 +647,12 @@ static int configIniHandler(void* user, const char* section, const char* name, c
         } else if (strcmp(name, "hide_return_to_home_menu") == 0) {
             bool opt;
             CHECK_PARSE_OPTION(parseBoolOption(&opt, value));
-            if (opt)
-                cfg->homeButtonSimFlags |= 1 << 0;
-            else
-                cfg->homeButtonSimFlags &= ~(1 << 0);
+            cfg->homeButtonSimFlags = opt ? cfg->homeButtonSimFlags | (1 << 0) : cfg->homeButtonSimFlags & ~(1 << 0);
             return 1;
         } else if (strcmp(name, "enable_home_button_combo") == 0) {
             bool opt;
             CHECK_PARSE_OPTION(parseBoolOption(&opt, value));
-            if (opt)
-                cfg->homeButtonSimFlags |= 1 << 1;
-            else
-                cfg->homeButtonSimFlags &= ~(1 << 1);
+            cfg->homeButtonSimFlags = opt ? cfg->homeButtonSimFlags | (1 << 1) : cfg->homeButtonSimFlags & ~(1 << 1);
             return 1;
         } else if (strcmp(name, "home_button_combo") == 0) {
             u32 opt;
