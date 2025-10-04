@@ -54,11 +54,16 @@
 
 * Title ID display in System info
 
-* Return to HOME Menu option in Rosalina menu (useful if your HOME button is broken)
+* **HOME button simulation options** in Rosalina menu:
+  * Toggle visibility of "Return to HOME Menu" option (useful if your HOME button is broken)
+  * Enable/disable HOME button combo simulation
+  * Configure key combo to simulate HOME button press  
+  > **Note:** HOME button simulation only works inside applications, not on HOME Menu
 * Merged "Enable DSi external filters" option into "Enable loading external FIRMs and modules" option in configuration menu
 * Restored "Enable dev UNITINFO" and "Enable Rosalina on SAFE_FIRM" options in configuration menu
 * Re-added splash duration setting option in configuration menu (custom values also supported)
-* Added no errdisp + instant reboot option - Press A+B+X+Y+Start to instantly reboot (configurable via `nexusconfig.ini` only)
+* Added no errdisp + instant reboot option - Press A+B+X+Y+Start to instantly reboot  
+  > **Note:** Configurable via `nexusconfig.ini` only. Using instant reboot may corrupt your SD card
 * Day/Night mode allowing to change the brightness, toggle LEDs, etc. At a desired time - *Original by [cooolgamer](https://github.com/cooolgamorg/Starlight3DS/commit/d0eb60bc21f464e7269dc7b93416e89423232de9) based on [DullPointer](https://github.com/DullPointer/Luma3DS_archive/commit/54cdedce2a55b8deae730d0af077ee2907f0444b)*
 * Random little messages in the arm11/9 exception handler :)
 
