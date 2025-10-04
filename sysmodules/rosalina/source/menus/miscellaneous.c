@@ -26,6 +26,7 @@
 
 #include <3ds.h>
 #include "menus/miscellaneous.h"
+#include "menus/home_button_sim.h"
 #include "luma_config.h"
 #include "input_redirection.h"
 #include "ntp.h"
@@ -71,6 +72,7 @@ Menu miscellaneousMenu = {
     {
         {"Switch the hb. title to the current app.", METHOD, .method = &MiscellaneousMenu_SwitchBoot3dsxTargetTitle},
         {"Change the menu combo", METHOD, .method = &MiscellaneousMenu_ChangeMenuCombo},
+        {"HOME button simulation options...", MENU, .menu = &homeButtonSimMenu},
         {"Start InputRedirection", METHOD, .method = &MiscellaneousMenu_InputRedirection},
         {"Update time and date via NTP", METHOD, .method = &MiscellaneousMenu_UpdateTimeDateNtp},
         {"Nullify user time offset", METHOD, .method = &MiscellaneousMenu_NullifyUserTimeOffset},

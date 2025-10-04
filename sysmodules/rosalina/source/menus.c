@@ -33,6 +33,7 @@
 #include "menus/n3ds.h"
 #include "menus/debugger.h"
 #include "menus/miscellaneous.h"
+#include "menus/home_button_sim.h"
 #include "menus/sysconfig.h"
 #include "menus/screen_filters.h"
 #include "menus/plugin_options.h"
@@ -60,7 +61,7 @@ Menu rosalinaMenu = {
         { "System configuration...", MENU, .menu = &sysconfigMenu },
         { "Miscellaneous options...", MENU, .menu = &miscellaneousMenu },
         { "Save settings", METHOD, .method = &RosalinaMenu_SaveSettings },
-        { "Return to HOME Menu", METHOD, .method = &RosalinaMenu_ReturnToHomeMenu },
+        { "Return to HOME Menu", METHOD, .method = &RosalinaMenu_ReturnToHomeMenu, .visibility = &HomeButtonSimMenu_ShouldShowReturnToHomeMenu },
         { "Power off / reboot", METHOD, .method = &RosalinaMenu_PowerOffOrReboot },
         { "System info", METHOD, .method = &RosalinaMenu_ShowSystemInfo },
         { "Credits", METHOD, .method = &RosalinaMenu_ShowCredits },

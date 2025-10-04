@@ -34,6 +34,7 @@
 #include "menus/miscellaneous.h"
 #include "menus/sysconfig.h"
 #include "menus/config_extra.h"
+#include "menus/home_button_sim.h"
 #include "plugin/plgloader.h"
 
 extern bool PluginChecker_isEnabled;
@@ -62,6 +63,8 @@ typedef struct CfgData {
     u8 autobootCtrAppmemtype;
 
     u32 extraConfigFlags;
+    u32 homeButtonSimFlags;
+    u32 homeButtonCombo;
 } CfgData;
 
 bool saveSettingsRequest = false;
@@ -100,6 +103,7 @@ static size_t LumaConfig_SaveLumaIniConfigToStr(char *out, const CfgData *cfg)
     char lumaVerStr[64];
     char lumaRevSuffixStr[16];
     char rosalinaMenuComboStr[128];
+    char homeButtonComboStr[128];
 
     const char *splashPosStr;
     const char *splashDurationPresetStr;
@@ -162,6 +166,7 @@ static size_t LumaConfig_SaveLumaIniConfigToStr(char *out, const CfgData *cfg)
     }
 
     LumaConfig_ConvertComboToString(rosalinaMenuComboStr, cfg->rosalinaMenuCombo);
+    LumaConfig_ConvertComboToString(homeButtonComboStr, cfg->homeButtonCombo);
 
     static const int pinOptionToDigits[] = { 0, 4, 6, 8 };
     int pinNumDigits = pinOptionToDigits[MULTICONFIG(PIN)];
@@ -221,7 +226,10 @@ static size_t LumaConfig_SaveLumaIniConfigToStr(char *out, const CfgData *cfg)
         cfg->autobootTwlTitleId, (int)cfg->autobootCtrAppmemtype,
 
         forceAudioOutputStr,
-        cfg->volumeSliderOverride
+        cfg->volumeSliderOverride,
+        (int)((cfg->homeButtonSimFlags >> 0) & 1),
+        (int)((cfg->homeButtonSimFlags >> 1) & 1),
+        homeButtonComboStr
     );
 
     return n < 0 ? 0 : (size_t)n;
@@ -233,7 +241,7 @@ void LumaConfig_RequestSaveSettings(void) {
 
 Result LumaConfig_SaveSettings(void)
 {
-    char inibuf[0x2400];
+    char inibuf[0x2500];
 
     Result res;
 
@@ -287,6 +295,11 @@ Result LumaConfig_SaveSettings(void)
     configData.bottomScreenFilter = bottomScreenFilter;
     configData.autobootTwlTitleId = autobootTwlTitleId;
     configData.autobootCtrAppmemtype = autobootCtrAppmemtype;
+    
+    configData.homeButtonSimFlags = 0;
+    if (hideReturnToHomeMenu) configData.homeButtonSimFlags |= 1 << 0;
+    if (enableHomeButtonCombo) configData.homeButtonSimFlags |= 1 << 1;
+    configData.homeButtonCombo = homeButtonCombo;
 
     configData.extraConfigFlags = 0;
     if (configExtra.suppressLeds) configData.extraConfigFlags |= 1 << 0;

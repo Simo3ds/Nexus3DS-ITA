@@ -165,6 +165,8 @@ typedef struct CfwInfo
     u8 autobootCtrAppmemtype;
 
     u32 extraConfigFlags;
+    u32 homeButtonSimFlags;
+    u32 homeButtonCombo;
 
     u16 launchedPath[80+1];
 } CfwInfo;

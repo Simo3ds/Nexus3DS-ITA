@@ -37,6 +37,7 @@
 #include "menus/n3ds.h"
 #include "menus/cheats.h"
 #include "menus/config_extra.h"
+#include "menus/home_button_sim.h"
 #include "redshift/redshift.h"
 #include "menus/plugin_options.h"
 #include "menus/sysconfig.h"
@@ -410,6 +411,12 @@ void menuThreadMain(void)
             Redshift_UpdateNightLightStatuses();
             menuShow(&rosalinaMenu);
             menuLeave();
+        }
+
+        // HOME button simulation combo
+        if(enableHomeButtonCombo && homeButtonCombo != 0 && ((kHeld & homeButtonCombo) == homeButtonCombo))
+        {
+            srvPublishToSubscriber(0x204, 0);
         }
 
         // instant reboot combo key

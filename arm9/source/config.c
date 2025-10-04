@@ -644,6 +644,27 @@ static int configIniHandler(void* user, const char* section, const char* name, c
             CHECK_PARSE_OPTION(parseDecIntOption(&opt, value, -1, 100));
             cfg->volumeSliderOverride = (s8)opt;
             return 1;
+        } else if (strcmp(name, "hide_return_to_home_menu") == 0) {
+            bool opt;
+            CHECK_PARSE_OPTION(parseBoolOption(&opt, value));
+            if (opt)
+                cfg->homeButtonSimFlags |= 1 << 0;
+            else
+                cfg->homeButtonSimFlags &= ~(1 << 0);
+            return 1;
+        } else if (strcmp(name, "enable_home_button_combo") == 0) {
+            bool opt;
+            CHECK_PARSE_OPTION(parseBoolOption(&opt, value));
+            if (opt)
+                cfg->homeButtonSimFlags |= 1 << 1;
+            else
+                cfg->homeButtonSimFlags &= ~(1 << 1);
+            return 1;
+        } else if (strcmp(name, "home_button_combo") == 0) {
+            u32 opt;
+            CHECK_PARSE_OPTION(parseKeyComboOption(&opt, value));
+            cfg->homeButtonCombo = opt;
+            return 1;
         } else {
             CHECK_PARSE_OPTION(-1);
         }
@@ -659,6 +680,7 @@ static size_t saveLumaIniConfigToStr(char *out)
     char lumaVerStr[64];
     char lumaRevSuffixStr[16];
     char rosalinaMenuComboStr[128];
+    char homeButtonComboStr[128];
 
     const char *splashPosStr;
     const char *splashDurationPresetStr;
@@ -711,6 +733,7 @@ static size_t saveLumaIniConfigToStr(char *out)
     }
 
     menuComboToString(rosalinaMenuComboStr, cfg->rosalinaMenuCombo);
+    menuComboToString(homeButtonComboStr, cfg->homeButtonCombo);
 
     static const int pinOptionToDigits[] = { 0, 4, 6, 8 };
     int pinNumDigits = pinOptionToDigits[MULTICONFIG(PIN)];
@@ -770,13 +793,16 @@ static size_t saveLumaIniConfigToStr(char *out)
         cfg->autobootTwlTitleId, (int)cfg->autobootCtrAppmemtype,
 
         forceAudioOutputStr,
-        cfg->volumeSliderOverride
+        cfg->volumeSliderOverride,
+        (int)((cfg->homeButtonSimFlags >> 0) & 1),
+        (int)((cfg->homeButtonSimFlags >> 1) & 1),
+        homeButtonComboStr
     );
 
     return n < 0 ? 0 : (size_t)n;
 }
 
-static char tmpIniBuffer[0x2400];
+static char tmpIniBuffer[0x2500];
 
 static bool readLumaIniConfig(void)
 {
@@ -887,6 +913,7 @@ bool readConfig(void)
         configData.extraConfigFlags |= 1 << 3; // include_screenshot_title_id
         configData.extraConfigFlags |= 1 << 4; // screenshot_date_folders  
         configData.extraConfigFlags |= 1 << 5; // screenshot_combined
+        configData.homeButtonCombo = 1u << 2 | 1u << 8; // Select+R
         ret = false;
     }
     else

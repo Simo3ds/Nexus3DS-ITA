@@ -39,6 +39,7 @@
 #include "menus/cheats.h"
 #include "menus/sysconfig.h"
 #include "menus/config_extra.h"
+#include "menus/home_button_sim.h"
 #include "redshift/redshift.h"
 #include "input_redirection.h"
 #include "minisoc.h"
@@ -326,6 +327,7 @@ int main(void)
     ScreenFiltersMenu_LoadConfig();
     SysConfigMenu_LoadConfig();
     ConfigExtra_ReadConfigExtra();
+    HomeButtonSimMenu_LoadConfig();
 
     MyThread *menuThread = menuCreateThread();
     MyThread *taskRunnerThread = taskRunnerCreateThread();

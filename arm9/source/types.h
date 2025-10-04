@@ -90,6 +90,8 @@ typedef struct CfgData {
     u8 autobootCtrAppmemtype;
 
     u32 extraConfigFlags;
+    u32 homeButtonSimFlags;
+    u32 homeButtonCombo;
 } CfgData;
 
 typedef struct
