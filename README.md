@@ -100,7 +100,8 @@ To build from source, see [Building from source](#building-from-source) below.
 **Basic Usage:**
 - **Configuration menu**: Press <kbd>Select</kbd> at boot - config stored in `/luma/nexusconfig.ini`
 - **Chainloader menu**: Press <kbd>Start</kbd> at boot - payloads go in `/luma/payloads/*.firm`
-- **Rosalina menu**: <kbd>L+Down+Select</kbd>
+- **Rosalina menu**: <kbd>L+Down+Select</kbd> (default combo)
+- **Home button simulation**: <kbd>R+Select</kbd> (default combo, if enabled in settings)
 
 ## Building from source
 
