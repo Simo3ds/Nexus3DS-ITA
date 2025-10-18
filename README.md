@@ -67,13 +67,12 @@
   > **Note:** Configurable via `nexusconfig.ini` only. Using instant reboot may corrupt your SD card
 * Day/Night mode allowing to change the brightness, toggle LEDs, etc. At a desired time - *Original by [cooolgamer](https://github.com/cooolgamorg/Starlight3DS/commit/d0eb60bc21f464e7269dc7b93416e89423232de9) based on [DullPointer](https://github.com/DullPointer/Luma3DS_archive/commit/54cdedce2a55b8deae730d0af077ee2907f0444b)*
 * Random little messages in the arm11/9 exception handler :)
+* Screenshots include title ID in filename
 
 **Extra Configuration Menu Options:**
 * Automatically suppress LEDs - *Original by [DullPointer](https://github.com/DullPointer/Luma3DS/commit/174ed486ab59bd249488c9035682fa7d058d1e80)*
 * Cut power to TWL Flashcards - *Original by [DullPointer](https://github.com/DullPointer/Luma3DS/commit/174ed486ab59bd249488c9035682fa7d058d1e80)*
 * Cut 3DS Wifi in sleep mode - *Original by [DullPointer](https://github.com/DullPointer/Luma3DS/commit/174ed486ab59bd249488c9035682fa7d058d1e80)*
-
-* Include title ID in screenshot filename
 * Save screenshots in date folders
 * Combine top/bottom screenshots (saved with _cmb suffix)
 * Toggle bottom LCD backlight with Start+Select
