@@ -35,7 +35,8 @@ void ConfigExtra_DrawDetailedMenu(void)
         {"Save screenshots in date folders", &configExtra.screenshotDateFolders, NULL},
         {"Combine top/bottom screenshots", &configExtra.screenshotCombined, NULL},
         {"Toggle bottom LCD backlight (start+select)", &configExtra.toggleLcdCombo, &CheckNotO2DS},
-        {"Use Fahrenheit for temperature display", &configExtra.temperatureUnit, NULL}
+        {"Use Fahrenheit for temperature display", &configExtra.temperatureUnit, NULL},
+        {"Use 12-hour clock format in Rosalina menu", &configExtra.use12HourClock, NULL}
     };
 
     s32 selected = 0;
@@ -114,6 +115,7 @@ void ConfigExtra_ReadConfigExtra(void)
         configExtra.screenshotCombined = (extraConfigFlags >> 5) & 1;
         configExtra.toggleLcdCombo = (extraConfigFlags >> 6) & 1;
         configExtra.temperatureUnit = (extraConfigFlags >> 7) & 1;
+        configExtra.use12HourClock = (extraConfigFlags >> 8) & 1;
     } else {
         configExtra.suppressLeds = false;
         configExtra.cutSlotPower = false;
@@ -123,5 +125,6 @@ void ConfigExtra_ReadConfigExtra(void)
         configExtra.screenshotCombined = true;
         configExtra.toggleLcdCombo = false;
         configExtra.temperatureUnit = false;
+        configExtra.use12HourClock = false;
     }
 }

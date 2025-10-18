@@ -652,8 +652,15 @@ static void menuDraw(Menu *menu, u32 selected)
         Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 20, COLOR_ORANGE, "Based on Luma3DS %s-%08lx", versionString, commitHash);
     }
 
-    Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 15.6, SCREEN_BOT_HEIGHT - 20, COLOR_CYAN, "%04lu-%02lu-%02lu", year, month, days);
-    Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 4.6, SCREEN_BOT_HEIGHT - 20, COLOR_CYAN, "%02lu:%02lu:%02lu", hours, minutes, seconds);
+    if (configExtra.use12HourClock) {
+        const char *ampm = (hours >= 12) ? "PM" : "AM";
+        u32 displayHours = (hours % 12 == 0) ? 12 : (hours % 12);
+        Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 18.6, SCREEN_BOT_HEIGHT - 20, COLOR_CYAN, "%04lu-%02lu-%02lu", year, month, days);
+        Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 7.6, SCREEN_BOT_HEIGHT - 20, COLOR_CYAN, "%2lu:%02lu:%02lu %s", displayHours, minutes, seconds, ampm);
+    } else {
+        Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 15.6, SCREEN_BOT_HEIGHT - 20, COLOR_CYAN, "%04lu-%02lu-%02lu", year, month, days);
+        Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 30 - SPACING_X * 4.6, SCREEN_BOT_HEIGHT - 20, COLOR_CYAN, "%02lu:%02lu:%02lu", hours, minutes, seconds);
+    }
 
     Draw_FlushFramebuffer();
 }

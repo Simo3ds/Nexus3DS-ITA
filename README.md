@@ -78,6 +78,7 @@
 * Combine top/bottom screenshots (saved with _cmb suffix)
 * Toggle bottom LCD backlight with Start+Select
 * Use Fahrenheit for temperature display (defaults to Celsius)
+* Use 12-hour clock format in Rosalina menu (defaults to 24-hour)
 
 For detailed technical information, please refer to the [official Luma3DS documentation](https://github.com/LumaTeam/Luma3DS/wiki) and [README](https://github.com/LumaTeam/Luma3DS/blob/master/README.md).
 
