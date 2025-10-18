@@ -31,7 +31,6 @@ void ConfigExtra_DrawDetailedMenu(void)
         {"Automatically suppress LEDs", &configExtra.suppressLeds, NULL},
         {"Cut power to TWL Flashcards", &configExtra.cutSlotPower, NULL},
         {"Cut 3DS Wifi in sleep mode", &configExtra.cutSleepWifi, NULL},
-        {"Include title ID in screenshot filename", &configExtra.includeScreenshotTitleId, NULL},
         {"Save screenshots in date folders", &configExtra.screenshotDateFolders, NULL},
         {"Combine top/bottom screenshots", &configExtra.screenshotCombined, NULL},
         {"Toggle bottom LCD backlight (start+select)", &configExtra.toggleLcdCombo, &CheckNotO2DS},
@@ -110,17 +109,15 @@ void ConfigExtra_ReadConfigExtra(void)
         configExtra.suppressLeds = (extraConfigFlags >> 0) & 1;
         configExtra.cutSlotPower = (extraConfigFlags >> 1) & 1;
         configExtra.cutSleepWifi = (extraConfigFlags >> 2) & 1;
-        configExtra.includeScreenshotTitleId = (extraConfigFlags >> 3) & 1;
-        configExtra.screenshotDateFolders = (extraConfigFlags >> 4) & 1;
-        configExtra.screenshotCombined = (extraConfigFlags >> 5) & 1;
-        configExtra.toggleLcdCombo = (extraConfigFlags >> 6) & 1;
-        configExtra.temperatureUnit = (extraConfigFlags >> 7) & 1;
-        configExtra.use12HourClock = (extraConfigFlags >> 8) & 1;
+        configExtra.screenshotDateFolders = (extraConfigFlags >> 3) & 1;
+        configExtra.screenshotCombined = (extraConfigFlags >> 4) & 1;
+        configExtra.toggleLcdCombo = (extraConfigFlags >> 5) & 1;
+        configExtra.temperatureUnit = (extraConfigFlags >> 6) & 1;
+        configExtra.use12HourClock = (extraConfigFlags >> 7) & 1;
     } else {
         configExtra.suppressLeds = false;
         configExtra.cutSlotPower = false;
         configExtra.cutSleepWifi = false;
-        configExtra.includeScreenshotTitleId = true;
         configExtra.screenshotDateFolders = true;
         configExtra.screenshotCombined = true;
         configExtra.toggleLcdCombo = false;

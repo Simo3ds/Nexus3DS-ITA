@@ -568,11 +568,9 @@ void RosalinaMenu_TakeScreenshot(void)
     }
 
     char titleIdStr[18] = {0};
-    if (configExtra.includeScreenshotTitleId) {
-        u64 titleId = GetCurrentTitleId();
-        if (titleId != 0) {
-            sprintf(titleIdStr, "_%016llX", titleId);
-        }
+    u64 titleId = GetCurrentTitleId();
+    if (titleId != 0) {
+        sprintf(titleIdStr, "_%016llX", titleId);
     }
 
     char folderPath[64];
@@ -741,11 +739,9 @@ void menuTakeSelfScreenshot(void)
     }
 
     char titleIdStr[18] = {0};
-    if (configExtra.includeScreenshotTitleId) {
-        u64 titleId = GetCurrentTitleId();
-        if (titleId != 0) {
-            sprintf(titleIdStr, "_%016llX", titleId);
-        }
+    u64 titleId = GetCurrentTitleId();
+    if (titleId != 0) {
+        sprintf(titleIdStr, "_%016llX", titleId);
     }
 
     char folderPath[64];
