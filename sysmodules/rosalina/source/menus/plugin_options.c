@@ -19,7 +19,7 @@ Menu pluginOptionsMenu = {
     {
         { "", METHOD, .method = &PluginLoaderOptions__MenuCallback },
         { "", METHOD, .method = &PluginWatcher__MenuCallback },
-        { "Set watch level", METHOD, .method = &PluginWatcher_SetWatchLevel },
+        { "Set watch level...", METHOD, .method = &PluginWatcher_SetWatchLevel },
         { "", METHOD, .method = &PluginConverter__ToggleUseCacheFlag },
         {},
     }
