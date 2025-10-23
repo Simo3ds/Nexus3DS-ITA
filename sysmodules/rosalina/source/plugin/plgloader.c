@@ -158,10 +158,10 @@ static bool PluginWatcher_AskSkip(const char *message)
 
     Draw_Lock();
 
-    Draw_DrawString(10, 10, COLOR_TITLE, "Plugin Watcher");
+    Draw_DrawMenuFrame("Plugin Watcher");
 
-    posY = Draw_DrawString(30, 30, COLOR_WHITE, message);
-    posY = Draw_DrawString(30, posY + 30, COLOR_WHITE, "Press A to continue, press B to block.");
+    posY = Draw_DrawString(10, 50, COLOR_WHITE, message);
+    posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "Press A to continue, press B to block.");
 
     Draw_FlushFramebuffer();
     Draw_Unlock();
