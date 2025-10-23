@@ -37,7 +37,6 @@
 #include "menus/home_button_sim.h"
 #include "plugin/plgloader.h"
 
-extern bool PluginChecker_isEnabled;
 extern bool PluginWatcher_isEnabled;
 extern bool PluginConverter_UseCache;
 extern u32  PluginWatcher_WatchLevel;
@@ -202,9 +201,8 @@ static size_t LumaConfig_SaveLumaIniConfigToStr(char *out, const CfgData *cfg)
         autobootModeStr,
 
         cfg->hbldr3dsxTitleId, rosalinaMenuComboStr, (int)(cfg->pluginLoaderFlags & 1),
-        (int)((cfg->pluginLoaderFlags & (1 << 1)) >> 1), (int)((cfg->pluginLoaderFlags & (1 << 2)) >> 2),
-        (int)cfg->pluginWatcherLevel,
-        (int)((cfg->pluginLoaderFlags & (1 << 3)) >> 3),
+        (int)((cfg->pluginLoaderFlags & (1 << 1)) >> 1), (int)cfg->pluginWatcherLevel,
+        (int)((cfg->pluginLoaderFlags & (1 << 2)) >> 2),
         (int)cfg->ntpTzOffetMinutes,
 
         (int)((cfg->extraConfigFlags >> 0) & 1),
@@ -288,7 +286,7 @@ Result LumaConfig_SaveSettings(void)
     configData.volumeSliderOverride = currVolumeSliderOverride;
     configData.hbldr3dsxTitleId = Luma_SharedConfig->selected_hbldr_3dsx_tid;
     configData.rosalinaMenuCombo = menuCombo;
-    configData.pluginLoaderFlags = PluginLoader__IsEnabled() | (PluginChecker_isEnabled << 1) | (PluginWatcher_isEnabled << 2) | (PluginConverter_UseCache << 3);
+    configData.pluginLoaderFlags = PluginLoader__IsEnabled() | (PluginWatcher_isEnabled << 1) | (PluginConverter_UseCache << 2);
     configData.pluginWatcherLevel = PluginWatcher_WatchLevel;
     configData.ntpTzOffetMinutes = (s16)lastNtpTzOffset;
     configData.topScreenFilter = topScreenFilter;

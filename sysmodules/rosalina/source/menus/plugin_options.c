@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <string.h>
 
-extern bool PluginChecker_isEnabled;
 extern bool PluginWatcher_isEnabled;
 extern bool PluginWatcher_isRunning;
 extern bool PluginConverter_UseCache;
@@ -19,7 +18,6 @@ Menu pluginOptionsMenu = {
     "Plugin settings menu",
     {
         { "", METHOD, .method = &PluginLoaderOptions__MenuCallback },
-        { "", METHOD, .method = &PluginChecker__MenuCallback },
         { "", METHOD, .method = &PluginWatcher__MenuCallback },
         { "Set watch level", METHOD, .method = &PluginWatcher_SetWatchLevel },
         { "", METHOD, .method = &PluginConverter__ToggleUseCacheFlag },
@@ -46,24 +44,6 @@ void PluginLoaderOptions__UpdateMenu(void)
     rosalinaMenu.items[3].menu->items[0].title = status[PluginLoaderCtx.isEnabled];
 }
 
-void PluginChecker__MenuCallback(void)
-{
-    PluginChecker_isEnabled = !PluginChecker_isEnabled;
-    LumaConfig_RequestSaveSettings();
-    PluginChecker__UpdateMenu();
-}
-
-void PluginChecker__UpdateMenu(void)
-{
-    static const char *status[2] =
-    {
-        "Plugin Checker: [Disabled]",
-        "Plugin Checker: [Enabled]"
-    };
-
-    rosalinaMenu.items[3].menu->items[1].title = status[PluginChecker_isEnabled];
-}
-
 void PluginWatcher__MenuCallback(void)
 {
     PluginWatcher_isEnabled = !PluginWatcher_isEnabled;
@@ -88,7 +68,7 @@ void PluginWatcher__UpdateMenu(void)
         "Plugin Watcher: [Disabled]",
         "Plugin Watcher: [Enabled]"
     };
-    rosalinaMenu.items[3].menu->items[2].title = status[PluginWatcher_isEnabled];
+    rosalinaMenu.items[3].menu->items[1].title = status[PluginWatcher_isEnabled];
 }
 
 void PluginConverter__ToggleUseCacheFlag(void)
@@ -105,7 +85,7 @@ void PluginConverter__UpdateMenu(void)
         "Use cache in plugin converter: [OFF]",
         "Use cache in plugin converter: [ON]"
     };
-    rosalinaMenu.items[3].menu->items[4].title = status[PluginConverter_UseCache];
+    rosalinaMenu.items[3].menu->items[3].title = status[PluginConverter_UseCache];
 }
 
 void PluginWatcher_SetWatchLevel(void)

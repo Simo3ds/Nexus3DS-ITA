@@ -19,7 +19,6 @@ static const char *g_defaultPath = "/luma/plugins/default.3gx";
 u64 g_titleId;
 u32 g_pid;
 
-extern bool PluginChecker_isEnabled;
 extern bool PluginConverter_UseCache;
 
 // pluginLoader.s
@@ -647,18 +646,6 @@ static Result CheckPluginCompatibility(_3gx_Header *header, u32 processTitle)
     return -1;
 }
 
-static char *memstr(char *haystack, const char *needle, int size)
-{
-    char needlesize = strlen(needle);
-
-    for (char *p = haystack; p <= (haystack - needlesize + size); p++)
-    {
-        if (memcmp(p, needle, needlesize) == 0)
-            return p; // found
-    }
-    return NULL;
-}
-
 bool TryToLoadPlugin(Handle process, bool isHomebrew)
 {
     u64 tid;
@@ -777,119 +764,6 @@ bool TryToLoadPlugin(Handle process, bool isHomebrew)
         else
             ctx->error.message = errors[err];
     }
-
-    if (PluginChecker_isEnabled)
-    {
-        u64 remaining = fileSize - 8;
-        u64 total;
-        u8 risk = 0;
-        const u32 bufferSize = 2000;
-        char fileBuf[bufferSize];
-        const char *keywords[] = {"cias", "boot.firm", "gm9", "DCIM", "JKSV", "Splashes", "boot9strap", "private", "Nintendo 3DS", "fbi"};
-        u8 keywordCount = sizeof(keywords) / sizeof(keywords[0]);
-        u8 addPercent = 100 / keywordCount;
-
-        // Flash the screen (Yellow)
-        for (u32 i = 0; i < 64; i++)
-        {
-            REG32(0x10202204) = 0x0133ffff;
-            svcSleepThread(5000000);
-        }
-        REG32(0x10202204) = 0;
-
-        // Checking for keywords in plugin file
-        while (remaining != 0)
-        {
-            u64 size = (remaining > bufferSize ? bufferSize : remaining);
-            IFile_Read(&plugin, &total, (void *)fileBuf, size);
-
-            for (int i = 0; i < keywordCount; i++)
-            {
-                if (memstr(fileBuf, keywords[i], size) != NULL)
-                {
-                    risk += addPercent;
-                }
-            }
-            remaining -= size;
-        }
-
-        // If risk is not 0, display warning message
-        if (risk)
-        {
-            char textBuf[256];
-            char *warningText = NULL;
-            u32 keys = 0;
-            u32 posY = 0;
-
-            extern u32 g_blockMenuOpen;
-            g_blockMenuOpen++;
-            menuEnter();
-            ClearScreenQuickly();
-
-            // Set warning text
-            if (risk <= 20)
-                warningText = "little dangerous";
-            else if (risk <= 40)
-                warningText = "moderately dangerous";
-            else if (risk <= 100)
-                warningText = "very dangerous";
-            sprintf(textBuf, "Risk : %d%%(%s)", risk, warningText);
-
-            do
-            {
-                Draw_Lock();
-
-                Draw_DrawMenuFrame("---WARNING---");
-                posY = Draw_DrawString(10, 40, COLOR_WHITE, "This 3gx may be a destruction 3gx!");
-                posY = Draw_DrawString(10, posY + 20, COLOR_WHITE, textBuf);
-                posY = Draw_DrawString(10, posY + 20, COLOR_WHITE, "Press A to use 3gx, press B to don't use 3gx.");
-
-                Draw_FlushFramebuffer();
-                Draw_Unlock();
-
-                keys = waitComboWithTimeout(1000);
-                if (keys & KEY_A)
-                {
-                    ClearScreenQuickly();
-                    do
-                    {
-                        Draw_Lock();
-
-                        Draw_DrawMenuFrame("---WARNING---");
-                        posY = Draw_DrawString(10, 40, COLOR_WHITE, "Do you really want to use 3gx?");
-                        posY = Draw_DrawString(10, posY + 20, COLOR_WHITE, "Press A to continue, press B to go back.");
-
-                        Draw_FlushFramebuffer();
-                        Draw_Unlock();
-
-                        keys = waitInputWithTimeout(1000);
-
-                        if (keys & KEY_A)
-                        {
-                            g_blockMenuOpen--;
-                            menuLeave();
-                            goto nextProcess;
-                        }
-
-                        if (keys & KEY_B)
-                        {
-                            ClearScreenQuickly();
-                            break;
-                        }
-                    } while (!menuShouldExit);
-                }
-
-                if (keys & KEY_B)
-                {
-                    g_blockMenuOpen--;
-                    menuLeave();
-                    goto exitFail;
-                }
-            } while (!menuShouldExit);
-        }
-    }
-
-nextProcess:
 
     // Read header
     if (!res && R_FAILED((res = Read_3gx_Header(&plugin, &fileHeader))))
