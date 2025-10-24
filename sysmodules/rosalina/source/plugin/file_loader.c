@@ -16,6 +16,7 @@ static PluginEntry g_foundPlugins[10];
 static char g_path[256];
 static const char *g_dirPath = "/luma/plugins/%016llX";
 static const char *g_defaultPath = "/luma/plugins/default.3gx";
+
 u64 g_titleId;
 u32 g_pid;
 
@@ -287,39 +288,33 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
                 Draw_ClearFramebuffer();
                 Draw_Unlock();
             }
-            else if (selected == 1)
+            else if (selected == 1) // Set as default
             {
-                if (ConfirmOperation("Are you sure you want to set this plugin as default?"))
+                for (u8 i = 0; i < *count; i++)
                 {
-                    for (u8 i = 0; i < *count; i++)
-                    {
-                        entries[i].isDefault = false;
-                    }
-                    entries[index].isDefault = true;
-
-                    // Set as default plugin option
-                    options[1].enabled = false;
-
-                    // Remove from default plugin option
-                    options[2].enabled = true;
+                    entries[i].isDefault = false;
                 }
+                entries[index].isDefault = true;
+
+                // Set as default plugin option
+                options[1].enabled = false;
+
+                // Remove from default plugin option
+                options[2].enabled = true;
                 
                 Draw_Lock();
                 Draw_ClearFramebuffer();
                 Draw_Unlock();
             }
-            else if (selected == 2)
+            else if (selected == 2) // Remove from default
             {
-                if (ConfirmOperation("Are you sure you want to remove this plugin from default?"))
-                {
-                    entries[index].isDefault = false;
+                entries[index].isDefault = false;
 
-                    // Set as default plugin option
-                    options[1].enabled = true;
+                // Set as default plugin option
+                options[1].enabled = true;
 
-                    // Remove from default plugin option
-                    options[2].enabled = false;
-                }
+                // Remove from default plugin option
+                options[2].enabled = false;
                 
                 Draw_Lock();
                 Draw_ClearFramebuffer();
@@ -512,7 +507,7 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
     return filename;
 }
 
-static Result FindPluginFile(u64 tid)
+static Result FindPluginFile(u64 tid, u8 defaultFound)
 {
     char filename[256];
     u32 entriesNb = 0;
@@ -532,7 +527,15 @@ static Result FindPluginFile(u64 tid)
         goto exit;
 
     if (R_FAILED((res = FSUSER_OpenDirectory(&dir, sdmcArchive, fsMakePath(PATH_ASCII, g_path)))))
-        goto exit;
+    {
+        if (defaultFound == 1)
+        {
+            res = 0;
+            goto defaultplg;
+        }
+        else
+            goto exit;
+    }
 
     strcat(g_path, "/");
     while (foundPluginCount < 10 && R_SUCCEEDED(FSDIR_Read(dir, &entriesNb, 10, entries)))
@@ -577,6 +580,14 @@ static Result FindPluginFile(u64 tid)
         }
     }
 
+defaultplg:
+
+    if (foundPluginCount < 10 && defaultFound == 1)
+    {
+        strcpy(foundPlugins[foundPluginCount].name, "<default.3gx>");
+        foundPluginCount++;
+    }
+
     if (!foundPluginCount)
         res = MAKERESULT(28, 4, 0, 1018);
     else
@@ -586,6 +597,11 @@ static Result FindPluginFile(u64 tid)
         if (!name)
         {
             res = MAKERESULT(28, 4, 0, 1018);
+        }
+        else if (strcmp(name, "<default.3gx>") == 0)
+        {
+            PluginLoaderCtx.pluginPath = g_defaultPath;
+            PluginLoaderCtx.header.isDefaultPlugin = 1;
         }
         else
         {
@@ -610,15 +626,26 @@ static Result OpenFile(IFile *file, const char *path)
 
 static Result OpenPluginFile(u64 tid, IFile *plugin)
 {
-    if (R_FAILED(FindPluginFile(tid)) || OpenFile(plugin, g_path))
-    {
-        // Try to open default plugin
-        if (OpenFile(plugin, g_defaultPath))
-            return -1;
+    // Note: I didn't find a way to check if the file exists without opening it,
+    // so I made this mess instead. If someone knows a better way, please do it.
+    u8 defaultFound = 1;
 
-        PluginLoaderCtx.pluginPath = g_defaultPath;
-        PluginLoaderCtx.header.isDefaultPlugin = 1;
-        return 0;
+    if (OpenFile(plugin, g_defaultPath))
+        defaultFound = 0;
+
+    if (R_FAILED(FindPluginFile(tid, defaultFound)))
+    {
+        if (defaultFound == 1)
+            IFile_Close(plugin);
+        return -1;
+    }
+
+    if (PluginLoaderCtx.header.isDefaultPlugin == 0)
+    {
+        if (defaultFound == 1)
+            IFile_Close(plugin);
+        if (OpenFile(plugin, g_path))
+            return -1;
     }
 
     return 0;
