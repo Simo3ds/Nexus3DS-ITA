@@ -57,7 +57,7 @@ bool ConfirmOperation(const char *message)
         Draw_Lock();
         Draw_DrawMenuFrame("Confirmation");
         Draw_DrawString(10, 40, COLOR_WHITE, message);
-        Draw_DrawString(10, 70, COLOR_WHITE, "Press [A] to confirm, press [B] to cancel.");
+        Draw_DrawString(10, 75, COLOR_WHITE, "Press [A] to confirm, press [B] to cancel.");
         Draw_FlushFramebuffer();
         Draw_Unlock();
 
@@ -125,7 +125,7 @@ void LoadPlgSelectorSettings(u8 *defaultPlgIndex, PluginEntry *entries, u8 count
             }
 
             // Invalid index
-            if (index <= *defaultPlgIndex)
+            if (*defaultPlgIndex < 0xFE && *defaultPlgIndex >= index)
             {
                 *defaultPlgIndex = 0xFF;
             }
@@ -146,12 +146,11 @@ void LoadPlgSelectorSettings(u8 *defaultPlgIndex, PluginEntry *entries, u8 count
     }
 }
 
-void SavePluginSelectorSettings(const PluginEntry *entries, u8 count)
+void SavePluginSelectorSettings(const PluginEntry *entries, u8 count, u8 defaultPlgIndex)
 {
     IFile file;
     u64 total;
     char path[256];
-
     GetPlgSelectorSettingsPath(path);
 
     if (R_SUCCEEDED(IFile_Open(&file, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, path), FS_OPEN_CREATE | FS_OPEN_WRITE)))
@@ -166,22 +165,19 @@ void SavePluginSelectorSettings(const PluginEntry *entries, u8 count)
         {
             const PluginEntry *entry = &entries[i];
             IFile_Write(&file, &total, &entry->name, strlen(entry->name) + 1, FS_WRITE_FLUSH);
-
-            // Write index of default plugin to the first byte
-            if (entry->isDefault)
-            {
-                u32 oldPos = file.pos;
-                file.pos = 0;
-                IFile_Write(&file, &total, &i, sizeof(u8), FS_WRITE_FLUSH);
-                file.pos = oldPos;
-            }
         }
+
+        // Write index of default plugin to the first byte
+        u32 oldPos = file.pos;
+        file.pos = 0;
+        IFile_Write(&file, &total, &defaultPlgIndex, sizeof(u8), FS_WRITE_FLUSH);
+        file.pos = oldPos;
 
         IFile_Close(&file);
     }
 }
 
-void FileOptions(PluginEntry *entries, u8 *count, u8 index)
+void FileOptions(PluginEntry *entries, u8 *count, u8 index, u8 *defaultPlgIndex)
 {
     /* Options list structure */
     struct
@@ -189,9 +185,11 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
         const char *name;
         bool enabled;
     } options[] = {
-        {"Remove this file", true},
         {"Set as default plugin", true},
-        {"Remove from default", false}};
+        {"Remove from default", false},
+        {"Remove this file", true},
+        {"Don't load plugin for this app", true}
+    };
 
     const char *name = entries[index].name;
     char message[256];
@@ -213,10 +211,20 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
     if (entries[index].isDefault)
     {
         // Set as default option
-        options[1].enabled = false;
+        options[0].enabled = false;
 
         // Remove from default option
-        options[2].enabled = true;
+        options[1].enabled = true;
+
+        // Don't load option
+        options[3].enabled = true;
+    }
+    else if (*defaultPlgIndex == 0xFE)
+    {
+        // "Don't load" is active
+        options[0].enabled = true;
+        options[1].enabled = true; // Remove "don't load" setting
+        options[3].enabled = false;
     }
 
     do
@@ -250,7 +258,44 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
 
         if ((keys & KEY_A) && options[selected].enabled)
         {
-            if (selected == 0)
+            if (selected == 0) // Set as default
+            {
+                for (u8 i = 0; i < *count; i++)
+                {
+                    entries[i].isDefault = false;
+                }
+                entries[index].isDefault = true;
+                *defaultPlgIndex = index;
+
+                // Set as default plugin option
+                options[0].enabled = false;
+
+                // Remove from default plugin option
+                options[1].enabled = true;
+                
+                Draw_Lock();
+                Draw_ClearFramebuffer();
+                Draw_Unlock();
+            }
+            else if (selected == 1) // Remove from default
+            {
+                for (u8 i = 0; i < *count; i++)
+                {
+                    entries[i].isDefault = false;
+                }
+                *defaultPlgIndex = 0xFF;
+
+                options[0].enabled = true;
+                options[1].enabled = false;
+
+                // Don't load option
+                options[3].enabled = true;
+                
+                Draw_Lock();
+                Draw_ClearFramebuffer();
+                Draw_Unlock();
+            }
+            else if (selected == 2)
             {
                 if (ConfirmOperation("Are you sure you want to remove this file?"))
                 {
@@ -260,7 +305,13 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
                     {
                         char path[256];
 
-                        sprintf(path, "/luma/plugins/%016llX/%s", g_titleId, name);
+                        if(strcmp(name, "<default.3gx>") == 0){ // KNOWN ISSUE: this doesn't work, will fix later (hopefully), this goes in the if fine
+                            strcpy(path, g_defaultPath);
+                        }
+                        else
+                        {
+                            sprintf(path, "/luma/plugins/%016llX/%s", g_titleId, name);
+                        }
 
                         FSUSER_DeleteFile(sdmc, fsMakePath(PATH_ASCII, path));
                         FSUSER_CloseArchive(sdmc);
@@ -273,11 +324,11 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
 
                     *count -= 1;
 
-                    // Prevent to be removed the last file
+                    // Prevent removing the last file
                     if (*count == 1)
                     {
                         // Remove file option
-                        options[0].enabled = false;
+                        options[2].enabled = false;
                     }
 
                     // No operations are available for this file
@@ -288,34 +339,22 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index)
                 Draw_ClearFramebuffer();
                 Draw_Unlock();
             }
-            else if (selected == 1) // Set as default
+            else if (selected == 3)
             {
-                for (u8 i = 0; i < *count; i++)
+                if (ConfirmOperation("Are you sure you want to disable plugin loading?\nYou can re-enable it by selecting\n\"Remove from default\"."))
                 {
-                    entries[i].isDefault = false;
+                    for (u8 i = 0; i < *count; i++)
+                    {
+                        entries[i].isDefault = false;
+                    }
+                    // Mark as default plugin with special index
+                    *defaultPlgIndex = 0xFE;
+
+                    options[0].enabled = true;
+                    options[1].enabled = true;
+                    options[3].enabled = false;
                 }
-                entries[index].isDefault = true;
 
-                // Set as default plugin option
-                options[1].enabled = false;
-
-                // Remove from default plugin option
-                options[2].enabled = true;
-                
-                Draw_Lock();
-                Draw_ClearFramebuffer();
-                Draw_Unlock();
-            }
-            else if (selected == 2) // Remove from default
-            {
-                entries[index].isDefault = false;
-
-                // Set as default plugin option
-                options[1].enabled = true;
-
-                // Remove from default plugin option
-                options[2].enabled = false;
-                
                 Draw_Lock();
                 Draw_ClearFramebuffer();
                 Draw_Unlock();
@@ -346,19 +385,28 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
     u8 selected = 0;
     s8 holding = -1;
 
-    if (count == 1)
-        return entries[0].name;
-
-    u8 defaultPlgIndex = 0;
+    u8 defaultPlgIndex = 0xFF;
     LoadPlgSelectorSettings(&defaultPlgIndex, entries, count);
 
-    if (defaultPlgIndex != 0xFF)
+    if(defaultPlgIndex == 0xFE)
+    {
+        // Don't load any plugin option
+        if (!(HID_PAD & KEY_SELECT)) {
+            return NULL;
+        }
+    }
+    else if (count == 1)
+    {
+        if (!(HID_PAD & KEY_SELECT)) {
+            return entries[0].name;
+        }
+    }
+    else if (defaultPlgIndex != 0xFF)
     {
         PluginEntry *entry = &entries[defaultPlgIndex];
 
         if (!(HID_PAD & KEY_SELECT))
         {
-            PluginEntry *entry = &entries[defaultPlgIndex];
             entry->isDefault = true;
 
             return entry->name;
@@ -439,7 +487,7 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
         {
             if (holding == -1)
             {
-                FileOptions(entries, &count, selected);
+                FileOptions(entries, &count, selected, &defaultPlgIndex);
 
                 if (count < selected + 1)
                     selected = count - 1;
@@ -502,7 +550,7 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
     g_blockMenuOpen--;
     menuLeave();
 
-    SavePluginSelectorSettings(entries, count);
+    SavePluginSelectorSettings(entries, count, defaultPlgIndex);
 
     return filename;
 }
