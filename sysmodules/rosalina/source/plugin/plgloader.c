@@ -152,6 +152,8 @@ static bool PluginWatcher_AskSkip(const char *message)
     u32 posY;
     u32 keys;
 
+    g_blockMenuOpen++;
+
     menuEnter();
 
     ClearScreenQuickly();
@@ -172,6 +174,8 @@ static bool PluginWatcher_AskSkip(const char *message)
     } while(!(keys & KEY_A) && !(keys & KEY_B) && !menuShouldExit);
 
     menuLeave();
+
+    g_blockMenuOpen--;
 
     return keys & KEY_B;
 }
