@@ -169,3 +169,7 @@ For a complete list of contributors and acknowledgments, please see the [officia
 ---
 
 **For detailed documentation, troubleshooting, and comprehensive information, please visit the [official Luma3DS repository](https://github.com/LumaTeam/Luma3DS) and [wiki](https://github.com/LumaTeam/Luma3DS/wiki).**
+
+
+
+*Please Note that Italian translation won't be done for preview release*
