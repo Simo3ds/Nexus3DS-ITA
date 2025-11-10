@@ -352,9 +352,10 @@ void RosalinaMenu_ShowCredits(void)
     do
     {
         Draw_Lock();
-        Draw_DrawMenuFrame("Rosalina -- Luma3DS credits");
+        Draw_DrawMenuFrame("Rosalina -- Nexus3DS credits");
 
-        u32 posY = Draw_DrawString(10, 40, COLOR_WHITE, "Luma3DS (c) 2016-2025 AuroraWright, TuxSH") + SPACING_Y;
+        u32 posY = Draw_DrawString(10, 40, COLOR_WHITE, "Nexus3DS (c) 2024-2025 Nexus3DS Team") + SPACING_Y;
+        posY = Draw_DrawString(10, posY, COLOR_WHITE, "Based on Luma3DS (c) 2016-2025 AuroraWright, TuxSH") + SPACING_Y;
 
         posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "3DSX loading code by fincs");
         posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "Networking code & basic GDB functionality by Stary");
