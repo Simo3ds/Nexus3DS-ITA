@@ -83,7 +83,8 @@ void detectAndProcessExceptionDumps(void)
         "Nope, your 3DS cannot handle that.", "Task failed successfully", "Maybe you should take a break.",
         "Oof", "Did you try to turn it off and back on?", ":(", "Maybe don't do that again", "Skill issue",
         "Congrats! You won a crash!", "Welcome to Arch Linux!", "Game Over.", "Nah I'd crash", "But it refused.",
-        "No fun allowed.", "This crash is sponsored by Raid Shadow Legends", "Sata andagi", "You gotta believe!"
+        "No fun allowed.", "This crash is sponsored by Raid Shadow Legends", "Sata andagi", "You gotta believe!",
+        "*EXTREMELY LOUD INCORRECT BUZZER SFX*"
     };
 
     static const u32 faultStatusValues[] = {
