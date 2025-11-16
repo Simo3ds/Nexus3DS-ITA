@@ -313,26 +313,29 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index, u8 *defaultPlgIndex)
                             sprintf(path, "/luma/plugins/%016llX/%s", g_titleId, name);
                         }
 
-                        FSUSER_DeleteFile(sdmc, fsMakePath(PATH_ASCII, path));
+                        Result delResult = FSUSER_DeleteFile(sdmc, fsMakePath(PATH_ASCII, path));
                         FSUSER_CloseArchive(sdmc);
+
+                        if (R_SUCCEEDED(delResult))
+                        {
+                            for (u8 i = index; i < *count - 1; i++)
+                            {
+                                entries[i] = entries[i + 1];
+                            }
+
+                            *count -= 1;
+
+                            // Prevent removing the last file
+                            if (*count == 1)
+                            {
+                                // Remove file option
+                                options[2].enabled = false;
+                            }
+
+                            // No operations are available for this file
+                            break;
+                        }
                     }
-
-                    for (u8 i = index; i < *count - 1; i++)
-                    {
-                        entries[i] = entries[i + 1];
-                    }
-
-                    *count -= 1;
-
-                    // Prevent removing the last file
-                    if (*count == 1)
-                    {
-                        // Remove file option
-                        options[2].enabled = false;
-                    }
-
-                    // No operations are available for this file
-                    break;
                 }
 
                 Draw_Lock();
@@ -676,23 +679,24 @@ static Result OpenPluginFile(u64 tid, IFile *plugin)
 {
     // Note: I didn't find a way to check if the file exists without opening it,
     // so I made this mess instead. If someone knows a better way, please do it.
-    u8 defaultFound = 1;
+    u8 defaultFound = 0;
 
-    if (OpenFile(plugin, g_defaultPath))
-        defaultFound = 0;
+    if (OpenFile(plugin, g_defaultPath) == 0) {
+        defaultFound = 1;
+        IFile_Close(plugin);
+    }
 
     if (R_FAILED(FindPluginFile(tid, defaultFound)))
     {
-        if (defaultFound == 1)
-            IFile_Close(plugin);
         return -1;
     }
 
     if (PluginLoaderCtx.header.isDefaultPlugin == 0)
     {
-        if (defaultFound == 1)
-            IFile_Close(plugin);
         if (OpenFile(plugin, g_path))
+            return -1;
+    } else {
+        if (OpenFile(plugin, g_defaultPath))
             return -1;
     }
 
