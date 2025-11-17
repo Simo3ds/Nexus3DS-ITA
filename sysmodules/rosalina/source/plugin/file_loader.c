@@ -177,7 +177,7 @@ void SavePluginSelectorSettings(const PluginEntry *entries, u8 count, u8 default
     }
 }
 
-void FileOptions(PluginEntry *entries, u8 *count, u8 index, u8 *defaultPlgIndex)
+u8 FileOptions(PluginEntry *entries, u8 *count, u8 index, u8 *defaultPlgIndex)
 {
     /* Options list structure */
     struct
@@ -305,7 +305,7 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index, u8 *defaultPlgIndex)
                     {
                         char path[256];
 
-                        if(strcmp(name, "<default.3gx>") == 0){ // KNOWN ISSUE: this doesn't work, will fix later (hopefully), this goes in the if fine
+                        if(strcmp(name, "<default.3gx>") == 0){
                             strcpy(path, g_defaultPath);
                         }
                         else
@@ -325,13 +325,9 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index, u8 *defaultPlgIndex)
 
                             *count -= 1;
 
-                            // Prevent removing the last file
-                            if (*count == 1)
-                            {
-                                // Remove file option
-                                options[2].enabled = false;
+                            if(*count <=0) {
+                                return 1;
                             }
-
                             // No operations are available for this file
                             break;
                         }
@@ -380,6 +376,7 @@ void FileOptions(PluginEntry *entries, u8 *count, u8 index, u8 *defaultPlgIndex)
     } while (!menuShouldExit);
     
     g_blockMenuOpen--;
+    return 0;
 }
 
 static char *AskForFileName(PluginEntry *entries, u8 count)
@@ -490,7 +487,8 @@ static char *AskForFileName(PluginEntry *entries, u8 count)
         {
             if (holding == -1)
             {
-                FileOptions(entries, &count, selected, &defaultPlgIndex);
+                if(FileOptions(entries, &count, selected, &defaultPlgIndex))
+                    break;
 
                 if (count < selected + 1)
                     selected = count - 1;
