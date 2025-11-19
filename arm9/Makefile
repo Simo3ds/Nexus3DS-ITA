@@ -52,8 +52,8 @@ endif
 
 ifndef LUMA_VERSION_MAJOR
 	export LUMA_VERSION_MAJOR	:=	13
-	export LUMA_VERSION_MINOR	:=	0
-	export LUMA_VERSION_BUILD	:=	1
+	export LUMA_VERSION_MINOR	:=	3
+	export LUMA_VERSION_BUILD	:=	3
 endif
 
 ifeq ($(strip $(shell git describe --tags --match v[0-9]* | grep -)),)
