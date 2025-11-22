@@ -506,7 +506,7 @@ static Result MiscellaneousMenu_SetPlayCoins(u16 amount)
 
 void MiscellaneousMenu_EditPlayCoins(void)
 {
-    u16 playCoins = 0;
+    u16 playCoins = 300;
     Result res = 0;
     u32 pressed = 0;
 
@@ -524,11 +524,11 @@ void MiscellaneousMenu_EditPlayCoins(void)
             else
                 Draw_DrawFormattedString(20, 100, COLOR_RED, "Error: 0x%08lx", res);
         }
-     
-                 
-                
+
         Draw_DrawString(20, 120, COLOR_GRAY, "Press B to go back.");
-        Draw_DrawString(20, 140, COLOR_RED, "Changes WILL not show until you restart the HOME \nmenu. \n To restart the HOME menu: \n 1. Open a software. \n 2. Suspend the software. \n 3. You should see changes now!");
+        Draw_DrawString(20, 140, COLOR_TITLE, "Note:");
+        
+        Draw_DrawString(20, 150, COLOR_WHITE, "Changes may not be applied immediately.\nIt will be applied once the app reloads the\nplay coins count.");
         Draw_FlushFramebuffer();
         Draw_Unlock();
     }

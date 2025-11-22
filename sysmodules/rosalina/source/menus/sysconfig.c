@@ -550,14 +550,12 @@ void SysConfigMenu_ChangeScreenBrightness(void)
     Draw_Unlock();
 
     bool hasTopScreen = (mcuInfoTable[9] != 3); // Check the model, o2ds (3) don't have a top screen
+    bool isn3dsOnly = (mcuInfoTable[9] == 2 || mcuInfoTable[9] == 4); // for auto brightness warning
 
     u32 luminanceTop = getCurrentLuminance(true);
     u32 luminanceBot = getCurrentLuminance(false);
     u32 minLum = getMinLuminancePreset();
     u32 maxLum = getMaxLuminancePreset();
-    u32 trueMax = 172;
-    u32 trueMin = 6;
-    luminanceTop = luminanceTop >= 173 ? trueMax : luminanceTop;
 
     do
     {
@@ -574,20 +572,9 @@ void SysConfigMenu_ChangeScreenBrightness(void)
             minLum,
             maxLum
         );
-/*
-        posY = Draw_DrawFormattedString(
-            10,
-            posY,
-            COLOR_WHITE,
-            "(min: %lu max: %lu)\n\n",
-            minLum,
-            maxLum
-        );
-*/
         posY = Draw_DrawString(10, posY, COLOR_GREEN, "Controls: \n");
         posY = Draw_DrawString(10, posY, COLOR_WHITE, "Up/Down for +-1, Right/Left for +-10.\n");
         posY = Draw_DrawString(10, posY, COLOR_WHITE, "Hold X/A for Top/Bottom screen only. \n");
-//        posY = Draw_DrawString(10, posY, COLOR_WHITE, "Hold L or R to use raw max. limit. \n");
         if(hasTopScreen)
         {
             posY = Draw_DrawString(10, posY, COLOR_WHITE, "Press Y to toggle top/bottom backlight.\n\n");
@@ -595,8 +582,11 @@ void SysConfigMenu_ChangeScreenBrightness(void)
         posY = Draw_DrawString(10, posY, COLOR_TITLE, "Press START to begin, B to exit.\n\n");
 
         posY = Draw_DrawString(10, posY, COLOR_RED, "WARNING: \n");
-//        posY = Draw_DrawString(10, posY, COLOR_WHITE, "  * Use over-brighten at your own risk!\n");
         posY = Draw_DrawString(10, posY, COLOR_WHITE, "  * all changes revert after sleep mode.");
+        if(isn3dsOnly)
+        {
+            posY = Draw_DrawString(10, posY, COLOR_WHITE, "\n  * auto brightness must be disabled\n    to work properly.");
+        }
         Draw_FlushFramebuffer();
         Draw_Unlock();
 
@@ -628,7 +618,7 @@ void SysConfigMenu_ChangeScreenBrightness(void)
         u32 pressed = waitInputWithTimeout(1000);
         if (pressed & DIRECTIONAL_KEYS) {
             s32 increment = 0;
-//            s32 currentMax = (kHeld & (KEY_L | KEY_R)) ? (s32)trueMax : (s32)maxLum;
+            s32 currentMin = (s32)minLum;
             s32 currentMax = (s32)maxLum;
 
             if (pressed & KEY_UP)
@@ -642,33 +632,28 @@ void SysConfigMenu_ChangeScreenBrightness(void)
 
             if (kHeld & KEY_X) {
                 lumTop += increment;
-                lumTop = lumTop < (s32)trueMin ? (s32)trueMin : lumTop;
+                lumTop = lumTop < (s32)currentMin ? (s32)currentMin : lumTop;
                 lumTop = lumTop > currentMax ? currentMax : lumTop;
             } else if (kHeld & KEY_A) {
                 lumBot += increment;
-                lumBot = lumBot < (s32)trueMin ? (s32)trueMin : lumBot;
+                lumBot = lumBot < (s32)currentMin ? (s32)currentMin : lumBot;
                 lumBot = lumBot > currentMax ? currentMax : lumBot;
             } else {
                 lumTop += increment;
                 lumBot += increment;
-                lumTop = lumTop < (s32)trueMin ? (s32)trueMin : lumTop;
+                lumTop = lumTop < (s32)currentMin ? (s32)currentMin : lumTop;
                 lumTop = lumTop > currentMax ? currentMax : lumTop;
-                lumBot = lumBot < (s32)trueMin ? (s32)trueMin : lumBot;
+                lumBot = lumBot < (s32)currentMin ? (s32)currentMin : lumBot;
                 lumBot = lumBot > currentMax ? currentMax : lumBot;
             }
 
-            if ((lumTop < (s32)minLum || lumTop > (s32)maxLum) || (lumBot < (s32)minLum || lumBot > (s32)maxLum)) {
-                // [TODO] fix the setBrightnessAlt function bug
-                // setBrightnessAlt(lumTop, lumBot);
-            } else {
-                if (kHeld & KEY_X)
-                    GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_TOP), lumTop);
-                else if (kHeld & KEY_A)
-                    GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_BOTTOM), lumBot);
-                else {
-                    GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_TOP), lumTop);
-                    GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_BOTTOM), lumBot);
-                }
+            if (kHeld & KEY_X)
+                GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_TOP), lumTop);
+            else if (kHeld & KEY_A)
+                GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_BOTTOM), lumBot);
+            else {
+                GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_TOP), lumTop);
+                GSPLCD_SetBrightnessRaw(BIT(GSP_SCREEN_BOTTOM), lumBot);
             }
         }
 

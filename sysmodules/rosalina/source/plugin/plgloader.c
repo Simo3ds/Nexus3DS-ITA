@@ -26,7 +26,6 @@ extern u32 g_pid;
 void        IR__Patch(void);
 void        IR__Unpatch(void);
 
-bool PluginChecker_isEnabled = false;
 bool PluginWatcher_isEnabled = false;
 bool PluginWatcher_isRunning = false;
 bool PluginConverter_UseCache = false;
@@ -43,9 +42,8 @@ void        PluginLoader__Init(void)
 
     svcGetSystemInfo(&pluginLoaderFlags, 0x10000, 0x180);
     ctx->isEnabled = pluginLoaderFlags & 1;
-    PluginChecker_isEnabled  = ((pluginLoaderFlags & (1 << 1)) != 0);
-    PluginWatcher_isEnabled = ((pluginLoaderFlags & (1 << 2)) != 0);
-    PluginConverter_UseCache = ((pluginLoaderFlags & (1 << 3)) != 0);
+    PluginWatcher_isEnabled = ((pluginLoaderFlags & (1 << 1)) != 0);
+    PluginConverter_UseCache = ((pluginLoaderFlags & (1 << 2)) != 0);
 
     svcGetSystemInfo(&pluginWatcherLevel, 0x10000, 0x182);
     PluginWatcher_WatchLevel = (u32)pluginWatcherLevel;
@@ -154,16 +152,18 @@ static bool PluginWatcher_AskSkip(const char *message)
     u32 posY;
     u32 keys;
 
+    g_blockMenuOpen++;
+
     menuEnter();
 
     ClearScreenQuickly();
 
     Draw_Lock();
 
-    Draw_DrawString(10, 10, COLOR_TITLE, "Plugin Watcher");
+    Draw_DrawMenuFrame("Plugin Watcher");
 
-    posY = Draw_DrawString(30, 30, COLOR_WHITE, message);
-    posY = Draw_DrawString(30, posY + 30, COLOR_WHITE, "Press A to continue, press B to block.");
+    posY = Draw_DrawString(10, 50, COLOR_WHITE, message);
+    posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "Press A to continue, press B to block.");
 
     Draw_FlushFramebuffer();
     Draw_Unlock();
@@ -174,6 +174,8 @@ static bool PluginWatcher_AskSkip(const char *message)
     } while(!(keys & KEY_A) && !(keys & KEY_B) && !menuShouldExit);
 
     menuLeave();
+
+    g_blockMenuOpen--;
 
     return keys & KEY_B;
 }

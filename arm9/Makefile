@@ -1,17 +1,4 @@
 #---------------------------------------------------------------------------------
-ifndef NEXUS_VERSION_MAJOR
-include $(TOPDIR)/../version.mk
-endif
-
-ifeq ($(strip $(NEXUS_VERSION_MAJOR)),)
-export REVISION			:=	$(shell git describe --tags --match v[0-9]* --abbrev=8 | sed 's/-[0-9]*-g/-/')
-export NEXUS_VERSION_MAJOR	:=	$(shell git describe --tags --match v[0-9]* | cut -c2- | cut -f1 -d- | cut -f1 -d.)
-export NEXUS_VERSION_MINOR	:=	$(shell git describe --tags --match v[0-9]* | cut -c2- | cut -f1 -d- | cut -f2 -d.)
-export NEXUS_VERSION_BUILD	:=	$(shell git describe --tags --match v[0-9]* | cut -c2- | cut-f1 -d- | cut -f3 -d.)
-else
-export REVISION			:=	v$(NEXUS_VERSION_MAJOR).$(NEXUS_VERSION_MINOR).$(NEXUS_VERSION_BUILD)
-endif
-#---------------------------------------------------------------------------------
 .SUFFIXES:
 #---------------------------------------------------------------------------------
 
@@ -26,34 +13,15 @@ ifndef NEXUS_VERSION_MAJOR
 include $(TOPDIR)/../version.mk
 endif
 
-ifeq ($(strip $(NEXUS_VERSION_MAJOR)),)
-export REVISION			:=	$(shell git describe --tags --match v[0-9]* --abbrev=8 | sed 's/-[0-9]*-g/-/')
-export NEXUS_VERSION_MAJOR	:=	$(shell git describe --tags --match v[0-9]* | cut -c2- | cut -f1 -d- | cut -f1 -d.)
-export NEXUS_VERSION_MINOR	:=	$(shell git describe --tags --match v[0-9]* | cut -c2- | cut -f1 -d- | cut -f2 -d.)
-export NEXUS_VERSION_BUILD	:=	$(shell git describe --tags --match v[0-9]* | cut -c2- | cut -f1 -d- | cut -f3 -d.)
+ifndef REVISION
+	export REVISION			:=	v$(NEXUS_VERSION_MAJOR).$(NEXUS_VERSION_MINOR).$(NEXUS_VERSION_BUILD)
 endif
 
 export COMMIT			:=	$(shell git rev-parse --short=8 HEAD)
 export IS_RELEASE		:=	0
 
-ifeq ($(strip $(NEXUS_VERSION_MAJOR)),)
-	export NEXUS_VERSION_MAJOR	:=	0
-	export NEXUS_VERSION_MINOR	:=	0
-	export NEXUS_VERSION_BUILD	:=	0
-endif
-
 ifeq ($(strip $(COMMIT)),)
 	export COMMIT			:=	0
-endif
-
-ifeq ($(strip $(NEXUS_VERSION_BUILD)),)
-	export NEXUS_VERSION_BUILD	:=	0
-endif
-
-ifndef LUMA_VERSION_MAJOR
-	export LUMA_VERSION_MAJOR	:=	13
-	export LUMA_VERSION_MINOR	:=	0
-	export LUMA_VERSION_BUILD	:=	1
 endif
 
 ifeq ($(strip $(shell git describe --tags --match v[0-9]* | grep -)),)

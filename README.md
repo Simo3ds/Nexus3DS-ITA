@@ -44,7 +44,8 @@
 * Set the number of Play Coins - *Original by [Gruetzig](https://github.com/Gruetzig/Luma3DS/commit/1e329b55dade61ba74a0bb1cc6e59d2504d0bde1)*
 * Plugin selector - *Original by [Tekito-256](https://github.com/Tekito-256/Luma3DS)*  
   > **Note:** To access the plugin selector after setting a default plugin, hold the **Select** button while launching a game
-* Dangerous plugin detection - *Original by [Tekito-256](https://github.com/Tekito-256/Luma3DS)*
+* Plugin Watcher - *Original by [Tekito-256](https://github.com/Tekito-256/Luma3DS)*  
+  > **Note:** Monitors and alerts on potentially sensitive plugin operations (file/directory deletion, network connections, camera access). When enabled, displays a confirmation dialog allowing you to continue or block the operation
 * Support for v0.5.x 3GX plugin loading - *Original by [Tekito-256](https://github.com/Tekito-256/Luma3DS)*
 * Force reboot option - *Original by [cooolgamer](https://github.com/cooolgamer)*
 * Time display in Rosalina menu - *Original by [suprdratts/hide0123](https://github.com/suprdratts/Luma3DS/commit/766173d65eeb52baac90e9e68b456ad93ebaab7b)*
