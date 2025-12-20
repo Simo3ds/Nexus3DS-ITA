@@ -85,6 +85,7 @@ For detailed technical information, please refer to the [official Luma3DS docume
 ## Installation and Requirements
 
 **Nexus3DS** requires [boot9strap](https://github.com/SciresM/boot9strap) to run.
+You can use Fastboot3DS as well. 
 
 Once boot9strap has been installed, simply download the latest `boot.firm` file from the [releases page](https://github.com/2b-zipper/Nexus3DS/releases/latest) and place it on the root of your SD card to "install" or upgrade Nexus3DS. Replace any existing `boot.firm` file if necessary.
 
