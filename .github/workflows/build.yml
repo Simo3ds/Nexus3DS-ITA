@@ -1,4 +1,4 @@
-name: NEXT
+name: NEXUS.Build
 
 on:
   push:
