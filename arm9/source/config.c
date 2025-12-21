@@ -916,18 +916,18 @@ void askForUpgradeProcess(void)
 {
     initScreens();
 
-    drawString(true, 10, 10, COLOR_ORANGE, "Nexus3DS backup confirmation");
-    drawString(true, 10, 10 + SPACING_Y * 2, COLOR_WHITE, "Do you want to install Nexus3DS to CTRNAND?\nThis enables you to boot without an sd card.");
-    drawString(true, 10, 10 + SPACING_Y * 5, COLOR_WHITE, "Doing so will also backup essential files.");
-    drawString(true, 10, 10 + SPACING_Y * 7, COLOR_ORANGE, "Press A to confirm, X to cancel.\nIf you're unsure, press A.");
+    drawString(true, 10, 10, COLOR_ORANGE, "Conferma Backup Nexus3DS");
+    drawString(true, 10, 10 + SPACING_Y * 2, COLOR_WHITE, "Vuoi installare Nexus3DS su CTRNAND?\nPotrai quindi avviare senza scheda SD");
+    drawString(true, 10, 10 + SPACING_Y * 5, COLOR_WHITE, "Procedendo, anche i file essenziali saranno inclusi nel backup.");
+    drawString(true, 10, 10 + SPACING_Y * 7, COLOR_ORANGE, "Premi A per confermare, X per annullare.\nSe non sai cosa fare, premi A.");
 
     while (true) {
         u32 pressed = waitInput(false);
 
         if (pressed & (BUTTON_A | BUTTON_X)) {
             if (pressed & BUTTON_A)
-                doLumaUpgradeProcess() ? drawString(true, 10, 10 + SPACING_Y * 10, COLOR_GREEN, "Backup complete!") :
-                                         drawString(true, 10, 10 + SPACING_Y * 10, COLOR_RED, "Backup failed! Is your SD card corrupted?");
+                doLumaUpgradeProcess() ? drawString(true, 10, 10 + SPACING_Y * 10, COLOR_GREEN, "Backup completato!") :
+                                         drawString(true, 10, 10 + SPACING_Y * 10, COLOR_RED, "Backup non riuscito! \nLa tua scheda SD e' corrotta?");
             break;
         }
     }
@@ -965,117 +965,116 @@ void writeConfig(bool isConfigOptions)
         writeConfigMcu();
 
     if(updateIni && !writeLumaIniConfig())
-        error("Error writing the configuration file");
+        error("Errore nella creazione del file di configurazione!");
 }
 
 void configMenu(bool oldPinStatus, u32 oldPinMode)
 {
-    static const char *multiOptionsText[]  = { "Default EmuNAND: 1( ) 2( ) 3( ) 4( )",
-                                               "Screen brightness: 4( ) 3( ) 2( ) 1( )",
-                                               "Splash: Off( ) Before( ) After( ) payloads",
-                                               "Splash duration: 1s( ) 3s( ) 5s( ) Custom( )",
-                                               "PIN lock: Off( ) 4( ) 6( ) 8( ) digits",
-                                               "New 3DS CPU: Off( ) Clock( ) L2( ) Clock+L2( )",
-                                               "Hbmenu autoboot: Off( ) 3DS( ) DSi( )",
+    static const char *multiOptionsText[]  = { "EmuNAND predefinita: 1( ) 2( ) 3( ) 4( )",
+                                               "Luminosita' schermo: 4( ) 3( ) 2( ) 1( )",
+                                               "Splash: No( ) Prima( ) Dopo( ) dei payload",
+                                               "Durata Splash: 1s( ) 3s( ) 5s( ) Custom( )",
+                                               "Blocco PIN: No( ) 4( ) 6( ) 8( ) cifre",
+                                               "New 3DS CPU: No( ) Clock( ) L2( ) Clock+L2( )",
+                                               "Avvio auto. HBMenu: No( ) 3DS( ) DSi( )",
                                              };
 
-    static const char *singleOptionsText[] = { "( ) Autoboot EmuNAND",
-                                               "( ) Enable loading external FIRMs and modules",
-                                               "( ) Enable game patching",
-                                               "( ) Redirect app. syscore threads to core2",
-                                               "( ) Show NAND or user string in System Settings",
-                                               "( ) Show GBA boot screen in patched AGB_FIRM",
-                                               "( ) Enable development UNITINFO",
-                                               "( ) Disable arm11 exception handlers",
-                                               "( ) Enable Rosalina on SAFE_FIRM",
-                                               "( ) Enable instant reboot + disable Errdisp",
+    static const char *singleOptionsText[] = { "( ) Avvio auto. EmuNAND",
+                                               "( ) Abilita caricamento FIRMs e moduli esterni",
+                                               "( ) Abilita patching dei giochi",
+                                               "( ) Reindirizza i thread syscore delle app a core2",
+                                               "( ) Mostra NAND o stringa utente nelle Imp. di Sis.",
+                                               "( ) Mostra sch. di avvio GBA in AGB_FIRM patchato",
+                                               "( ) Abilita UNITINFO di sviluppo",
+                                               "( ) Disattiva arm11 exception handlers",
+                                               "( ) Abilita Rosalina su SAFE_FIRM",
+                                               "( ) Abilita riavvio istantaneo + disabilita Errdisp",
 
                                                // Should always be the last 2 entries
-                                               "\nBoot chainloader",
-                                               "Save and exit"
+                                               "\nAvvia chainloader",
+                                               "Salva ed esci."
                                              };
 
     // Dynamic description for splash duration
     static char splashDurationDescription[256];
     sprintf(splashDurationDescription, 
-            "Select splash screen duration.\n\n"
-            "Choose preset: 1s, 3s, 5s or custom.\n"
-            "Custom reads from splash_duration_ms\n"
-            "setting in nexusconfig.ini.\n\n"
-            "Current custom value: %lu ms", 
+            "Seleziona la durata dello Splash.\n\n"
+            "Scegli preimpostato: 1s, 3s, 5s o personalizzato.\n"
+            "Il valore Custom viene letto da splash_duration_ms\n"
+            "nel file nexusconfig.ini.\n\n"
+            "Valore personalizzato attuale: %lu ms", 
             configData.splashDurationMsec);
 
-    static const char *optionsDescription[]  = { "Select the default EmuNAND.\n\n"
-                                                 "It will be booted when no directional\n"
-                                                 "pad buttons are pressed (Up/Right/Down\n"
-                                                 "/Left equal EmuNANDs 1/2/3/4).",
+    static const char *optionsDescription[]  = { "Seleziona l'EmuNAND predefinita.\n\n"
+                                                 "Verra' avviata quando non vengono premuti\n"
+                                                 "i tasti direzionali (Su/Destra/Giu'/\n"
+                                                 "Sinistra corrispondono alle EmuNAND 1/2/3/4).",
 
-                                                 "Select the screen brightness.",
+                                                 "Seleziona la luminosita' dello schermo.",
 
-                                                 "Enable splash screen support.\n\n"
-                                                 "\t* 'Before payloads' displays it\n"
-                                                 "before booting payloads\n"
-                                                 "(intended for splashes that display\n"
-                                                 "button hints).\n\n"
-                                                 "\t* 'After payloads' displays it\n"
-                                                 "afterwards.",
+                                                 "Abilita il supporto allo splash screen.\n\n"
+                                                 "\t* 'Prima dei payload' lo mostra\n"
+                                                 "prima di avviare i payload\n"
+                                                 "(inteso per splash che mostrano\n"
+                                                 "suggerimenti per i tasti).\n\n"
+                                                 "\t* 'Dopo i payload' lo mostra\n"
+                                                 "dopo.",
 
                                                  splashDurationDescription,
 
-                                                 "Activate a PIN lock.\n\n"
-                                                 "The PIN will be asked each time\n"
-                                                 "Nexus3DS boots.\n\n"
-                                                 "4, 6 or 8 digits can be selected.\n\n"
-                                                 "The ABXY buttons and the directional\n"
-                                                 "pad buttons can be used as keys.\n\n"
-                                                 "A message can also be displayed\n"
-                                                 "(refer to the wiki for instructions).",
+                                                 "Attiva un blocco PIN.\n\n"
+                                                 "Il PIN verra' richiesto ogni volta\n"
+                                                 "che Nexus3DS si avvia.\n\n"
+                                                 "Possono essere selezionati 4, 6 o 8 cifre.\n\n"
+                                                 "I tasti ABXY e i tasti del pad direzionale\n"
+                                                 "possono essere usati per questo fine.\n\n"
+                                                 "Un messaggio puo' anche essere mostrato\n"
+                                                 "(fare riferimento alla wiki per le istruzioni).",
 
-                                                 "Select the New 3DS CPU mode.\n\n"
-                                                 "This won't apply to\n"
-                                                 "New 3DS exclusive/enhanced games.\n\n"
-                                                 "'Clock+L2' can cause issues with some\n"
-                                                 "games.",
+                                                 "Seleziona la modalita' CPU del New 3DS.\n\n"
+                                                 "Questo non si applichera' ai\n"
+                                                 "giochi esclusivi/migliorati per New 3DS.\n\n"
+                                                 "'Clock+L2' puo' causare problemi con alcuni\n"
+                                                 "giochi.",
 
-                                                 "Enable autobooting into homebrew menu,\n"
-                                                 "either into 3DS or DSi mode.\n\n"
-                                                 "Autobooting into a gamecard title is\n"
-                                                 "not supported.\n\n"
-                                                 "Refer to the \"autoboot\" section in the\n"
-                                                 "configuration file to configure\n"
-                                                 "this feature.",
+                                                 "Abilita l'avvio automatico nel menu homebrew,\n"
+                                                 "sia in modalita' 3DS che DSi.\n\n"
+                                                 "L'avvio automatico in un titolo fisico\n"
+                                                 "non e' supportato.\n\n"
+                                                 "Fare riferimento alla sezione \"autoboot\" nel\n"
+                                                 "file di configurazione per configurare\n"
+                                                 "questa funzione.",
 
-                                                 "If enabled, an EmuNAND\n"
-                                                 "will be launched on boot.\n\n"
-                                                 "Otherwise, SysNAND will.\n\n"
-                                                 "Hold L on boot to switch NAND.\n\n"
-                                                 "To use a different EmuNAND from the\n"
-                                                 "default, hold a directional pad button\n"
-                                                 "(Up/Right/Down/Left equal EmuNANDs\n"
+                                                 "Se attivato, un' EmuNAND\n"
+                                                 "verra' avviata all'accensione.\n\n"
+                                                 "Altrimenti, verra' avviata la SysNAND.\n\n"
+                                                 "Tenere premuto L\n all'accensione per cambiare NAND.\n\n"
+                                                 "Per usare una EmuNAND diversa da quella\n"
+                                                 "predefinita, tenere premuto un\n tasto del pad direzionale\n"
+                                                 "(Su/Destra/Giu'/Sinistra \ncorrispondono alle EmuNAND\n"
                                                  "1/2/3/4).",
 
-                                                 "Enable loading external FIRMs and\n"
-                                                 "system modules.\n\n"
-                                                 "This isn't needed in most cases.\n\n"
-                                                 "Refer to the wiki for instructions.",
+                                                 "Abilita il caricamento di FIRMs esterni e\n"
+                                                 "moduli di sistema.\n\n"
+                                                 "Questo non e' necessario nel piu' dei casi.\n\n"
+                                                 "Fare riferimento alla wiki per le istruzioni.",
 
-                                                 "Enable overriding the region and\n"
-                                                 "language configuration and the usage\n"
-                                                 "of patched code binaries, exHeaders,\n"
-                                                 "IPS code patches and LayeredFS\n"
-                                                 "for specific games.\n\n"
-                                                 "Also makes certain DLCs for out-of-\n"
-                                                 "region games work.\n\n"
-                                                 "Refer to the wiki for instructions.",
+                                                 "Abilita la sovrascrittura della regione e\n"
+                                                 "della configurazione della lingua e l'uso\n"
+                                                 "di binari di codice patchati, exHeaders,\n"
+                                                 "patch di codice IPS e LayeredFS\n"
+                                                 "per giochi specifici.\n\n"
+                                                 "Rende inoltre funzionanti alcuni DLC per giochi\n"
+                                                 "fuori regione.\n\n"
+                                                 "Fare riferimento alla wiki per le istruzioni.",
 
-                                                 "Redirect app. threads that would spawn\n"
-                                                 "on core1, to core2 (which is an extra\n"
-                                                 "CPU core for applications that usually\n"
-                                                 "remains unused).\n\n"
-                                                 "This improves the performance of very\n"
-                                                 "demanding games (like Pok\x82mon US/UM)\n" // CP437
-                                                 "by about 10%. Can break some games\n"
-                                                 "and other applications.\n",
+                                                 "Reindirizza i thread delle app che verrebbero generati\n"
+                                                 "sul core1, al core2 (che e' un core CPU\n"
+                                                  "extra per applicazioni che di solito rimane inutilizzato).\n\n"
+                                                 "Questo migliora le prestazioni di giochi molto\n"
+                                                 "esigenti (come Pok\x82mon US/UM)\n" // CP437
+                                                 "di circa il 10%. Può rompere alcuni giochi\n"
+                                                 "e altre applicazioni.\n",
 
                                                  "Enable showing the current NAND:\n\n"
                                                  "\t* Sys  = SysNAND\n"

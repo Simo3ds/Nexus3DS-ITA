@@ -1834,8 +1834,8 @@ static FRESULT dir_alloc (	/* FR_OK(0):succeeded, !=0:error */
 
 	if (res == FR_NO_FILE) res = FR_DENIED;	/* No directory entry to allocate */
 	return res;
+	}
 }
-
 #endif	/* !FF_FS_READONLY */
 
 
