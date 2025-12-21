@@ -644,11 +644,11 @@ static void menuDraw(Menu *menu, u32 selected)
     }
 
     if (isRelease) {
-        Draw_DrawString(10, SCREEN_BOT_HEIGHT - 30, COLOR_ORANGE, "Nexus3DS");
-        Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 20, COLOR_ORANGE, "Based on Luma3DS %s", versionString);
+        Draw_DrawString(10, SCREEN_BOT_HEIGHT - 30, COLOR_ORANGE, "Nexus3DS-ITA");
+        Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 20, COLOR_ORANGE, "Basato su Luma3DS %s", versionString);
     } else {
-        Draw_DrawString(10, SCREEN_BOT_HEIGHT - 30, COLOR_ORANGE, "Nexus3DS");
-        Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 20, COLOR_ORANGE, "Based on Luma3DS %s-%08lx", versionString, commitHash);
+        Draw_DrawString(10, SCREEN_BOT_HEIGHT - 30, COLOR_ORANGE, "Nexus3DS-ITA");
+        Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 20, COLOR_ORANGE, "Basato su Luma3DS %s-%08lx", versionString, commitHash);
     }
 
     if (configExtra.use12HourClock) {
